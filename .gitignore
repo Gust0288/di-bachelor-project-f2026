@@ -91,3 +91,5 @@ htmlcov/
 *.tmp
 *.temp
 CLAUDE.md
+setup_github.sh
+settings.local.json

@@ -1,19 +1,18 @@
 # Backend – DI Indmeldelses Portal
 
-Python + FastAPI applikation der håndterer forretningslogik, datavalidering og ekstern API integration.
+Python + Flask applikation der håndterer forretningslogik, datavalidering og ekstern API integration.
 
 ## Tech Stack
 
-| Teknologi  | Formål                         |
-| ---------- | ------------------------------ |
-| Python     | Programmeringssprog            |
-| FastAPI    | API framework                  |
-| PostgreSQL | Primær database                |
-| SQLAlchemy | ORM                            |
-| Pydantic   | Datavalidering                 |
-| Redis      | Session caching                |
-| JWT        | Autentificering                |
-| httpx      | Async HTTP klient (CVR opslag) |
+| Teknologi    | Formål                    |
+| ------------ | ------------------------- |
+| Python       | Programmeringssprog       |
+| Flask        | API framework             |
+| PostgreSQL   | Primær database           |
+| psycopg2     | Database driver (raw SQL) |
+| Pydantic     | Datavalidering            |
+| JWT          | Autentificering           |
+| httpx        | HTTP klient (CVR opslag)  |
 
 ## Projektstruktur (TBD)
 
@@ -30,9 +29,8 @@ backend/
 │   ├── core/
 │   │   ├── config.py             # Miljøvariabler
 │   │   ├── security.py           # JWT, hashing
-│   │   └── cache.py              # Redis logik
-│   ├── models/                   # SQLAlchemy DB modeller
-│   ├── schemas/                  # Pydantic schemas
+│   │   └── database.py           # DB forbindelse (psycopg2)
+│   ├── schemas/                  # Pydantic schemas (validering)
 │   ├── services/                 # Business logik
 │   └── main.py
 ├── requirements.txt
@@ -45,16 +43,14 @@ backend/
 python -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+flask --app app.main:app run --reload
 ```
-
-API dokumentation tilgængelig på `http://localhost:8000/docs` når serveren kører.
 
 ## Scripts
 
 ```bash
-uvicorn app.main:app --reload       # Start udviklingsserver
-uvicorn app.main:app --host 0.0.0.0 # Start produktionsserver
+flask --app app.main:app run --reload       # Start udviklingsserver
+flask --app app.main:app run --host 0.0.0.0 # Start produktionsserver
 ```
 
 ## Endpoints
@@ -79,8 +75,17 @@ POST   /api/admin/contact/{id}              # Kontakt virksomhed
 Opret en `.env` fil i `/backend`:
 
 ```
-DATABASE_URL=postgresql://user:password@localhost/di_portal
-REDIS_URL=redis://localhost:6379
+SQLALCHEMY_DATABASE_URI=postgresql://user:password@localhost/di_portal
 CVR_API_KEY=din_nøgle
 JWT_SECRET=din_secret
 ```
+
+## Database
+
+Skemaet defineres i `schema.sql` og køres manuelt ved opsætning:
+
+```bash
+psql -U user -d di_portal -f schema.sql
+```
+
+Session-fremskridt gemmes i en `registration_sessions` tabel med `expires_at` kolonne (1-2 uger).
