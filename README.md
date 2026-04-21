@@ -21,25 +21,21 @@ En selvbetjent digital indmeldelsesportal, der gør det muligt for virksomheder 
 
 ## Funktioner
 
-- **Step Wizard** – guidet 7-trins registreringsflow med conditional logic
+- **Step Wizard** – guidet #-trins registreringsflow med conditional logic
 - **CVR opslag** – autofyld af virksomhedsoplysninger via CVR API
-- **Session lagring** – gem og fortsæt senere via PostgreSQL
+- **Session lagring** – gem og fortsæt senere via PostgreSQL (mitID mock)
 - **Dokumentupload** – valgfri upload af kontrakter og overenskomster
 - **Admin panel** – godkendelse, overblik og kontakt til registrerede virksomheder
 
 ## Kom i gang
 
-### Backend
+### Med Docker
 
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-flask --app app.main:app run --reload
+docker-compose up
 ```
 
-### Frontend
+### Frontend (lokalt)
 
 ```bash
 cd frontend
@@ -52,7 +48,7 @@ npm run dev
 Opret en `.env` fil i `/backend`:
 
 ```
-SQLALCHEMY_DATABASE_URI=postgresql://user:password@localhost/di_portal
+DATABASE_URL=postgresql://user:password@db/di_portal
 CVR_API_KEY=din_nøgle
 JWT_SECRET=din_secret
 ```
