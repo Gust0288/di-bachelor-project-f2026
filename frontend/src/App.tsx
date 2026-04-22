@@ -1,65 +1,18 @@
-import { MyToastRegion, queue } from './components/Toast/Toast'
-import Button from './components/Button/Button'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { MyToastRegion } from './components/Toast/Toast'
+import WizardPage from './pages/Wizard/WizardPage'
+import LoginPage from './pages/Login/LoginPage'
 
 function App() {
   return (
-    <div>
-      <h1>Hello world</h1>
-
-      <Button
-        onPress={() =>
-          queue.add({
-            title: 'Info',
-            description: 'This is info',
-            type: 'info',
-            timeout: 5000,
-          })
-        }
-      >
-        Show Info Toast
-      </Button>
-
-      <Button
-        onPress={() =>
-          queue.add({
-            title: 'Success',
-            description: 'Success!',
-            type: 'positive',
-            timeout: 5000,
-          })
-        }
-      >
-        Show Success Toast
-      </Button>
-
-      <Button
-        onPress={() =>
-          queue.add({
-            title: 'Error',
-            description: 'Error occurred',
-            type: 'negative',
-            timeout: 7000,
-          })
-        }
-      >
-        Show Error Toast
-      </Button>
-
-      <Button
-        onPress={() =>
-          queue.add({
-            title: 'Warning',
-            description: 'Warning',
-            type: 'warning',
-            timeout: 6000,
-          })
-        }
-      >
-        Show Warning Toast
-      </Button>
-
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/wizard" element={<WizardPage />} />
+      </Routes>
       <MyToastRegion />
-    </div>
+    </BrowserRouter>
   )
 }
 

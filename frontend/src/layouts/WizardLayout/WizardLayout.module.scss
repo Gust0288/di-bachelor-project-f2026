@@ -1,0 +1,15 @@
+.layout {
+  display: grid;
+  grid-template-columns: 25fr 50fr 25fr;
+  min-height: 100vh;
+}
+
+.left,
+.right {
+  padding: var(--spacing-lg);
+  background-color: var(--color-background-subtle, #f9f9f9);
+}
+
+.center {
+  padding: var(--spacing-lg);
+}
