@@ -121,7 +121,7 @@ function MyToast({ toast, state }: MyToastProps) {
       {...closeButtonProps}
       className={styles['toast__closeButton']}
       aria-label="Close notification"
-      variant="primary"
+      variant="quiet"
     >
       ×
     </Button>

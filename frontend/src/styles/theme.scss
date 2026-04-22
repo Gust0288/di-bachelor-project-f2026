@@ -15,6 +15,9 @@
 
   --focus-ring: var(--primary);
   --shadow-elevated: 0 12px 30px rgb(0 0 0 / 12%);
+
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
 }
 
 :root.theme-didk2023,
@@ -35,4 +38,7 @@
 
   --focus-ring: var(--primary);
   --shadow-elevated: 0 12px 30px rgb(0 0 0 / 12%);
+
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
 }
