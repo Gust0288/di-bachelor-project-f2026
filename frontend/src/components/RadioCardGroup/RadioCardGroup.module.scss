@@ -1,0 +1,63 @@
+.radioCardGroup {
+  display: grid;
+  gap: var(--spacing-sm);
+
+  &__header {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  &__options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  &__option {
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: var(--spacing-sm);
+    align-items: start;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background-elevated, #fff);
+    cursor: pointer;
+
+    &[data-selected] {
+      border-color: var(--primary);
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+
+    &[data-focus-visible] {
+      outline: 2px solid var(--focus-ring, var(--primary));
+      outline-offset: 2px;
+    }
+  }
+
+  &__control {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.15rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--background-elevated, #fff);
+    box-shadow: inset 0 0 0 0.25rem var(--background-elevated, #fff);
+  }
+
+  &__option[data-selected] &__control {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+
+  &__copy {
+    display: grid;
+    gap: 0.25rem;
+    line-height: 1.4;
+
+    span {
+      color: var(--text-discreet);
+      font-size: 0.88rem;
+    }
+  }
+}

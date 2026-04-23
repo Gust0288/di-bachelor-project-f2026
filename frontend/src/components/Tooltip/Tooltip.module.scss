@@ -1,0 +1,77 @@
+.tooltip {
+  &__trigger {
+    display: inline-flex;
+    width: 1.35rem;
+    height: 1.35rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--background-elevated, #fff);
+    color: var(--text-discreet);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: help;
+
+    &[data-hovered],
+    &[data-focus-visible] {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    &[data-focus-visible] {
+      outline: 2px solid var(--focus-ring, var(--primary));
+      outline-offset: 2px;
+    }
+  }
+
+  &__bubble {
+    max-width: min(18rem, calc(100vw - 2rem));
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    background: var(--text);
+    color: var(--text-inverted);
+    font-size: 0.85rem;
+    line-height: 1.45;
+    box-shadow: var(--shadow-elevated);
+
+    &[data-entering] {
+      animation: tooltip-in 0.12s ease-out;
+    }
+
+    svg {
+      display: block;
+      fill: var(--text);
+    }
+
+    &[data-placement='top'] svg {
+      transform: rotate(0deg);
+    }
+
+    &[data-placement='bottom'] svg {
+      transform: rotate(180deg);
+    }
+
+    &[data-placement='left'] svg {
+      transform: rotate(-90deg);
+    }
+
+    &[data-placement='right'] svg {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

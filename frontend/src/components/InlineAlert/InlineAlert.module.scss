@@ -1,0 +1,29 @@
+.inlineAlert {
+  display: grid;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  border: 1px solid var(--alert-border, var(--border));
+  border-radius: var(--radius-md);
+  background: var(--alert-bg, var(--background-elevated, #fff));
+  line-height: 1.45;
+
+  &[data-tone='info'] {
+    --alert-bg: rgb(56 2 92 / 7%);
+    --alert-border: rgb(56 2 92 / 24%);
+  }
+
+  &[data-tone='success'] {
+    --alert-bg: rgb(22 101 52 / 8%);
+    --alert-border: rgb(22 101 52 / 25%);
+  }
+
+  &[data-tone='warning'] {
+    --alert-bg: rgb(180 83 9 / 9%);
+    --alert-border: rgb(180 83 9 / 25%);
+  }
+
+  &[data-tone='danger'] {
+    --alert-bg: rgb(220 38 38 / 8%);
+    --alert-border: rgb(220 38 38 / 25%);
+  }
+}

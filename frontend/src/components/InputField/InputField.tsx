@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import {
   Input,
   TextField,
@@ -9,7 +10,7 @@ import styles from './InputField.module.scss'
 
 type Props = Omit<TextFieldProps, 'children'> &
   Pick<InputProps, 'placeholder' | 'type' | 'inputMode' | 'autoComplete'> & {
-    label: string
+    label: ReactNode
     description?: string
     className?: string
     inputClassName?: string
