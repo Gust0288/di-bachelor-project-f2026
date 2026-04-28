@@ -4,15 +4,15 @@ Python + Flask applikation der håndterer forretningslogik, datavalidering og ek
 
 ## Tech Stack
 
-| Teknologi    | Formål                    |
-| ------------ | ------------------------- |
-| Python       | Programmeringssprog       |
-| Flask        | API framework             |
-| PostgreSQL   | Primær database           |
-| psycopg2     | Database driver (raw SQL) |
-| Pydantic     | Datavalidering            |
-| JWT          | Autentificering           |
-| httpx        | HTTP klient (CVR opslag)  |
+| Teknologi  | Formål                    |
+| ---------- | ------------------------- |
+| Python     | Programmeringssprog       |
+| Flask      | API framework             |
+| PostgreSQL | Primær database           |
+| psycopg2   | Database driver (raw SQL) |
+| Pydantic   | Datavalidering            |
+| JWT        | Autentificering           |
+| httpx      | HTTP klient (CVR opslag)  |
 
 ## Projektstruktur (TBD)
 
@@ -41,16 +41,9 @@ backend/
 
 ```bash
 python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-flask --app app.main:app run --reload
-```
-
-## Scripts
-
-```bash
-flask --app app.main:app run --reload       # Start udviklingsserver
-flask --app app.main:app run --host 0.0.0.0 # Start produktionsserver
+source venv/bin/activate
+pip install -r backend/requirements.txt
+docker compose up --build
 ```
 
 ## Endpoints
@@ -74,18 +67,19 @@ POST   /api/admin/contact/{id}              # Kontakt virksomhed
 
 Opret en `.env` fil i `/backend`:
 
-```
-SQLALCHEMY_DATABASE_URI=postgresql://user:password@localhost/di_portal
+```env
+DATABASE_URL=postgresql://user:password@localhost:5433/di_portal
 CVR_API_KEY=din_nøgle
 JWT_SECRET=din_secret
 ```
 
 ## Database
 
-Skemaet defineres i `schema.sql` og køres manuelt ved opsætning:
+Skemaet ligger i `schema.sql` og kan indlæses direkte fra backend-koden:
 
 ```bash
-psql -U user -d di_portal -f schema.sql
+cd backend
+python -m app.core.database
 ```
 
-Session-fremskridt gemmes i en `registration_sessions` tabel med `expires_at` kolonne (1-2 uger).
+Session-fremskridt gemmes i `registration_sessions`, og færdige indmeldelser ligger i `registrations`.
