@@ -1,0 +1,40 @@
+@use '../functions/' as *;
+
+$spacing-3xs: 2px;
+$spacing-2xs: 4px;
+$spacing-xs: 8px;
+$spacing-sm: 12px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 56px;
+
+:root {
+  // Converted to rem
+  --spacing-3xs: #{rem($spacing-3xs)};
+
+  // Converted to rem
+  --spacing-2xs: #{rem($spacing-2xs)};
+
+  // Converted to rem
+  --spacing-xs: #{rem($spacing-xs)};
+
+  // Converted to rem
+  --spacing-sm: #{rem($spacing-sm)};
+
+  // Converted to rem
+  --spacing-md: #{rem($spacing-md)};
+
+  // Converted to rem
+  --spacing-lg: #{rem($spacing-lg)};
+
+  // Converted to rem
+  --spacing-xl: #{rem($spacing-xl)};
+
+  // Converted to rem
+  --spacing-2xl: #{rem($spacing-2xl)};
+
+  // Converted to rem
+  --spacing-3xl: #{rem($spacing-3xl)};
+}

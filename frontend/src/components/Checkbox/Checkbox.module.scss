@@ -3,7 +3,7 @@
   grid-template-columns: 1.125rem minmax(0, 1fr);
   gap: var(--spacing-sm);
   align-items: start;
-  color: var(--text);
+  color: var(--color-black);
   cursor: pointer;
   line-height: 1.35;
 
@@ -13,24 +13,24 @@
   }
 
   &[data-focus-visible] &__indicator {
-    outline: 2px solid var(--focus-ring, var(--primary));
+    outline: 2px solid var(--color-interaction);
     outline-offset: 2px;
   }
 
   &[data-selected] &__indicator,
   &[data-indeterminate] &__indicator {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: var(--text-inverted);
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-light-100);
   }
 
   &[data-invalid] &__indicator {
-    border-color: var(--danger, #dc2626);
+    border-color: var(--color-invalid);
   }
 
   &[data-invalid][data-selected] &__indicator,
   &[data-invalid][data-indeterminate] &__indicator {
-    background: var(--danger, #dc2626);
+    background: var(--color-invalid);
   }
 
   &__indicator {
@@ -40,15 +40,15 @@
     align-items: center;
     justify-content: center;
     margin-top: 0.125rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--background-elevated, #fff);
+    border: 1px solid var(--color-light-500);
+    border-radius: var(--radius-xs);
+    background: var(--color-white);
     color: transparent;
     transition:
-      background-color 0.15s ease,
-      border-color 0.15s ease,
-      color 0.15s ease,
-      box-shadow 0.15s ease;
+      background-color var(--transition-quick),
+      border-color var(--transition-quick),
+      color var(--transition-quick),
+      box-shadow var(--transition-quick);
 
     svg {
       width: 0.875rem;
@@ -78,11 +78,11 @@
 
   &__description {
     font-size: 0.85rem;
-    color: var(--text-discreet);
+    color: var(--color-dark-100);
   }
 
   &__error {
     font-size: 0.85rem;
-    color: var(--danger, #dc2626);
+    color: var(--color-invalid);
   }
 }

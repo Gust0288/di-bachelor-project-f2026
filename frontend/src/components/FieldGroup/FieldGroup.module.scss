@@ -2,7 +2,7 @@
   display: grid;
   gap: var(--spacing-md);
   padding-block: var(--spacing-lg);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--color-light-500);
 
   &__header {
     display: grid;
@@ -15,7 +15,7 @@
 
     p {
       max-width: 46rem;
-      color: var(--text-discreet);
+      color: var(--color-dark-100);
       line-height: 1.5;
     }
   }

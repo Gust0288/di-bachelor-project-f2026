@@ -1,8 +1,8 @@
 .button {
-  --btn-bg: var(--button);
-  --btn-color: var(--text-inverted);
+  --btn-bg: var(--color-primary);
+  --btn-color: var(--color-light-100);
   --btn-border: transparent;
-  --btn-hover-bg: var(--button-hover);
+  --btn-hover-bg: var(--color-interaction);
 
   display: inline-flex;
   align-items: center;
@@ -10,7 +10,7 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
   border: 1px solid var(--btn-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-xs);
   background: var(--btn-bg);
   color: var(--btn-color);
 
@@ -22,11 +22,11 @@
   cursor: pointer;
 
   transition:
-    background-color 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.15s ease,
-    opacity 0.15s ease;
+    background-color var(--transition-quick),
+    color var(--transition-quick),
+    border-color var(--transition-quick),
+    transform var(--transition-quick),
+    opacity var(--transition-quick);
 
   &:hover {
     background: var(--btn-hover-bg);
@@ -37,7 +37,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--focus-ring, var(--button));
+    outline: 2px solid var(--color-interaction);
     outline-offset: 2px;
   }
 
@@ -53,31 +53,31 @@
   }
 
   &--primary {
-    --btn-bg: var(--button);
-    --btn-color: var(--text-inverted);
+    --btn-bg: var(--color-primary);
+    --btn-color: var(--color-light-100);
     --btn-border: transparent;
-    --btn-hover-bg: var(--button-hover);
+    --btn-hover-bg: var(--color-interaction);
   }
 
   &--secondary {
-    --btn-bg: var(--background-elevated, #fff);
-    --btn-color: var(--text);
-    --btn-border: var(--border);
+    --btn-bg: var(--color-white);
+    --btn-color: var(--color-black);
+    --btn-border: var(--color-light-500);
     --btn-hover-bg: rgb(0 0 0 / 4%);
   }
 
   &--quiet {
     --btn-bg: transparent;
-    --btn-color: var(--text);
+    --btn-color: var(--color-black);
     --btn-border: transparent;
     --btn-hover-bg: rgb(0 0 0 / 5%);
   }
 
   &--danger {
-    --btn-bg: var(--danger, #dc2626);
-    --btn-color: var(--text-inverted);
+    --btn-bg: var(--color-invalid);
+    --btn-color: var(--color-light-100);
     --btn-border: transparent;
-    --btn-hover-bg: var(--danger-hover, #b91c1c);
+    --btn-hover-bg: var(--color-invalid);
   }
 
   &--sm {

@@ -1,0 +1,35 @@
+@use './../functions' as *;
+
+@mixin form-element {
+  $module: &;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--theme-spacing-xs, var(--spacing-xs));
+  color: var(--theme-color-dark-400, var(--color-dark-400));
+  font-weight: 400;
+  font-size: rem(14px);
+  font-family: var(--theme-font-primary, var(--font-primary));
+  line-height: 140%;
+
+  &__label {
+    font-weight: 700;
+    font-size: rem(14px);
+    font-family: var(--theme-font-display, var(--font-display));
+    line-height: 140%;
+  }
+
+  &__description {
+    font-size: rem(12px);
+  }
+
+  &__error {
+    color: var(--theme-color-invalid, var(--color-invalid));
+    font-weight: 500;
+    font-size: rem(12px);
+
+    &:empty {
+      display: none;
+    }
+  }
+}

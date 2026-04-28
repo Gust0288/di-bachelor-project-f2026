@@ -1,0 +1,35 @@
+@use 'sass:string';
+
+:root {
+  $theme-color-primary: #38025c;
+  $theme-color-primary-400: #60347c;
+  $theme-color-primary-300: #87679d;
+  $theme-color-primary-200: #af9abe;
+  $theme-color-primary-100: #d7ccde;
+  $theme-color-secondary: #a7a4e0;
+  $theme-color-secondary-400: #b9b6e6;
+  $theme-color-secondary-300: #cac8ec;
+  $theme-color-secondary-200: #dcdbf3;
+  $theme-color-secondary-100: #ededf9;
+  $theme-color-secondary-50: #f7f5ff;
+  $theme-color-interaction: #7d55c7;
+  $theme-color-form-input-shadow: string.unquote(
+    '0 0 0 1px var(--color-white), 0 0 0 4px #{$theme-color-secondary-200}'
+  );
+
+  // Primary color
+  --color-primary: #{$theme-color-primary};
+  --color-primary-400: #{$theme-color-primary-400};
+  --color-primary-300: #{$theme-color-primary-300};
+  --color-primary-200: #{$theme-color-primary-200};
+  --color-primary-100: #{$theme-color-primary-100};
+  --color-secondary: #{$theme-color-secondary};
+  --color-secondary-400: #{$theme-color-secondary-400};
+  --color-secondary-300: #{$theme-color-secondary-300};
+  --color-secondary-200: #{$theme-color-secondary-200};
+  --color-secondary-100: #{$theme-color-secondary-100};
+  --color-secondary-50: #{$theme-color-secondary-50};
+  --color-interaction: #{$theme-color-interaction};
+  --color-form-custom-outline: #{$theme-color-secondary-200};
+  --color-form-input-shadow: #{$theme-color-form-input-shadow};
+}
