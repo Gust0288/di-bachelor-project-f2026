@@ -1,0 +1,1 @@
+-- TODO: Database schema (tables for admins, registration_sessions, etc.)

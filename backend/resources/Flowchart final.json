@@ -1,0 +1,996 @@
+{
+  "id": "156ca523-fcbc-408e-94cc-0d4ac710d787",
+  "title": "Flowchart",
+  "product": "lucidchart",
+  "pages": [
+    {
+      "id": "0_0",
+      "title": "Page 1",
+      "index": 0,
+      "items": {
+        "shapes": [
+          {
+            "id": "cI9RXNg5_KHm",
+            "class": "PaperTapeBlock",
+            "textAreas": [{ "label": "Text", "text": "Step 1" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Ut-R9BrNb~A.",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Er din virksomehed blevet kontaktet....."
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "th-RARHesui-",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Vælg type af ansatte (tickboks)\nFunktionær\nTimmlønnet\nTimelønnet anset på fuktionærlignendevilkår\nVikarer\nMedarbejdere inden for byggeri eller anlæg\nMandskabsudlejning\nved ikke"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "9F9RUUFEfvxj",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "Indtast CVR" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "6J9Rhm1sgo.K",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "Gyldighedserklæring" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "evYe4TWncsmt",
+            "class": "ActionBlock",
+            "textAreas": [{ "label": "ReadonlyTextArea", "text": "Share" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Fp-RhyNLaaUH",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Har virksomhed i forvejen en overenskomst  eller anden aftale med et fagborbund"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Nt-RI~nPja08",
+            "class": "ProcessBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Nuværende overenskomst" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "q_9R_TIzHMa.",
+            "class": "PaperTapeBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Step 3 - Ønsker og behov" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "fS9RV.W.0TRy",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Kontaktoplysninger (Hvis de vil vide hvorfor) "
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "a09RfdXytvZv",
+            "class": "PaperTapeBlock",
+            "textAreas": [{ "label": "Text", "text": "Step 2 - Branche" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "A-9RVsWKrT7~",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "CVR korrekt" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "hS9RGu0-F8cv",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "Process" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "eu-RGQPv-7b9",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Kontakt os hvis der er noget du er i tvivl om"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": ".K9RXX8yMJ3h",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Kontaktperson\nNavn\n Stilling\nEmail\nTelefon"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Ok-REH~al.4Y",
+            "class": "ProcessBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Ført videre i indmeldingsprocess" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "lb-RIdzV-lzv",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Giv en kort beksrivelse af hvad vi kan hjælpe dig med"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "L-9R16uyoGmc",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Link Til virk.dk for at ændre oplysninger"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "dc-RWJQnx.V8",
+            "class": "PaperTapeBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Step 4- Virksomhedens ansatte" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "JJ9RRBniDnvt",
+            "class": "PaperTapeBlock",
+            "textAreas": [{ "label": "Text", "text": "Step 2" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "LP9RFVWZnA~T",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "Email bekrætigelse" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "On-R~yrFrTLJ",
+            "class": "PaperTapeBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Step 5- overenskomst forud for indmeldlse i DI"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "I99RgiPVk.4o",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "CVR Opsummering" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "H19R48g.XkPc",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "CVR input" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Lh-Rg38BZVrG",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "Samlet lønsum" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": ".uYeJ55W6VNs",
+            "class": "ActionBlock",
+            "textAreas": [{ "label": "ReadonlyTextArea", "text": "Comment" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "39wLGG56x5rx",
+            "class": "ProcessBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Indmeldelsesplanket Start" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "wDYqftB-w6mR",
+            "class": "ActionBlock",
+            "textAreas": [
+              { "label": "ReadonlyTextArea", "text": "Summarize" },
+              { "label": "SettingsButtonTextArea", "text": "Customize" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "W.9RXslguHWO",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Vælg Service (Tickboks) \nOverenskomst\nPersonalejuridisk rådgivning\nErvhervsjuriisk rådgivning\nByggegaranti\nMedlemskab af sektion i DI  Byggeri\nAndet "
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "39wL5B6mMc05",
+            "class": "LegendBlockV2",
+            "textAreas": [
+              { "label": "t_header", "text": "Flowchart shapes" },
+              {
+                "label": "LegendText_1",
+                "text": "TerminatorStart and end points"
+              },
+              {
+                "label": "LegendText_2",
+                "text": "ProcessAn action or function"
+              },
+              {
+                "label": "LegendText_3",
+                "text": "DecisionA question to be answered"
+              },
+              {
+                "label": "LegendText_6",
+                "text": "DocumentThe input/output of a document"
+              },
+              {
+                "label": "LegendText_7",
+                "text": "DataData available for input/output"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "ZL9Rj-98Eiqy",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "Evt. Hjemmseside" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Zc-RWK6VLCb0",
+            "class": "ProcessBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Antal Ansatte i virksomhed" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Nz-R4irygdnk",
+            "class": "PaperTapeBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Step 6- Branchefællesskaber og medlemsforeninger "
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "_A-RSoBtx0xH",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "Process" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "2B-R2SaLCF.q",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "POP UP advarsel, Ring os op for at hører hvorfor flowet er sat på pause"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "LD-RFAlU.1Ft",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Valg af branchefællesskaber og medlemsforeninger (nogle kan være påkrævet)"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "gF-RHg_BPmgK",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Træk og slip, (indsend nuværende overenskomst eller andre aftaler med fagforbund)"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "~F-RusGbw0uf",
+            "class": "PaperTapeBlock",
+            "textAreas": [{ "label": "Text", "text": "Step 7-  medlemsskab" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "CI-RA5QL7K5A",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Utilfreds eller ikke forstående? Kontakt DI"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "fM-RMikuLpU0",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Tildelt medlemsskab -> Bekræft medlemsskab -> Ønskes byg garanti?"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "cN-R2J2._9L3",
+            "class": "PaperTapeBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Step 8-  Kontaktpersoner" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "jO-ROLRe8IHA",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "CVR indhentning af adm. direktør info"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "nO-RxNVACEfD",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Ønskes der stadig medlemsskab i DI, hvis i ikke bliver godkendt til Byg Garanti?"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "VO-R3sLpaINO",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Vælg kontaktperson (Pimær ontaktperson for personale jura)"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "KQ-Rt_62QJTZ",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Vælg kontaktperson (Lønsumsindberreter)"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "8Q-RGukon~_v",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Vælg kontaktperson (Anden tegningsberettiget end Adm. Dir)"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "XR-RBrDP4_H6",
+            "class": "AutoGrowTextBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Ja" },
+              { "label": "Placeholder", "text": "Type something" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "DS-ROVSfhrc4",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Faktura valg\nPå email\ntilmelde betalingservice"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": ".S-RFcBAxnri",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Pop up, vælg allerede indtastet kontakperson eller indtast ny kontaktperson"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "KU-RPLbn--9K",
+            "class": "PaperTapeBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Step 9-  Opsummering og godkendelse" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "gV-R4Pe7Lfid",
+            "class": "ProcessBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Godkend/bekræft opsummering og accepter betingelser + bemyndighed"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "3W-RH2yLSMaL",
+            "class": "PaperTapeBlock",
+            "textAreas": [
+              { "label": "Text", "text": "Step 10-  MitID verificering" }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "WX-RbCdZZQqz",
+            "class": "ProcessBlock",
+            "textAreas": [{ "label": "Text", "text": "Verificer" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "uY-R0Zosg7Be",
+            "class": "PaperTapeBlock",
+            "textAreas": [
+              {
+                "label": "Text",
+                "text": "Step 11-  Bekræftelse på anmodning af indmeldelse"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          }
+        ],
+        "lines": [
+          {
+            "id": "Nt-RVypyk5_D",
+            "endpoint1": { "style": "None", "connectedTo": "Fp-RhyNLaaUH" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "Nt-RI~nPja08" },
+            "textAreas": [{ "label": "t0", "text": "Ja" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "th-Rz_K37KNN",
+            "endpoint1": { "style": "None", "connectedTo": "Zc-RWK6VLCb0" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "th-RARHesui-" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": ".K9Rx.FVUL2r",
+            "endpoint1": { "style": "None", "connectedTo": "9F9RUUFEfvxj" },
+            "endpoint2": { "style": "Arrow", "connectedTo": ".K9RXX8yMJ3h" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "4K9R9V-IaWBx",
+            "endpoint1": { "style": "None", "connectedTo": "cI9RXNg5_KHm" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "39wLGG56x5rx" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Eo-RDjJYjZvj",
+            "endpoint1": { "style": "None", "connectedTo": "Ok-REH~al.4Y" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "On-R~yrFrTLJ" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Ok-Rxqlxu4fN",
+            "endpoint1": { "style": "None", "connectedTo": "Zc-RWK6VLCb0" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "Ok-REH~al.4Y" },
+            "textAreas": [{ "label": "t0", "text": "Nul ansatte (tickboks)" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "lb-RmsA.EXTr",
+            "endpoint1": { "style": "None", "connectedTo": "W.9RXslguHWO" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "lb-RIdzV-lzv" },
+            "textAreas": [{ "label": "t0", "text": "Andet" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "ad-Rq_eUIkm-",
+            "endpoint1": { "style": "None", "connectedTo": "W.9RXslguHWO" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "dc-RWJQnx.V8" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Lh-RmEVBIMoc",
+            "endpoint1": { "style": "None", "connectedTo": "th-RARHesui-" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "Lh-Rg38BZVrG" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "5.9RoIchCXUt",
+            "endpoint1": { "style": "None", "connectedTo": "q_9R_TIzHMa." },
+            "endpoint2": { "style": "Arrow", "connectedTo": "W.9RXslguHWO" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "I99RHgUzvxcl",
+            "endpoint1": { "style": "None", "connectedTo": "H19R48g.XkPc" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "I99RgiPVk.4o" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "hS9R27tsGv.Y",
+            "endpoint1": { "style": "None", "connectedTo": "6J9Rhm1sgo.K" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "hS9RGu0-F8cv" },
+            "textAreas": [{ "label": "t0", "text": "Ja" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Yo-R~0TpELY~",
+            "endpoint1": { "style": "None", "connectedTo": "Lh-Rg38BZVrG" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "On-R~yrFrTLJ" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "K39R11X17a4F",
+            "endpoint1": { "style": "None", "connectedTo": "a09RfdXytvZv" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "H19R48g.XkPc" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "z09RZlpgT5Ik",
+            "endpoint1": { "style": "None", "connectedTo": "LP9RFVWZnA~T" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "a09RfdXytvZv" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "L-9RKCNXS_xc",
+            "endpoint1": { "style": "None", "connectedTo": "A-9RVsWKrT7~" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "L-9R16uyoGmc" },
+            "textAreas": [{ "label": "t0", "text": "Nej" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "A-9RI0VpyB80",
+            "endpoint1": { "style": "None", "connectedTo": "I99RgiPVk.4o" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "A-9RVsWKrT7~" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "5c-R0ALIl69.",
+            "endpoint1": { "style": "None", "connectedTo": "dc-RWJQnx.V8" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "Zc-RWK6VLCb0" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "LP9R.kzbrzhU",
+            "endpoint1": { "style": "None", "connectedTo": "ZL9Rj-98Eiqy" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "LP9RFVWZnA~T" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "fS9Rns~7bllx",
+            "endpoint1": { "style": "None", "connectedTo": "6J9Rhm1sgo.K" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "fS9RV.W.0TRy" },
+            "textAreas": [{ "label": "t0", "text": "Nej" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "bu-Rlo-Zt.GJ",
+            "endpoint1": { "style": "None", "connectedTo": "Fp-RhyNLaaUH" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "eu-RGQPv-7b9" },
+            "textAreas": [{ "label": "t0", "text": "Ved ikke" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "ts-RdYn3LfLF",
+            "endpoint1": { "style": "None", "connectedTo": "On-R~yrFrTLJ" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "Fp-RhyNLaaUH" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "1K9RV6q3.lUT",
+            "endpoint1": { "style": "None", "connectedTo": "JJ9RRBniDnvt" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "6J9Rhm1sgo.K" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "N-9RLh2I8~WA",
+            "endpoint1": { "style": "None", "connectedTo": "A-9RVsWKrT7~" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "q_9R_TIzHMa." },
+            "textAreas": [{ "label": "t0", "text": "Ja" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Ut-Ra3I6a3ZT",
+            "endpoint1": { "style": "None", "connectedTo": "Fp-RhyNLaaUH" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "Ut-R9BrNb~A." },
+            "textAreas": [{ "label": "t0", "text": "Nej" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "ZL9RjIqhCglZ",
+            "endpoint1": { "style": "None", "connectedTo": ".K9RXX8yMJ3h" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "ZL9Rj-98Eiqy" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "iH9RghIq-MBi",
+            "endpoint1": { "style": "None", "connectedTo": "39wLGG56x5rx" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "9F9RUUFEfvxj" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "Wz-RK2Nkvt.l",
+            "endpoint1": { "style": "None", "connectedTo": "Ut-R9BrNb~A." },
+            "endpoint2": { "style": "Arrow", "connectedTo": "Nz-R4irygdnk" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "_A-R8p~8QOiE",
+            "endpoint1": { "style": "None", "connectedTo": "Nt-RI~nPja08" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "_A-RSoBtx0xH" },
+            "textAreas": [
+              { "label": "t0", "text": "Direkte med fagforbund...." }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "2B-RL9Lvnhou",
+            "endpoint1": { "style": "None", "connectedTo": "Nt-RI~nPja08" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "2B-R2SaLCF.q" },
+            "textAreas": [
+              {
+                "label": "t0",
+                "text": "Overenskomst med anden arbejdsoganisation"
+              }
+            ],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "SD-RbUy1K3bE",
+            "endpoint1": { "style": "None", "connectedTo": "Nz-R4irygdnk" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "LD-RFAlU.1Ft" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "3E-RFaKwv_8N",
+            "endpoint1": { "style": "None", "connectedTo": "Nt-RI~nPja08" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "eu-RGQPv-7b9" },
+            "textAreas": [{ "label": "t0", "text": "ved ikke" }],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "gF-RN-MpKpXL",
+            "endpoint1": { "style": "None", "connectedTo": "_A-RSoBtx0xH" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "gF-RHg_BPmgK" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "8G-R9YfoWwoU",
+            "endpoint1": { "style": "None", "connectedTo": "gF-RHg_BPmgK" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "Ut-R9BrNb~A." },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": ".G-RjcifsUY8",
+            "endpoint1": { "style": "None", "connectedTo": "LD-RFAlU.1Ft" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "~F-RusGbw0uf" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "rI-RBx0i8K3R",
+            "endpoint1": { "style": "None", "connectedTo": "LD-RFAlU.1Ft" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "CI-RA5QL7K5A" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "oM-RV41bfnGo",
+            "endpoint1": { "style": "None", "connectedTo": "~F-RusGbw0uf" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "fM-RMikuLpU0" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "BO-Rz_n.lcGQ",
+            "endpoint1": { "style": "None", "connectedTo": "fM-RMikuLpU0" },
+            "endpoint2": { "style": "None", "connectedTo": "XR-RBrDP4_H6" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "VO-RyOIQOQv2",
+            "endpoint1": { "style": "None", "connectedTo": "jO-ROLRe8IHA" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "VO-R3sLpaINO" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "bR-RV.zDQGRA",
+            "endpoint1": { "style": "None", "connectedTo": "KQ-Rt_62QJTZ" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "8Q-RGukon~_v" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "~R-RgY.KwaFd",
+            "endpoint1": { "style": "None", "connectedTo": "XR-RBrDP4_H6" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "nO-RxNVACEfD" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "DS-Rb~adP-P1",
+            "endpoint1": { "style": "None", "connectedTo": "8Q-RGukon~_v" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "DS-ROVSfhrc4" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": ".S-RY~RBWd4l",
+            "endpoint1": { "style": "None", "connectedTo": "VO-R3sLpaINO" },
+            "endpoint2": { "style": "Arrow", "connectedTo": ".S-RFcBAxnri" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "MT-Rc1RzSfP7",
+            "endpoint1": { "style": "None", "connectedTo": "VO-R3sLpaINO" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "KQ-Rt_62QJTZ" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "yU-R.WNx3pT9",
+            "endpoint1": { "style": "None", "connectedTo": "KQ-Rt_62QJTZ" },
+            "endpoint2": { "style": "Arrow", "connectedTo": ".S-RFcBAxnri" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "BU-RWix9xTQr",
+            "endpoint1": { "style": "None", "connectedTo": "8Q-RGukon~_v" },
+            "endpoint2": { "style": "Arrow", "connectedTo": ".S-RFcBAxnri" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "qV-RmdKZXmU8",
+            "endpoint1": { "style": "None", "connectedTo": "KU-RPLbn--9K" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "gV-R4Pe7Lfid" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "sV-RnCNMLBEc",
+            "endpoint1": { "style": "None", "connectedTo": "nO-RxNVACEfD" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "cN-R2J2._9L3" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "_W-R2kxY615_",
+            "endpoint1": { "style": "None", "connectedTo": "gV-R4Pe7Lfid" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "3W-RH2yLSMaL" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "PX-RYNBhfpgL",
+            "endpoint1": { "style": "None", "connectedTo": "DS-ROVSfhrc4" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "KU-RPLbn--9K" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "rY-RUHYRZRbB",
+            "endpoint1": { "style": "None", "connectedTo": "3W-RH2yLSMaL" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "WX-RbCdZZQqz" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          },
+          {
+            "id": "BY-RZmhY5GBj",
+            "endpoint1": { "style": "None", "connectedTo": "WX-RbCdZZQqz" },
+            "endpoint2": { "style": "Arrow", "connectedTo": "uY-R0Zosg7Be" },
+            "textAreas": [],
+            "customData": [],
+            "linkedData": []
+          }
+        ],
+        "groups": [],
+        "layers": []
+      },
+      "customData": [],
+      "linkedData": []
+    }
+  ],
+  "data": { "collections": [] },
+  "accountId": 215343972
+}
