@@ -8,10 +8,16 @@ import {
 } from 'react-aria-components'
 import styles from './Tooltip.module.scss'
 
-type Props = Omit<TooltipProps, 'children'> & {
+type Props = Omit<TooltipProps, 'children' | 'className'> & {
   children: ReactNode
   content: ReactNode
   label?: string
+  variant?: 'default' | 'remarkable'
+  className?: string
+}
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ')
 }
 
 function Tooltip({
@@ -19,6 +25,8 @@ function Tooltip({
   content,
   label = 'Vis hjælpetekst',
   placement = 'top',
+  variant = 'remarkable',
+  className,
   ...props
 }: Props) {
   return (
@@ -29,11 +37,29 @@ function Tooltip({
       <AriaTooltip
         {...props}
         placement={placement}
-        className={styles.tooltip__bubble}
+        className={cx(
+          styles.tooltip__bubble,
+          variant === 'remarkable' && styles['tooltip__bubble--remarkable'],
+          className,
+        )}
       >
-        <OverlayArrow>
-          <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden="true">
-            <path d="M0 0 L4 4 L8 0" />
+        <OverlayArrow className={styles.tooltip__arrow}>
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 17 17"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <rect
+              x="8.5"
+              width="11.9792"
+              height="11.9792"
+              rx="2"
+              transform="rotate(45 8.5 0)"
+              fill="currentColor"
+            />
           </svg>
         </OverlayArrow>
         {content}

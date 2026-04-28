@@ -1,6 +1,32 @@
 .form {
-  display: grid;
+  --focus-ring-color: var(--color-secondary);
+  --overlay-background: var(--color-invalid-shade);
+
+  display: flex;
+  flex-direction: column;
   gap: var(--spacing-md);
+  height: 100%;
+
+  &[role='alert'] {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-invalid);
+    border-radius: var(--radius-xs);
+    background: var(--overlay-background);
+    outline: none;
+
+    &:focus-visible {
+      outline: 1px solid var(--focus-ring-color);
+      outline-offset: 1px;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+  }
 
   &__field {
     display: grid;

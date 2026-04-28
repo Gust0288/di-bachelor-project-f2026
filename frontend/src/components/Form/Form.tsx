@@ -10,14 +10,17 @@ import {
   type ButtonProps,
   type TextProps,
 } from 'react-aria-components'
-
 import styles from './Form.module.scss'
+
+function cx(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(' ')
+}
 
 export function Form({ className, ...props }: FormProps) {
   return (
     <RACForm
       {...props}
-      className={[styles.form, className].filter(Boolean).join(' ')}
+      className={cx(styles.form, typeof className === 'string' && className)}
     />
   )
 }
@@ -26,7 +29,10 @@ export function Label({ className, ...props }: LabelProps) {
   return (
     <RACLabel
       {...props}
-      className={[styles['form__label'], className].filter(Boolean).join(' ')}
+      className={cx(
+        styles.form__label,
+        typeof className === 'string' && className,
+      )}
     />
   )
 }
@@ -35,7 +41,10 @@ export function FieldError({ className, ...props }: FieldErrorProps) {
   return (
     <RACFieldError
       {...props}
-      className={[styles['form__error'], className].filter(Boolean).join(' ')}
+      className={cx(
+        styles.form__error,
+        typeof className === 'string' && className,
+      )}
     />
   )
 }
@@ -45,7 +54,10 @@ export function Description({ className, ...props }: TextProps) {
     <Text
       slot="description"
       {...props}
-      className={[styles['form__description'], className].filter(Boolean).join(' ')}
+      className={cx(
+        styles.form__description,
+        typeof className === 'string' && className,
+      )}
     />
   )
 }
@@ -54,7 +66,10 @@ export function FieldButton({ className, ...props }: ButtonProps) {
   return (
     <RACButton
       {...props}
-      className={[styles['form__button'], className].filter(Boolean).join(' ')}
+      className={cx(
+        styles.form__button,
+        typeof className === 'string' && className,
+      )}
     />
   )
 }
