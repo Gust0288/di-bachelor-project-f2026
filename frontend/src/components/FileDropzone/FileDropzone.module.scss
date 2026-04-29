@@ -1,0 +1,22 @@
+.fileDropzone {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border: 1px dashed var(--color-light-500);
+  border-radius: var(--radius-xs);
+  background: var(--color-white);
+
+  &__copy {
+    display: grid;
+    gap: var(--spacing-xs);
+    line-height: 1.45;
+
+    span {
+      color: var(--color-dark-100);
+      font-size: 0.9rem;
+    }
+  }
+}

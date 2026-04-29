@@ -1,0 +1,14 @@
+// Use eg.: @media (width >= $mq-xs) {...}
+$mq-xs: 35.5em; // >=568px
+// Use eg.: @media (width >= $mq-sm) {...}
+$mq-sm: 48em; // >=768px
+// Use eg.: @media (width >= $mq-md) {...}
+$mq-md: 64em; // >=1024px
+// Use eg.: @media (width >= $mq-lg) {...}
+$mq-lg: 80em; // >=1280px
+// Use eg.: @media (width >= $mq-xl) {...}
+$mq-xl: 120em; // >=1920px
+// Use eg.: @media (width >= $mq-xxl) {...}
+$mq-xxl: 160em; // >=2560px
+// Use eg.: @media (width >= $mq-x4k) {...}
+$mq-x4k: 240em; // >=3840px

@@ -1,0 +1,56 @@
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    animation: spinner-rotate var(--animation-slow) linear infinite;
+    stroke: var(--color-light-300);
+    stroke-dasharray: 42;
+    stroke-dashoffset: 14;
+    stroke-linecap: round;
+  }
+
+  &--sm svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &--lg svg {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  &--xl svg {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  &--theme-primary svg {
+    stroke: var(--color-primary);
+  }
+
+  &--theme-secondary svg {
+    stroke: var(--color-secondary);
+  }
+
+  &--white svg {
+    stroke: var(--color-white);
+  }
+
+  &--black svg {
+    stroke: var(--color-black);
+  }
+
+  &--full {
+    height: 100%;
+  }
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

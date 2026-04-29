@@ -1,0 +1,36 @@
+.inputField {
+  display: grid;
+  gap: 0.35rem;
+
+  &__input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-light-500);
+    border-radius: var(--radius-xs);
+    background: var(--color-white);
+    color: var(--color-black);
+    font: inherit;
+    transition:
+      border-color var(--transition-quick),
+      box-shadow var(--transition-quick),
+      background-color var(--transition-quick);
+
+    &::placeholder {
+      color: var(--color-dark-100);
+    }
+
+    &:focus {
+      outline: 2px solid var(--color-interaction);
+      outline-offset: 2px;
+    }
+
+    &[data-disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &[data-invalid] {
+      border-color: var(--color-invalid);
+    }
+  }
+}
