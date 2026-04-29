@@ -34,7 +34,16 @@ frontend/
 
 ## Kom i gang
 
+**Step 1: Start database og backend via Docker**
 ```bash
+docker-compose up
+```
+
+Backend kører på `http://localhost:8000`. Vite proxy'er `/api/*` requests dertil automatisk.
+
+**Step 2: Start frontend**
+```bash
+cd frontend
 npm install
 npm run dev
 ```
@@ -52,8 +61,4 @@ npm run lint      # Kør ESLint
 
 ## Miljøvariabler
 
-Opret en `.env` fil i `/frontend`:
-
-```
-VITE_API_URL=http://localhost:8000
-```
+Kopier `.env.example` til `.env.local`. Standard-værdien (tom `VITE_API_URL`) bruger Vite proxy og kræver ingen ændringer til lokal udvikling.

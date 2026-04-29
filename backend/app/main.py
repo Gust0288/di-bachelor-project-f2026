@@ -1,8 +1,10 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 from app.core.database import ping_database
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:5173"])
 
 
 @app.get("/health")
