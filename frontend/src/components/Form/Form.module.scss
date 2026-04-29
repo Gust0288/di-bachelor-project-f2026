@@ -1,0 +1,69 @@
+.form {
+  --focus-ring-color: var(--color-secondary);
+  --overlay-background: var(--color-invalid-shade);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  height: 100%;
+
+  &[role='alert'] {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-invalid);
+    border-radius: var(--radius-xs);
+    background: var(--overlay-background);
+    outline: none;
+
+    &:focus-visible {
+      outline: 1px solid var(--focus-ring-color);
+      outline-offset: 1px;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    p {
+      margin-bottom: 0;
+    }
+  }
+
+  &__field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  &__label {
+    font-weight: 600;
+    color: var(--color-black);
+  }
+
+  &__description {
+    font-size: 0.85rem;
+    color: var(--color-dark-100);
+  }
+
+  &__error {
+    font-size: 0.85rem;
+    color: var(--color-invalid);
+  }
+
+  &__button {
+    margin-top: var(--spacing-sm);
+  }
+}
+
+input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-light-500);
+  border-radius: var(--radius-xs);
+  background: var(--color-white);
+  color: var(--color-black);
+  font: inherit;
+}
+
+input:focus {
+  outline: 2px solid var(--color-interaction);
+  outline-offset: 2px;
+}
