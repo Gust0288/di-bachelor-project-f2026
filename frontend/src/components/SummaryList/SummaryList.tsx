@@ -8,12 +8,21 @@ type Item = {
 
 type Props = {
   items: Item[]
+  variant?: 'default' | 'plain'
   className?: string
 }
 
-function SummaryList({ items, className }: Props) {
+function SummaryList({ items, variant = 'default', className }: Props) {
   return (
-    <dl className={[styles.summaryList, className].filter(Boolean).join(' ')}>
+    <dl
+      className={[
+        styles.summaryList,
+        variant === 'plain' && styles['summaryList--plain'],
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {items.map((item) => (
         <div key={item.label} className={styles.summaryList__row}>
           <dt>{item.label}</dt>

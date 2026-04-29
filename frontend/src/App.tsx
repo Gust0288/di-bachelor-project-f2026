@@ -7,7 +7,12 @@ import styles from './App.module.scss'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_relativeSplatPath: true,
+        v7_startTransition: true,
+      }}
+    >
       <div className={styles.app}>
         <Header />
         <main className={styles.main}>
