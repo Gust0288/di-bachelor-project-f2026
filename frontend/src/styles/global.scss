@@ -1,1 +1,13 @@
 @use './vendor' as *;
+
+body {
+  background: var(--color-white);
+  color: var(--color-dark-500);
+  font-family: var(--font-primary);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
