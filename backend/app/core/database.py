@@ -6,7 +6,6 @@ from psycopg2.extras import RealDictCursor
 
 from app.core.config import get_settings
 
-
 SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schema.sql"
 
 

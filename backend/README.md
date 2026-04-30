@@ -83,3 +83,7 @@ python -m app.core.database
 ```
 
 Session-fremskridt gemmes i `registration_sessions`, og færdige indmeldelser ligger i `registrations`.
+
+## Code format python
+
+black .
