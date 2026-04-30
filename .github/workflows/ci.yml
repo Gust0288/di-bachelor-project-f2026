@@ -10,6 +10,7 @@ on:
 # Determine RTE based on ref
 env:
   RTE: ${{ startsWith(github.ref, 'refs/tags/v') && 'prod' || github.ref == 'refs/heads/master' && 'test' || 'dev' }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
 
