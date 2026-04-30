@@ -52,7 +52,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install static-analysis tools
-        run: pip install pylama black pip-audit
+        run: pip install flake8 black pip-audit
 
       - name: Dependency vulnerability audit
         run: pip-audit -r backend/requirements.txt
@@ -61,7 +61,7 @@ jobs:
         run: black --check backend/
 
       - name: Lint
-        run: pylama --ignore=E501 backend/
+        run: flake8 --max-line-length=88 backend/
 
   # ── STAGE: build ───────────────────────────────────────────────────────────
 
