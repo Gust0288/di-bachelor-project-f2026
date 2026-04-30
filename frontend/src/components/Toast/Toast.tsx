@@ -21,12 +21,15 @@ export type AppToastContent = {
   timeout?: number
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const queue = new ToastQueue<AppToastContent>({
   maxVisibleToasts: 5,
 })
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const toastQueue = queue
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function showToast(content: AppToastContent) {
   return queue.add({
     ...content,
