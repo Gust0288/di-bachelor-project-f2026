@@ -16,11 +16,11 @@ import { wizardStepLabels } from './wizardSteps'
 import type { CompanyOption, WizardFormData } from './wizard.types'
 
 const implementedStepCount = 2
-const companyOptions: CompanyOption[] = []
 
 export default function WizardPage() {
   const [formData, setFormData] = useState(initialFormData)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
+  const [selectedCompany, setSelectedCompany] = useState<CompanyOption | undefined>(undefined)
 
   const wizardSteps = useMemo<WizardStep[]>(
     () =>
@@ -34,11 +34,6 @@ export default function WizardPage() {
               : 'upcoming',
       })),
     [currentStepIndex],
-  )
-
-  const selectedCompany = useMemo(
-    () => companyOptions.find((option) => option.id === formData.companyId),
-    [formData.companyId],
   )
 
   function updateField<Key extends keyof WizardFormData>(
@@ -86,9 +81,9 @@ export default function WizardPage() {
           />
         ) : (
           <CompanyInformationStep
-            companyOptions={companyOptions}
             formData={formData}
             onFieldChange={updateField}
+            onCompanyFound={setSelectedCompany}
           />
         )}
 

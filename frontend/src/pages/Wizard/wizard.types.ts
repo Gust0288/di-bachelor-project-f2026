@@ -1,3 +1,14 @@
+export type CvrResult = {
+  navn: string
+  cvr: number
+  virksomhedsform: string
+  adresse: string
+  postnummer: string
+  by: string
+  branchekode: number
+  branchetekst: string
+}
+
 export type BranchCode = {
   code: string
   title: string
