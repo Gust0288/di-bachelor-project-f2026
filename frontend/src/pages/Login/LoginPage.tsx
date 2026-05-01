@@ -16,6 +16,9 @@ export default function LoginPage() {
   return (
     <LoginLayout>
       <p>Backend: {health ? `${health.status} / db: ${health.database}` : 'connecting…'}</p>
+      <p>Login indhold her</p>
+      <p>Fortsæt uden bruger? - tryk her</p>
+      <p>Hvis logget ind med bruger - mulighed for autoudfyld personoplysninger</p>
     </LoginLayout>
   )
 }

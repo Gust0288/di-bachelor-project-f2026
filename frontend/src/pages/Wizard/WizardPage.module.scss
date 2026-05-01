@@ -1,0 +1,150 @@
+.form {
+  display: grid;
+  gap: var(--spacing-lg);
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+}
+
+.header {
+  display: grid;
+  gap: var(--spacing-sm);
+  padding-block-end: var(--spacing-md);
+
+  h1 {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+
+  p {
+    max-width: 42rem;
+    color: var(--color-dark-100);
+    line-height: 1.5;
+  }
+}
+
+.fieldGrid {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+  padding-block-start: var(--spacing-md);
+}
+
+.companyDetails {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-md);
+  margin: 0;
+
+  @media (width >= 40em) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  div {
+    display: grid;
+    gap: var(--spacing-3xs);
+    min-width: 0;
+  }
+
+  dt {
+    color: var(--color-dark-100);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-dark-500);
+    line-height: 1.45;
+  }
+
+  &__wide {
+    @media (width >= 40em) {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.branchList {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.branchItem {
+  display: grid;
+  gap: var(--spacing-3xs);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  background: var(--color-light-100);
+
+  strong {
+    color: var(--color-dark-500);
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  span {
+    color: var(--color-dark-100);
+    line-height: 1.45;
+  }
+}
+
+.summary {
+  align-content: start;
+
+  h2 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+}
+
+.summaryDetails {
+  display: grid;
+  gap: var(--spacing-md);
+  margin: 0;
+
+  div {
+    display: grid;
+    gap: var(--spacing-3xs);
+  }
+
+  dt {
+    color: var(--color-dark-500);
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-dark-500);
+    line-height: 1.45;
+  }
+}
+
+.summaryTotal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--spacing-2xs) var(--spacing-md);
+  padding-block-start: var(--spacing-lg);
+  border-top: 1px solid var(--color-border-default);
+
+  span {
+    font-weight: 600;
+  }
+
+  strong {
+    font-weight: 600;
+    text-align: right;
+  }
+
+  small {
+    grid-column: 2;
+    color: var(--color-dark-500);
+    text-align: right;
+  }
+}

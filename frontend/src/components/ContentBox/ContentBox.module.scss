@@ -1,0 +1,32 @@
+.contentBox {
+  display: grid;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  background: var(--color-white);
+}
+
+.contentBox__header {
+  display: grid;
+  gap: var(--spacing-xs);
+
+  h2 {
+    color: var(--color-dark-500);
+    font-family: var(--font-primary);
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  p {
+    max-width: 42rem;
+    color: var(--color-dark-100);
+    line-height: 1.5;
+  }
+}
+
+.contentBox__content {
+  display: grid;
+  gap: var(--spacing-md);
+}
