@@ -1,18 +1,18 @@
-import ContentBox from '../../../components/ContentBox'
-import RadioCardGroup from '../../../components/RadioCardGroup/RadioCardGroup'
-import { emptyValue } from '../wizard.constants'
+import ContentBox from "../../../components/ContentBox";
+import RadioCardGroup from "../../../components/RadioCardGroup/RadioCardGroup";
+import { emptyValue } from "../wizard.constants";
 import type {
   CompanyOption,
   WizardFieldUpdater,
   WizardFormData,
-} from '../wizard.types'
-import styles from '../WizardPage.module.scss'
+} from "../wizard.types";
+import styles from "../WizardPage.module.scss";
 
 type BranchStepProps = {
-  formData: WizardFormData
-  selectedCompany?: CompanyOption
-  onFieldChange: WizardFieldUpdater
-}
+  formData: WizardFormData;
+  selectedCompany?: CompanyOption;
+  onFieldChange: WizardFieldUpdater;
+};
 
 export default function BranchStep({
   formData,
@@ -47,20 +47,12 @@ export default function BranchStep({
             <dd>{selectedCompany?.postalCodeAndCity ?? emptyValue}</dd>
           </div>
           <div>
-            <dt>Startdato</dt>
-            <dd>{selectedCompany?.startDate ?? emptyValue}</dd>
-          </div>
-          <div>
             <dt>Branchekode</dt>
             <dd>
               {selectedCompany?.branchCodes
                 .map((branch) => `${branch.code} - ${branch.title}`)
-                .join(', ') ?? emptyValue}
+                .join(", ") ?? emptyValue}
             </dd>
-          </div>
-          <div className={styles.companyDetails__wide}>
-            <dt>Formål</dt>
-            <dd>{selectedCompany?.purpose ?? emptyValue}</dd>
           </div>
         </dl>
       </ContentBox>
@@ -79,21 +71,21 @@ export default function BranchStep({
           label="Er det korrekt branchekode/r?"
           options={[
             {
-              value: 'yes',
-              title: 'Ja',
-              description: 'Branchekoden passer til virksomheden.',
+              value: "yes",
+              title: "Ja",
+              description: "Branchekoden passer til virksomheden.",
             },
             {
-              value: 'no',
-              title: 'Nej',
-              description: 'Branchekoden skal kontrolleres på virk.dk.',
+              value: "no",
+              title: "Nej",
+              description: "Branchekoden skal kontrolleres på virk.dk.",
             },
           ]}
           value={formData.branchCodesCorrect}
-          onChange={(value) => onFieldChange('branchCodesCorrect', value)}
+          onChange={(value) => onFieldChange("branchCodesCorrect", value)}
           isRequired
         />
       </ContentBox>
     </>
-  )
+  );
 }

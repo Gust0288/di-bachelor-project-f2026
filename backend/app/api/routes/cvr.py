@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from app.services.cvr import lookup_company
 
-cvr_bp = Blueprint("cvr", __name__, url_prefix="/api/cvr")
+cvr_bp = Blueprint("cvr", __name__, url_prefix="/cvr")
 
 
 @cvr_bp.get("/lookup")
