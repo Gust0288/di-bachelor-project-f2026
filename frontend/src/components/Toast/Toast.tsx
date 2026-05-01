@@ -123,11 +123,6 @@ export function Toast({ toast, state }: ToastProps) {
 
   useEffect(() => {
     if (isPaused) {
-      if (timerRef.current) {
-        window.clearTimeout(timerRef.current)
-        timerRef.current = null
-      }
-
       if (startTimeRef.current) {
         const elapsed = Date.now() - startTimeRef.current
         setRemainingTime((prev) => Math.max(prev - elapsed, 0))
@@ -144,7 +139,7 @@ export function Toast({ toast, state }: ToastProps) {
     }, remainingTime)
 
     return () => {
-      if (timerRef.current) {
+      if (timerRef.current !== null) {
         window.clearTimeout(timerRef.current)
         timerRef.current = null
       }
