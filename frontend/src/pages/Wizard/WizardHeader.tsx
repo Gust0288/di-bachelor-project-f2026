@@ -2,11 +2,20 @@ import styles from './WizardPage.module.scss'
 
 type WizardHeaderProps = {
   currentStepIndex: number
+  progressPercentage: number
 }
 
-export default function WizardHeader({ currentStepIndex }: WizardHeaderProps) {
+export default function WizardHeader({
+  currentStepIndex,
+  progressPercentage,
+}: WizardHeaderProps) {
   return (
     <header className={styles.header}>
+      <div className={styles.headerMeta}>
+        <span>DI-medlemskab</span>
+        <span>{progressPercentage}% udfyldt</span>
+      </div>
+
       {currentStepIndex === 1 ? (
         <>
           <h1>Hvad laver din virksomhed?</h1>

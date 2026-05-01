@@ -3,6 +3,7 @@ import styles from './WizardStepsNavigation.module.scss'
 export type WizardStep = {
   label: string
   status?: 'complete' | 'current' | 'upcoming'
+  isDisabled?: boolean
 }
 
 export type WizardStepsNavigationProps = {
@@ -10,6 +11,7 @@ export type WizardStepsNavigationProps = {
   orientation?: 'horizontal' | 'vertical'
   className?: string
   ariaLabel?: string
+  onStepSelect?: (stepIndex: number) => void
 }
 
 function cx(...classes: Array<string | false | null | undefined>) {
@@ -46,6 +48,7 @@ export function WizardStepsNavigation({
   orientation = 'horizontal',
   className,
   ariaLabel = 'Wizard navigation',
+  onStepSelect,
 }: WizardStepsNavigationProps) {
   return (
     <nav aria-label={ariaLabel}>
@@ -55,6 +58,16 @@ export function WizardStepsNavigation({
       >
         {steps.map((step, index) => {
           const status = step.status ?? 'upcoming'
+          const content = (
+            <>
+              <span className={styles.wizardStepsNavigationItem__icon}>
+                {status === 'complete' ? <CheckIcon /> : index + 1}
+              </span>
+              <span className={styles.wizardStepsNavigationItem__label}>
+                {step.label}
+              </span>
+            </>
+          )
 
           return (
             <li
@@ -65,12 +78,21 @@ export function WizardStepsNavigation({
               )}
               aria-current={status === 'current' ? 'step' : undefined}
             >
-              <span className={styles.wizardStepsNavigationItem__icon}>
-                {status === 'complete' ? <CheckIcon /> : index + 1}
-              </span>
-              <span className={styles.wizardStepsNavigationItem__label}>
-                {step.label}
-              </span>
+              {onStepSelect ? (
+                <button
+                  type="button"
+                  className={styles.wizardStepsNavigationItem__control}
+                  disabled={step.isDisabled}
+                  aria-label={`Gå til ${step.label}`}
+                  onClick={() => onStepSelect(index)}
+                >
+                  {content}
+                </button>
+              ) : (
+                <span className={styles.wizardStepsNavigationItem__control}>
+                  {content}
+                </span>
+              )}
             </li>
           )
         })}

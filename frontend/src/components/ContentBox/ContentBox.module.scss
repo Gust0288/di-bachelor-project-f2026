@@ -5,6 +5,7 @@
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xs);
   background: var(--color-white);
+  box-shadow: 0 1px 2px rgb(19 18 20 / 4%);
 }
 
 .contentBox__header {
@@ -15,7 +16,7 @@
     color: var(--color-dark-500);
     font-family: var(--font-primary);
     font-size: 1.125rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.25;
   }
 
