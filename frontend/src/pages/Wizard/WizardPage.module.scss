@@ -88,50 +88,6 @@
   border-block-start: 1px solid var(--color-border-default);
 }
 
-.cvrSearchWrapper {
-  position: relative;
-}
-
-.cvrDropdown {
-  position: absolute;
-  z-index: 10;
-  inset-inline: 0;
-  margin: var(--spacing-2xs) 0 0;
-  padding: 0;
-  list-style: none;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-xs);
-  background: white;
-  box-shadow: 0 1rem 2rem rgb(19 18 20 / 10%);
-}
-
-.cvrDropdownItem {
-  display: grid;
-  gap: var(--spacing-3xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  cursor: pointer;
-
-  &:hover {
-    background: var(--color-secondary-50);
-  }
-}
-
-.cvrDropdownName {
-  font-weight: 600;
-  color: var(--color-dark-500);
-}
-
-.cvrDropdownMeta {
-  font-size: 0.875rem;
-  color: var(--color-dark-100);
-}
-
-.cvrError {
-  margin-block-start: var(--spacing-2xs);
-  font-size: 0.875rem;
-  color: var(--color-invalid);
-}
-
 .companyDetails {
   display: grid;
   grid-template-columns: 1fr;

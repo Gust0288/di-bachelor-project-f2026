@@ -1,11 +1,11 @@
 export const wizardStepLabels = [
   'Virksomhedsinformation',
   'Branche',
-  'Medarbejdere',
-  'Lokationer',
+  'Ønsker og behov',
+  'Virksomhedens ansatte',
   'Overenskomst',
-  'Ydelser',
-  'Betaling',
-  'Gennemse',
-  'Kvittering',
+  'Fællesskaber og foreninger',
+  'Medlemsskab',
+  'Kontaktpersoner',
+  'Godkendelse',
 ] as const

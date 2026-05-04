@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import useMediaQuery from '../../hooks/useMediaQuery'
+import WizardHelpModal from '../../pages/Wizard/WizardHelpModal'
 import styles from './WizardLayout.module.scss'
 
 interface WizardLayoutProps {
@@ -8,28 +10,22 @@ interface WizardLayoutProps {
   children: React.ReactNode
 }
 
-export default function WizardLayout({ progressIndicator, summary, children }: WizardLayoutProps) {
+export default function WizardLayout({
+  progressIndicator,
+  summary,
+  children,
+}: WizardLayoutProps) {
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(false)
-  const [canCollapseSummary, setCanCollapseSummary] = useState(false)
+  const [isHelpOpen, setIsHelpOpen] = useState(false)
+  const canCollapseSummary = useMediaQuery('(max-width: 1244.98px)')
   const isSummaryHidden = canCollapseSummary && isSummaryCollapsed
   const ToggleIcon = isSummaryCollapsed ? ChevronLeft : ChevronRight
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 1244.98px)')
-
-    function handleMediaChange() {
-      setCanCollapseSummary(mediaQuery.matches)
-
-      if (!mediaQuery.matches) {
-        setIsSummaryCollapsed(false)
-      }
+    if (!canCollapseSummary) {
+      setIsSummaryCollapsed(false)
     }
-
-    handleMediaChange()
-    mediaQuery.addEventListener('change', handleMediaChange)
-
-    return () => mediaQuery.removeEventListener('change', handleMediaChange)
-  }, [])
+  }, [canCollapseSummary])
 
   return (
     <div
@@ -61,6 +57,8 @@ export default function WizardLayout({ progressIndicator, summary, children }: W
           </div>
         </div>
       </aside>
+
+      <WizardHelpModal isOpen={isHelpOpen} onOpenChange={setIsHelpOpen} />
     </div>
   )
 }

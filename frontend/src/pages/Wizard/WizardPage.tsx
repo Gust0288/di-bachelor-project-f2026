@@ -7,8 +7,15 @@ import WizardStepsNavigation, {
   type WizardStep,
 } from '../../components/WizardStepsNavigation/WizardStepsNavigation'
 import WizardLayout from '../../layouts/WizardLayout/WizardLayout'
-import BranchStep from './steps/BranchStep'
-import CompanyInformationStep from './steps/CompanyInformationStep'
+import CompanyInformationStep from './steps/01CompanyInformationStep'
+import BranchStep from './steps/02BranchStep'
+import NeedsStep from './steps/03NeedsStep'
+import EmployeesStep from './steps/04EmployeesStep'
+import AgreementStep from './steps/05AgreementStep'
+import AssociationsStep from './steps/06AssociationsStep'
+import MembershipStep from './steps/07MembershipStep'
+import ContactsStep from './steps/08ContactsStep'
+import ApprovalStep from './steps/09ApprovalStep'
 import WizardHeader from './WizardHeader'
 import styles from './WizardPage.module.scss'
 import WizardSummary from './WizardSummary'
@@ -21,7 +28,7 @@ import {
 import { wizardStepLabels } from './wizardSteps'
 import type { CompanyOption, WizardFormData } from './wizard.types'
 
-const implementedStepCount = 2
+const wizardStepCount = wizardStepLabels.length
 
 function getStepValidationMessage(
   stepIndex: number,
@@ -49,9 +56,7 @@ export default function WizardPage() {
     () =>
       wizardStepLabels.map((label, index) => ({
         label,
-        isDisabled:
-          index >= implementedStepCount ||
-          (index === 1 && !canAccessBranchStep),
+        isDisabled: index === 1 && !canAccessBranchStep,
         status:
           index < currentStepIndex
             ? 'complete'
@@ -88,7 +93,7 @@ export default function WizardPage() {
 
     setValidationMessage(undefined)
     setCurrentStepIndex((stepIndex) =>
-      Math.min(stepIndex + 1, implementedStepCount - 1),
+      Math.min(stepIndex + 1, wizardStepCount - 1),
     )
   }
 
@@ -98,7 +103,7 @@ export default function WizardPage() {
   }
 
   function handleStepSelect(stepIndex: number) {
-    if (stepIndex >= implementedStepCount || stepIndex === currentStepIndex) {
+    if (stepIndex === currentStepIndex) {
       return
     }
 
@@ -117,6 +122,43 @@ export default function WizardPage() {
 
     setValidationMessage(undefined)
     setCurrentStepIndex(stepIndex)
+  }
+
+  function renderCurrentStep() {
+    switch (currentStepIndex) {
+      case 0:
+        return (
+          <CompanyInformationStep
+            formData={formData}
+            onFieldChange={updateField}
+            onCompanyFound={setSelectedCompany}
+          />
+        )
+      case 1:
+        return (
+          <BranchStep
+            formData={formData}
+            selectedCompany={selectedCompany}
+            onFieldChange={updateField}
+          />
+        )
+      case 2:
+        return <NeedsStep />
+      case 3:
+        return <EmployeesStep />
+      case 4:
+        return <AgreementStep />
+      case 5:
+        return <AssociationsStep />
+      case 6:
+        return <MembershipStep />
+      case 7:
+        return <ContactsStep />
+      case 8:
+        return <ApprovalStep />
+      default:
+        return null
+    }
   }
 
   return (
@@ -145,19 +187,7 @@ export default function WizardPage() {
           </InlineAlert>
         ) : null}
 
-        {currentStepIndex === 1 ? (
-          <BranchStep
-            formData={formData}
-            selectedCompany={selectedCompany}
-            onFieldChange={updateField}
-          />
-        ) : (
-          <CompanyInformationStep
-            formData={formData}
-            onFieldChange={updateField}
-            onCompanyFound={setSelectedCompany}
-          />
-        )}
+        {renderCurrentStep()}
 
         <footer className={styles.actions}>
           {currentStepIndex > 0 ? (
