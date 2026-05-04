@@ -1,4 +1,6 @@
-.PHONY: help install up up-build down dev test lint format typecheck db-init
+.PHONY: help install up up-build down dev test test-backend test-db venv lint format typecheck db-init
+
+VENV = backend/.venv/bin
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -23,10 +25,16 @@ test: ## Kør frontend-tests (Jest)
 	cd frontend && npm test
 
 test-backend: ## Kør backend integration + DB persistenstests
-	cd backend && source .venv/bin/activate && python -m pytest tests/test_wizard_flow.py -v
+	cd backend && $(CURDIR)/$(VENV)/python -m pytest tests/test_wizard_flow.py -v
 
 test-db: ## Kør kun DB persistenstests
-	cd backend && source .venv/bin/activate && python -m pytest tests/test_wizard_flow.py::TestDatabasePersistence -v
+	cd backend && $(CURDIR)/$(VENV)/python -m pytest tests/test_wizard_flow.py::TestDatabasePersistence -v
+
+venv: ## Vis kommando til at aktivere Python venv
+	@echo "Kør i din terminal:"
+	@echo ""
+	@echo "  source $(CURDIR)/$(VENV)/activate"
+	@echo ""
 
 lint: ## Kør linters (ESLint + Flake8)
 	cd frontend && npm run lint
