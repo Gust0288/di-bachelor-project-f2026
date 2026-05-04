@@ -74,7 +74,7 @@
   display: grid;
   gap: var(--spacing-md);
 
-  @media (width >= 42em) {
+  @media (width >= 77.8125em) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

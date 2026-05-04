@@ -51,7 +51,7 @@ export function WizardStepsNavigation({
   onStepSelect,
 }: WizardStepsNavigationProps) {
   return (
-    <nav aria-label={ariaLabel}>
+    <nav className={styles.wizardStepsNavigationWrapper} aria-label={ariaLabel}>
       <ol
         className={cx(styles.wizardStepsNavigation, className)}
         data-orientation={orientation}
