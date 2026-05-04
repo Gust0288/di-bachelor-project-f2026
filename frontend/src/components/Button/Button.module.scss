@@ -1,11 +1,17 @@
 .button {
-  --button-color: var(--color-light-100);
-  --button-background-color: var(--color-primary);
-  --button-box-shadow-color: transparent;
-  --button-icon-color: var(--button-color);
-  --button-hover-color: var(--color-light-100);
-  --button-hover-background-color: var(--color-interaction);
-  --button-hover-box-shadow-color: transparent;
+  --_button-color: var(--button-color, var(--color-light-100));
+  --_button-background-color: var(--button-background-color, var(--color-primary));
+  --_button-box-shadow-color: var(--button-box-shadow, var(--_button-color));
+  --_button-icon-color: var(--button-icon-color, var(--color-light-100));
+  --_button-hover-color: var(--button-hover-color, var(--color-light-100));
+  --_button-hover-background-color: var(
+    --button-hover-background-color,
+    var(--color-interaction)
+  );
+  --_button-hover-box-shadow-color: var(
+    --button-hover-box-shadow,
+    var(--_button-box-shadow-color)
+  );
 
   display: inline-flex;
   align-items: center;
@@ -14,9 +20,9 @@
   padding: var(--spacing-md);
   border: 0;
   border-radius: var(--radius-sm);
-  background: var(--button-background-color);
-  box-shadow: inset 0 0 0 1px var(--button-box-shadow-color);
-  color: var(--button-color);
+  background: var(--_button-background-color);
+  box-shadow: inset 0 0 0 1px var(--_button-box-shadow-color);
+  color: var(--_button-color);
 
   font-family: var(--font-primary);
   font-size: 0.875rem;
@@ -33,11 +39,11 @@
   }
 
   &:hover {
-    color: var(--button-hover-color);
-    background: var(--button-hover-background-color);
+    color: var(--_button-hover-color);
+    background: var(--_button-hover-background-color);
     border-top-right-radius: 0;
     border-bottom-left-radius: 0;
-    box-shadow: inset 0 0 0 1px var(--button-hover-box-shadow-color);
+    box-shadow: inset 0 0 0 1px var(--_button-hover-box-shadow-color);
   }
 
   &:active {
@@ -52,11 +58,11 @@
   &.is-disabled {
     --button-color: var(--color-disabled-text);
     --button-background-color: var(--color-disabled-background);
-    --button-box-shadow-color: var(--color-disabled-background);
+    --button-box-shadow: var(--color-disabled-background);
     --button-icon-color: var(--color-disabled-text);
     --button-hover-color: var(--color-disabled-text);
     --button-hover-background-color: var(--color-disabled-background);
-    --button-hover-box-shadow-color: var(--color-disabled-background);
+    --button-hover-box-shadow: var(--color-disabled-background);
 
     cursor: not-allowed;
     transform: none;
@@ -80,31 +86,31 @@
   &--outline {
     --button-color: var(--color-dark-500);
     --button-background-color: var(--color-white);
-    --button-box-shadow-color: var(--color-primary);
+    --button-box-shadow: var(--color-primary);
     --button-icon-color: var(--color-primary);
     --button-hover-color: var(--color-dark-500);
     --button-hover-background-color: var(--color-white);
-    --button-hover-box-shadow-color: var(--color-interaction);
+    --button-hover-box-shadow: var(--color-interaction);
   }
 
   &--outline-light {
     --button-color: var(--color-dark-500);
     --button-background-color: var(--color-white);
-    --button-box-shadow-color: var(--color-secondary);
+    --button-box-shadow: var(--color-secondary);
     --button-icon-color: var(--color-primary);
     --button-hover-color: var(--color-dark-500);
     --button-hover-background-color: var(--color-white);
-    --button-hover-box-shadow-color: var(--color-interaction);
+    --button-hover-box-shadow: var(--color-interaction);
   }
 
   &--styleless {
     --button-color: var(--color-dark-500);
     --button-background-color: transparent;
-    --button-box-shadow-color: transparent;
+    --button-box-shadow: transparent;
     --button-icon-color: var(--color-primary);
     --button-hover-color: var(--color-dark-500);
     --button-hover-background-color: transparent;
-    --button-hover-box-shadow-color: transparent;
+    --button-hover-box-shadow: transparent;
   }
 
   &--danger {
@@ -129,14 +135,14 @@
     > svg {
       width: 1rem;
       height: 1rem;
-      color: var(--button-icon-color);
+      color: var(--_button-icon-color);
       transform: scale(1.4);
       transition: color var(--transition-quick);
     }
   }
 
   &__spinner {
-    color: var(--button-color);
+    color: var(--_button-color);
 
     svg {
       stroke: currentcolor;

@@ -1,5 +1,3 @@
-import ContentBox from '../../components/ContentBox'
-import { emptyValue } from './wizard.constants'
 import type { CompanyOption, WizardFormData } from './wizard.types'
 import styles from './WizardPage.module.scss'
 
@@ -8,62 +6,77 @@ type WizardSummaryProps = {
   selectedCompany?: CompanyOption
 }
 
+type SummaryItem = {
+  label: string
+  value: string
+}
+
 export default function WizardSummary({
   formData,
   selectedCompany,
 }: WizardSummaryProps) {
   const primaryBranch = selectedCompany?.branchCodes[0]
+  const summaryItems = [
+    selectedCompany && {
+      label: 'Virksomhedens navn',
+      value: `${selectedCompany.label} (CVR: ${selectedCompany.id})`,
+    },
+    primaryBranch && {
+      label: 'Primær branche',
+      value: `${primaryBranch.code} ${primaryBranch.title}`,
+    },
+    formData.contactName && {
+      label: 'Kontaktperson',
+      value: formData.contactName,
+    },
+  ].filter((item): item is SummaryItem => Boolean(item))
+
+  const priceRows: SummaryItem[] = []
+  const estimatedPrice = undefined
 
   return (
-    <ContentBox className={styles.summary} title="Opsummering af dine valg">
-      <dl className={styles.summaryDetails}>
-        <div>
-          <dt>Virksomhedens navn</dt>
-          <dd>
-            {selectedCompany
-              ? `${selectedCompany.label} (CVR: ${selectedCompany.id})`
-              : emptyValue}
-          </dd>
-        </div>
-        <div>
-          <dt>Primær branche</dt>
-          <dd>
-            {primaryBranch
-              ? `${primaryBranch.code} - ${primaryBranch.title}`
-              : emptyValue}
-          </dd>
-        </div>
-        <div>
-          <dt>Kontaktperson</dt>
-          <dd>{formData.contactName || emptyValue}</dd>
-        </div>
-        <div>
-          <dt>Medlemstype</dt>
-          <dd>{emptyValue}</dd>
-        </div>
-        <div>
-          <dt>Antal ansatte</dt>
-          <dd>{emptyValue}</dd>
-        </div>
-        <div>
-          <dt>Samlet lønsum</dt>
-          <dd>{emptyValue}</dd>
-        </div>
-        <div>
-          <dt>Estimeret pris - DI-medlemskab</dt>
-          <dd>{emptyValue}</dd>
-        </div>
-        <div>
-          <dt>Foreninger og branchefællesskaber</dt>
-          <dd>{emptyValue}</dd>
-        </div>
-      </dl>
+    <section className={styles.summary} aria-labelledby="wizard-summary-title">
+      <header className={styles.summaryHeader}>
+        <h2 id="wizard-summary-title">Opsummering af dine valg</h2>
+      </header>
+
+      {summaryItems.length > 0 ? (
+        <dl className={styles.summaryDetails}>
+          {summaryItems.map((item) => (
+            <div key={item.label}>
+              <dt>{item.label}</dt>
+              <dd>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        <p className={styles.summaryValueMuted}>
+          Dine oplysninger vises her, efterhånden som du udfylder formularen.
+        </p>
+      )}
+
+      {priceRows.length > 0 ? (
+        <dl className={styles.summaryPriceRows}>
+          {priceRows.map((item) => (
+            <div key={item.label}>
+              <dt>{item.label}</dt>
+              <dd>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
 
       <div className={styles.summaryTotal}>
         <span>Estimeret pris</span>
-        <strong>Afventer oplysninger</strong>
-        <small>pr. medarbejder / md.</small>
+        {estimatedPrice ? (
+          <>
+            <strong>{estimatedPrice}</strong>
+            <small>pr. medarbejder / md.</small>
+          </>
+        ) : (
+          <strong>Afventer oplysninger</strong>
+        )}
       </div>
-    </ContentBox>
+    </section>
   )
 }

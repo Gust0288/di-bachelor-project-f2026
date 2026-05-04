@@ -16,7 +16,11 @@ function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(' ')
 }
 
-export function Form({ className, ...props }: FormProps) {
+type LocalFormProps = FormProps & {
+  noValidate?: boolean
+}
+
+export function Form({ className, ...props }: LocalFormProps) {
   return (
     <RACForm
       {...props}

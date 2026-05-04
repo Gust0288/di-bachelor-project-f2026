@@ -10,6 +10,7 @@ import styles from './Confirm.module.scss'
 
 export type ConfirmProps = Omit<ModalOverlayProps, 'className' | 'children'> & {
   headline: string
+  headerAction?: ReactNode
   className?: string
   children: ReactNode
 }
@@ -20,6 +21,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
 
 export function Confirm({
   headline,
+  headerAction,
   className,
   children,
   isDismissable = true,
@@ -37,6 +39,7 @@ export function Confirm({
             <Heading level={6} slot="title">
               {headline}
             </Heading>
+            {headerAction}
           </div>
           {children}
         </Dialog>
