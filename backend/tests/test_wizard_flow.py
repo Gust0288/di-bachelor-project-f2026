@@ -239,7 +239,7 @@ class TestStepSave:
             json={"selected_services": ["overenskomst"]},
         )
         resp = client.post(
-            f"/registration/session/{sid}/step/4", json={"employee_count": 5}
+            f"/registration/session/{sid}/step/4", json={"employee_count": 5, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 2000000}
         )
         assert resp.status_code == 200
         assert resp.get_json()["tier"] == "mikro"
@@ -261,7 +261,7 @@ class TestStepSave:
             json={"selected_services": ["overenskomst"]},
         )
         resp = client.post(
-            f"/registration/session/{sid}/step/4", json={"employee_count": 25}
+            f"/registration/session/{sid}/step/4", json={"employee_count": 25, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 10000000}
         )
         assert resp.get_json()["tier"] == "smv"
 
@@ -282,7 +282,7 @@ class TestStepSave:
             json={"selected_services": ["overenskomst"]},
         )
         resp = client.post(
-            f"/registration/session/{sid}/step/4", json={"employee_count": 100}
+            f"/registration/session/{sid}/step/4", json={"employee_count": 100, "no_employees": False, "employee_types": ["funktionaer", "timeloennet"], "total_loensum": 40000000}
         )
         assert resp.get_json()["tier"] == "erhverv"
 
@@ -304,7 +304,7 @@ class TestBlockingOptions:
             f"/registration/session/{sid}/step/3",
             json={"selected_services": ["overenskomst"]},
         )
-        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25})
+        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 10000000})
         return sid
 
     def test_ved_ikke_is_blocked(self, client):
@@ -401,7 +401,7 @@ class TestMembershipCalculation:
         )
         client.post(
             f"/registration/session/{sid}/step/4",
-            json={"employee_count": employee_count},
+            json={"employee_count": employee_count, "no_employees": employee_count == 0, "employee_types": ["funktionaer"], "total_loensum": employee_count * 400000},
         )
         step5_data: dict = {"overenskomst_status": overenskomst_status}
         if overenskomst_type:
@@ -526,7 +526,7 @@ class TestDatabasePersistence:
             f"/registration/session/{sid}/step/3",
             json={"selected_services": ["overenskomst"]},
         )
-        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25})
+        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 10000000})
         row = self._query_session(sid)
         assert row["tier"] == "smv"
 
@@ -546,7 +546,7 @@ class TestDatabasePersistence:
             f"/registration/session/{sid}/step/3",
             json={"selected_services": ["overenskomst"]},
         )
-        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25})
+        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 10000000})
         client.post(
             f"/registration/session/{sid}/step/5", json={"overenskomst_status": "nej"}
         )
@@ -570,7 +570,7 @@ class TestDatabasePersistence:
             f"/registration/session/{sid}/step/3",
             json={"selected_services": ["overenskomst"]},
         )
-        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25})
+        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 10000000})
         client.post(
             f"/registration/session/{sid}/step/5",
             json={
@@ -599,7 +599,7 @@ class TestDatabasePersistence:
             f"/registration/session/{sid}/step/3",
             json={"selected_services": ["overenskomst"]},
         )
-        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25})
+        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 10000000})
         client.post(
             f"/registration/session/{sid}/step/5",
             json={"overenskomst_status": "ved_ikke"},
@@ -624,7 +624,7 @@ class TestDatabasePersistence:
             f"/registration/session/{sid}/step/3",
             json={"selected_services": ["overenskomst"]},
         )
-        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25})
+        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 10000000})
         client.post(
             f"/registration/session/{sid}/step/5", json={"overenskomst_status": "nej"}
         )
@@ -694,7 +694,7 @@ class TestSubmitPersistence:
             f"/registration/session/{sid}/step/3",
             json={"selected_services": ["overenskomst"]},
         )
-        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25})
+        client.post(f"/registration/session/{sid}/step/4", json={"employee_count": 25, "no_employees": False, "employee_types": ["funktionaer"], "total_loensum": 10000000})
         client.post(
             f"/registration/session/{sid}/step/5", json={"overenskomst_status": "nej"}
         )
@@ -714,10 +714,8 @@ class TestSubmitPersistence:
         client.post(
             f"/registration/session/{sid}/step/8",
             json={
-                "managing_director": {
-                    "name": "Submit Person",
-                    "email": "submit@test.dk",
-                },
+                "managing_director": {"name": "Submit Person", "email": "submit@test.dk"},
+                "invoice_delivery": "email",
             },
         )
         client.post(

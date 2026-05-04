@@ -63,7 +63,23 @@ def build_spec() -> dict:
                     ],
                     "responses": {
                         "200": {
-                            "description": "Session med current_step, tier, flags og step_data"
+                            "description": "Session med current_step, tier, flags og step_data",
+                            "content": {"application/json": {"example": {
+                                "session_id": "550e8400-e29b-41d4-a716-446655440000",
+                                "current_step": 7,
+                                "tier": "smv",
+                                "flags": {"established_ag": True},
+                                "status": "draft",
+                                "expires_at": "2026-05-18T10:00:00+00:00",
+                                "step_data": {
+                                    "1": {"cvr_number": "12345678", "company_name": "Test A/S", "contact_name": "Jane Doe", "contact_email": "jane@test.dk"},
+                                    "3": {"selected_services": ["overenskomst", "personalejuridisk_raadgivning"]},
+                                    "4": {"employee_count": 25},
+                                    "5": {"overenskomst_status": "ja", "overenskomst_type": "direkte", "document_id": "uuid"},
+                                    "6": {"branchefaellesskaber": ["di-handel"]},
+                                    "7": {"computed_membership": "Arbejdsgiver", "membership_type": "Arbejdsgiver"},
+                                },
+                            }}},
                         },
                         "404": {"description": "Session ikke fundet eller udløbet"},
                     },
@@ -73,6 +89,10 @@ def build_spec() -> dict:
                 "post": {
                     "tags": ["Session"],
                     "summary": "Afslut wizard og opret registrering",
+                    "description": (
+                        "Kræver at alle 11 steps er gennemført (current_step = 11). "
+                        "Opretter en række i `registrations`-tabellen og sætter session status til 'submitted'."
+                    ),
                     "parameters": [
                         {
                             "name": "session_id",
@@ -82,9 +102,16 @@ def build_spec() -> dict:
                         }
                     ],
                     "responses": {
-                        "200": {"description": "Registrering oprettet"},
-                        "400": {"description": "Wizard ikke gennemført endnu"},
-                        "404": {"description": "Session ikke fundet"},
+                        "200": {
+                            "description": "Registrering oprettet – data er nu i registrations-tabellen",
+                            "content": {"application/json": {"example": {
+                                "registration_id": "550e8400-e29b-41d4-a716-446655440000",
+                                "session_id": "661f9511-f30c-52e5-b827-557766551111",
+                                "status": "submitted",
+                            }}},
+                        },
+                        "400": {"description": "Wizard ikke gennemført endnu (current_step < 11)"},
+                        "404": {"description": "Session ikke fundet eller udløbet"},
                     },
                 }
             },
@@ -148,15 +175,30 @@ def build_spec() -> dict:
                                             "selected_services": ["byggegaranti"],
                                         }
                                     },
-                                    "Step 4 – Medarbejdere (mikro 1-9)": {
-                                        "value": {"employee_count": 5}
-                                    },
-                                    "Step 4 – Medarbejdere (SMV 10-49)": {
-                                        "value": {"employee_count": 25}
-                                    },
-                                    "Step 4 – Medarbejdere (Erhverv 50+)": {
-                                        "value": {"employee_count": 75}
-                                    },
+                                    "Step 4 – Medarbejdere (mikro, 5 ansatte)": {"value": {
+                                        "employee_count": 5,
+                                        "no_employees": False,
+                                        "employee_types": ["funktionaer", "timeloennet"],
+                                        "total_loensum": 1500000,
+                                    }},
+                                    "Step 4 – Medarbejdere (SMV, 25 ansatte)": {"value": {
+                                        "employee_count": 25,
+                                        "no_employees": False,
+                                        "employee_types": ["funktionaer"],
+                                        "total_loensum": 8000000,
+                                    }},
+                                    "Step 4 – Medarbejdere (Erhverv, 75 ansatte)": {"value": {
+                                        "employee_count": 75,
+                                        "no_employees": False,
+                                        "employee_types": ["funktionaer", "timeloennet", "vikar"],
+                                        "total_loensum": 25000000,
+                                    }},
+                                    "Step 4 – Ingen ansatte endnu": {"value": {
+                                        "employee_count": 0,
+                                        "no_employees": True,
+                                        "employee_types": ["ved_ikke"],
+                                        "total_loensum": 0,
+                                    }},
                                     "Step 5 – Overenskomst: Nej → non_ovk flag": {
                                         "value": {
                                             "overenskomst_status": "nej",
@@ -201,17 +243,38 @@ def build_spec() -> dict:
                                             "accept_membership": True,
                                         }
                                     },
-                                    "Step 8 – Kontaktpersoner": {
+                                    "Step 8 – Kontaktpersoner (email faktura)": {
+                                        "value": {
+                                            "managing_director": {
+                                                "name": "Jane Doe",
+                                                "email": "jane@test.dk",
+                                                "phone": "12345678",
+                                                "title": "Administrerende direktør",
+                                            },
+                                            "hr_contact": {
+                                                "name": "HR Person",
+                                                "email": "hr@test.dk",
+                                                "phone": "87654321",
+                                            },
+                                            "payroll_contact": {
+                                                "name": "Løn Person",
+                                                "email": "loen@test.dk",
+                                            },
+                                            "authorized_signatory": None,
+                                            "invoice_delivery": "email",
+                                        }
+                                    },
+                                    "Step 8 – Kontaktpersoner (betalingsservice)": {
                                         "value": {
                                             "managing_director": {
                                                 "name": "Jane Doe",
                                                 "email": "jane@test.dk",
                                                 "phone": "12345678",
                                             },
-                                            "hr_contact": {
-                                                "name": "HR Person",
-                                                "email": "hr@test.dk",
-                                            },
+                                            "hr_contact": None,
+                                            "payroll_contact": None,
+                                            "authorized_signatory": None,
+                                            "invoice_delivery": "betalingsservice",
                                         }
                                     },
                                     "Step 9 – Accepter betingelser": {
@@ -220,7 +283,10 @@ def build_spec() -> dict:
                                             "accept_authority": True,
                                         }
                                     },
-                                    "Step 10 – MitID (mock)": {"value": {}},
+                                    "Step 10 – MitID (mock – send tomt body)": {
+                                        "value": {},
+                                        "summary": "Backend auto-godkender og sætter mitid_verified=true. Send blot et tomt objekt.",
+                                    },
                                 },
                             }
                         },

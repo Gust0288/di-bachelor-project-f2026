@@ -40,15 +40,37 @@ class Step3Data(BaseModel):
     andet_beskrivelse: Optional[str] = None
 
 
+VALID_EMPLOYEE_TYPES = {
+    "funktionaer",
+    "timeloennet",
+    "timeloennet_funktionaer_lignende",
+    "vikar",
+    "byggeri_og_anlaeg",
+    "mandskabsudlejning",
+    "ved_ikke",
+}
+
+
 class Step4Data(BaseModel):
     employee_count: int
+    no_employees: bool = False
+    employee_types: list[str]
+    total_loensum: int
 
-    @field_validator("employee_count")
-    @classmethod
-    def validate_count(cls, v: int) -> int:
-        if v < 0:
+    @model_validator(mode="after")
+    def validate_step4(self) -> "Step4Data":
+        if self.no_employees:
+            self.employee_count = 0
+        if self.employee_count < 0:
             raise ValueError("Antal ansatte kan ikke være negativt")
-        return v
+        if self.total_loensum < 0:
+            raise ValueError("Lønsum kan ikke være negativ")
+        invalid = set(self.employee_types) - VALID_EMPLOYEE_TYPES
+        if invalid:
+            raise ValueError(f"Ugyldige medarbejdertyper: {invalid}")
+        if not self.employee_types:
+            raise ValueError("Vælg mindst én medarbejdertype")
+        return self
 
 
 class Step5Data(BaseModel):
@@ -86,6 +108,7 @@ class Step8Data(BaseModel):
     hr_contact: Optional[ContactPerson] = None
     payroll_contact: Optional[ContactPerson] = None
     authorized_signatory: Optional[ContactPerson] = None
+    invoice_delivery: Literal["email", "betalingsservice"]
 
 
 class Step9Data(BaseModel):
