@@ -6,12 +6,20 @@ from pydantic import BaseModel, EmailStr, field_validator, model_validator
 
 
 class Step1Data(BaseModel):
+    # CVR-data (sendes fra frontend efter CVR-opslag)
     cvr_number: str
     company_name: str
+    company_type: Optional[str] = None       # virksomhedsform
+    address: Optional[str] = None            # adresse
+    zip_code: Optional[str] = None           # postnummer
+    city: Optional[str] = None               # by
+    industry_code: Optional[str] = None      # branchekode
+    industry_description: Optional[str] = None  # branchetekst
+
+    # Kontaktpersonens oplysninger
     contact_name: str
     contact_email: EmailStr
     contact_phone: Optional[str] = None
-    industry_code: Optional[str] = None
     website: Optional[str] = None
 
     @field_validator("cvr_number")

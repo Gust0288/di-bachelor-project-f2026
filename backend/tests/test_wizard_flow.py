@@ -30,30 +30,38 @@ def client(app):
 def cleanup_db():
     """
     Sletter kun sessions oprettet UNDER testen – rører ikke eksisterende dev-data.
+    Springer over hvis DB ikke er tilgængelig (unit-tests kræver ikke DB).
     """
-    with get_db_cursor() as (_, cur):
-        cur.execute("SELECT id FROM registration_sessions")
-        existing_ids = {str(r[0]) for r in cur.fetchall()}
+    try:
+        with get_db_cursor() as (_, cur):
+            cur.execute("SELECT id FROM registration_sessions")
+            existing_ids = {str(r[0]) for r in cur.fetchall()}
+    except Exception:
+        yield
+        return
 
     yield
 
-    with get_db_cursor() as (_, cur):
-        cur.execute("SELECT id FROM registration_sessions")
-        all_ids = {str(r[0]) for r in cur.fetchall()}
-        new_ids = list(all_ids - existing_ids)
-        if new_ids:
-            cur.execute(
-                "DELETE FROM uploaded_documents WHERE session_id = ANY(%s::uuid[])",
-                (new_ids,),
-            )
-            cur.execute(
-                "DELETE FROM registrations WHERE session_id = ANY(%s::uuid[])",
-                (new_ids,),
-            )
-            cur.execute(
-                "DELETE FROM registration_sessions WHERE id = ANY(%s::uuid[])",
-                (new_ids,),
-            )
+    try:
+        with get_db_cursor() as (_, cur):
+            cur.execute("SELECT id FROM registration_sessions")
+            all_ids = {str(r[0]) for r in cur.fetchall()}
+            new_ids = list(all_ids - existing_ids)
+            if new_ids:
+                cur.execute(
+                    "DELETE FROM uploaded_documents WHERE session_id = ANY(%s::uuid[])",
+                    (new_ids,),
+                )
+                cur.execute(
+                    "DELETE FROM registrations WHERE session_id = ANY(%s::uuid[])",
+                    (new_ids,),
+                )
+                cur.execute(
+                    "DELETE FROM registration_sessions WHERE id = ANY(%s::uuid[])",
+                    (new_ids,),
+                )
+    except Exception:
+        pass
 
 
 # ---------------------------------------------------------------------------

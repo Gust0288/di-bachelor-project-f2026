@@ -152,6 +152,12 @@ def build_spec() -> dict:
                                         "value": {
                                             "cvr_number": "12345678",
                                             "company_name": "Test A/S",
+                                            "company_type": "Aktieselskab",
+                                            "address": "Testvej 1",
+                                            "zip_code": "2100",
+                                            "city": "København Ø",
+                                            "industry_code": "620200",
+                                            "industry_description": "Konsulentbistand vedrørende informationsteknologi",
                                             "contact_name": "Jane Doe",
                                             "contact_email": "jane@test.dk",
                                             "contact_phone": "12345678",
