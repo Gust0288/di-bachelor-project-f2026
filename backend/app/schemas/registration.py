@@ -29,7 +29,9 @@ class Step2Data(BaseModel):
     @classmethod
     def must_be_confirmed(cls, v: bool) -> bool:
         if not v:
-            raise ValueError("Du skal bekræfte virksomhedsoplysningerne for at fortsætte")
+            raise ValueError(
+                "Du skal bekræfte virksomhedsoplysningerne for at fortsætte"
+            )
         return v
 
 

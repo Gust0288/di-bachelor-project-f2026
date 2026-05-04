@@ -48,8 +48,13 @@ def upload_document():
             (doc_id, session_id, file.filename, file.content_type, path, size),
         )
 
-    return jsonify({
-        "document_id": doc_id,
-        "file_name": file.filename,
-        "file_size_bytes": size,
-    }), 201
+    return (
+        jsonify(
+            {
+                "document_id": doc_id,
+                "file_name": file.filename,
+                "file_size_bytes": size,
+            }
+        ),
+        201,
+    )

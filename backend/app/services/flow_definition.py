@@ -75,10 +75,10 @@ FLOW_DEFINITION: dict = {
                 },
             ],
             "display_fields": [
-                {"label": "Virksomhedsnavn",  "source": "step_data.1.company_name"},
-                {"label": "CVR-nummer",        "source": "step_data.1.cvr_number"},
-                {"label": "Adresse",           "source": "step_data.1.address"},
-                {"label": "Branchekode(r)",    "source": "step_data.1.industry_code"},
+                {"label": "Virksomhedsnavn", "source": "step_data.1.company_name"},
+                {"label": "CVR-nummer", "source": "step_data.1.cvr_number"},
+                {"label": "Adresse", "source": "step_data.1.address"},
+                {"label": "Branchekode(r)", "source": "step_data.1.industry_code"},
             ],
             "blocking_options": None,
             "next_step": 3,
@@ -96,12 +96,21 @@ FLOW_DEFINITION: dict = {
                     "required": True,
                     "min_selections": 1,
                     "options": [
-                        {"value": "overenskomst",                  "label": "Overenskomst"},
-                        {"value": "personalejuridisk_raadgivning", "label": "Personalejuridisk rådgivning"},
-                        {"value": "erhvervsjuridisk_raadgivning",  "label": "Erhvervsjuridisk rådgivning"},
-                        {"value": "byggegaranti",                  "label": "Byggegaranti"},
-                        {"value": "di_byggeri_sektion",            "label": "Medlemskab af sektion i DI Byggeri"},
-                        {"value": "andet",                         "label": "Andet"},
+                        {"value": "overenskomst", "label": "Overenskomst"},
+                        {
+                            "value": "personalejuridisk_raadgivning",
+                            "label": "Personalejuridisk rådgivning",
+                        },
+                        {
+                            "value": "erhvervsjuridisk_raadgivning",
+                            "label": "Erhvervsjuridisk rådgivning",
+                        },
+                        {"value": "byggegaranti", "label": "Byggegaranti"},
+                        {
+                            "value": "di_byggeri_sektion",
+                            "label": "Medlemskab af sektion i DI Byggeri",
+                        },
+                        {"value": "andet", "label": "Andet"},
                     ],
                 },
                 {
@@ -109,7 +118,10 @@ FLOW_DEFINITION: dict = {
                     "type": "textarea",
                     "label": "Beskriv venligst",
                     "required": False,
-                    "depends_on": {"field_id": "selected_services", "contains": "andet"},
+                    "depends_on": {
+                        "field_id": "selected_services",
+                        "contains": "andet",
+                    },
                 },
             ],
             "blocking_options": None,
@@ -145,9 +157,9 @@ FLOW_DEFINITION: dict = {
                     "label": "Har virksomheden en overenskomst?",
                     "required": True,
                     "options": [
-                        {"value": "nej",      "label": "Nej"},
+                        {"value": "nej", "label": "Nej"},
                         {"value": "ved_ikke", "label": "Ved ikke"},
-                        {"value": "ja",       "label": "Ja"},
+                        {"value": "ja", "label": "Ja"},
                     ],
                 },
                 {
@@ -158,7 +170,10 @@ FLOW_DEFINITION: dict = {
                     "depends_on": {"field_id": "overenskomst_status", "value": "ja"},
                     "options": [
                         {"value": "direkte", "label": "Direkte med et fagforbund"},
-                        {"value": "anden",   "label": "Med en anden arbejdsgiverorganisation"},
+                        {
+                            "value": "anden",
+                            "label": "Med en anden arbejdsgiverorganisation",
+                        },
                     ],
                 },
                 {

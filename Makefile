@@ -22,6 +22,12 @@ dev: ## Start frontend dev-server (Vite, :5173)
 test: ## Kør frontend-tests (Jest)
 	cd frontend && npm test
 
+test-backend: ## Kør backend integration + DB persistenstests
+	cd backend && source .venv/bin/activate && python -m pytest tests/test_wizard_flow.py -v
+
+test-db: ## Kør kun DB persistenstests
+	cd backend && source .venv/bin/activate && python -m pytest tests/test_wizard_flow.py::TestDatabasePersistence -v
+
 lint: ## Kør linters (ESLint + Flake8)
 	cd frontend && npm run lint
 	flake8 --max-line-length=88 backend/

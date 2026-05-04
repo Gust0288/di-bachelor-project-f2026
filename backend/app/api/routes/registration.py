@@ -12,8 +12,10 @@ def _pydantic_errors(e: ValidationError) -> list[dict]:
     for err in e.errors(include_url=False):
         clean = {k: (str(v) if isinstance(v, Exception) else v) for k, v in err.items()}
         if "ctx" in clean and isinstance(clean["ctx"], dict):
-            clean["ctx"] = {k: str(v) if isinstance(v, Exception) else v
-                            for k, v in clean["ctx"].items()}
+            clean["ctx"] = {
+                k: str(v) if isinstance(v, Exception) else v
+                for k, v in clean["ctx"].items()
+            }
         result.append(clean)
     return result
 
@@ -201,7 +203,10 @@ def submit_step(session_id: str, step_number: int):
     except LookupError as e:
         return jsonify({"error": str(e)}), 404
     except ValidationError as e:
-        return jsonify({"error": "validation_error", "detail": _pydantic_errors(e)}), 422
+        return (
+            jsonify({"error": "validation_error", "detail": _pydantic_errors(e)}),
+            422,
+        )
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     return jsonify(result)

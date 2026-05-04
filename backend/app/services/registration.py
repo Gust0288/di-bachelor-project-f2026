@@ -12,10 +12,10 @@ from app.services.branch_mapping import get_suggestions
 from app.services.flow_definition import FLOW_DEFINITION
 from app.services.membership import calculate_membership, compute_tier
 
-
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
 
 def _get_step_def(step_number: int) -> dict:
     for step in FLOW_DEFINITION["steps"]:
@@ -26,7 +26,7 @@ def _get_step_def(step_number: int) -> dict:
 
 def _check_blocking(step_number: int, data: dict) -> tuple[bool, dict | None]:
     step_def = _get_step_def(step_number)
-    for blocker in (step_def.get("blocking_options") or []):
+    for blocker in step_def.get("blocking_options") or []:
         field_val = data.get(blocker["field_id"])
         if isinstance(field_val, list):
             if any(v in blocker["blocking_values"] for v in field_val):
@@ -66,14 +66,13 @@ def _compute_membership_from_session(session: dict) -> str:
 # Public API
 # ---------------------------------------------------------------------------
 
+
 def create_session() -> dict:
     with get_db_cursor(dict_rows=True) as (_, cur):
-        cur.execute(
-            """
+        cur.execute("""
             INSERT INTO registration_sessions DEFAULT VALUES
             RETURNING id, current_step, expires_at
-            """
-        )
+            """)
         row = cur.fetchone()
     return {
         "session_id": str(row["id"]),
@@ -194,7 +193,9 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
             for m in mandatory:
                 chosen.add(m)
             # Byggegaranti kræver DI Byggeri
-            step3_services = set(merged_step_data.get("3", {}).get("selected_services", []))
+            step3_services = set(
+                merged_step_data.get("3", {}).get("selected_services", [])
+            )
             if step3_services & {"byggegaranti", "di_byggeri_sektion"}:
                 chosen.add("di-byggeri")
             merged_step_data["6"]["branchefaellesskaber"] = list(chosen)

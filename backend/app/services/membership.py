@@ -1,4 +1,8 @@
-_ARBEJDSGIVER_SERVICES = {"overenskomst", "personalejuridisk_raadgivning", "erhvervsjuridisk_raadgivning"}
+_ARBEJDSGIVER_SERVICES = {
+    "overenskomst",
+    "personalejuridisk_raadgivning",
+    "erhvervsjuridisk_raadgivning",
+}
 _BYGGERI_SERVICES = {"byggegaranti", "di_byggeri_sektion"}
 
 
