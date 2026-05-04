@@ -190,17 +190,42 @@
   }
 
   dt {
-    color: var(--color-dark-100);
-    font-size: 0.8125rem;
+    color: var(--color-dark-500);
+    font-size: 0.875rem;
     font-weight: 600;
   }
 
   dd {
     margin: 0;
-    color: var(--color-dark-500);
+    color: var(--color-dark-100);
+    font-size: 1rem;
     font-weight: 500;
     line-height: 1.45;
     overflow-wrap: anywhere;
+  }
+}
+
+.summaryPriceRows {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin: 0;
+
+  div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--spacing-md);
+    align-items: start;
+  }
+
+  dt,
+  dd {
+    margin: 0;
+    color: var(--color-dark-500);
+    line-height: 1.45;
+  }
+
+  dd {
+    white-space: nowrap;
   }
 }
 
@@ -210,12 +235,14 @@
 }
 
 .summaryTotal {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-2xs);
+  justify-content: space-between;
   padding-block-start: var(--spacing-md);
-  border-block-start: 2px solid var(--color-primary);
 
   span {
+    flex: 1 1 auto;
     color: var(--color-dark-100);
     font-size: 0.8125rem;
     font-weight: 600;
@@ -223,11 +250,14 @@
 
   strong {
     color: var(--color-dark-500);
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: end;
   }
 
   small {
+    flex-basis: 100%;
     color: var(--color-dark-100);
+    text-align: end;
   }
 }

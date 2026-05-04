@@ -11,26 +11,11 @@ type SummaryItem = {
   value: string
 }
 
-function getBranchConfirmation(value: WizardFormData['branchCodesCorrect']) {
-  if (value === 'yes') {
-    return 'Ja, branchekoden er korrekt'
-  }
-
-  if (value === 'no') {
-    return 'Nej, branchekoden skal kontrolleres'
-  }
-
-  return undefined
-}
-
 export default function WizardSummary({
   formData,
   selectedCompany,
 }: WizardSummaryProps) {
   const primaryBranch = selectedCompany?.branchCodes[0]
-  const branchConfirmation = getBranchConfirmation(
-    formData.branchCodesCorrect,
-  )
   const summaryItems = [
     selectedCompany && {
       label: 'Virksomhedens navn',
@@ -38,33 +23,16 @@ export default function WizardSummary({
     },
     primaryBranch && {
       label: 'Primær branche',
-      value: `${primaryBranch.code} - ${primaryBranch.title}`,
+      value: `${primaryBranch.code} ${primaryBranch.title}`,
     },
     formData.contactName && {
       label: 'Kontaktperson',
       value: formData.contactName,
     },
-    formData.contactJobTitle && {
-      label: 'Stillingsbetegnelse',
-      value: formData.contactJobTitle,
-    },
-    formData.contactEmail && {
-      label: 'Email',
-      value: formData.contactEmail,
-    },
-    formData.contactPhone && {
-      label: 'Telefonnummer',
-      value: formData.contactPhone,
-    },
-    formData.website && {
-      label: 'Hjemmeside',
-      value: formData.website,
-    },
-    branchConfirmation && {
-      label: 'Branchekode',
-      value: branchConfirmation,
-    },
   ].filter((item): item is SummaryItem => Boolean(item))
+
+  const priceRows: SummaryItem[] = []
+  const estimatedPrice = undefined
 
   return (
     <section className={styles.summary} aria-labelledby="wizard-summary-title">
@@ -87,10 +55,27 @@ export default function WizardSummary({
         </p>
       )}
 
+      {priceRows.length > 0 ? (
+        <dl className={styles.summaryPriceRows}>
+          {priceRows.map((item) => (
+            <div key={item.label}>
+              <dt>{item.label}</dt>
+              <dd>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+
       <div className={styles.summaryTotal}>
         <span>Estimeret pris</span>
-        <strong>Afventer oplysninger</strong>
-        <small>pr. medarbejder / md.</small>
+        {estimatedPrice ? (
+          <>
+            <strong>{estimatedPrice}</strong>
+            <small>pr. medarbejder / md.</small>
+          </>
+        ) : (
+          <strong>Afventer oplysninger</strong>
+        )}
       </div>
     </section>
   )
