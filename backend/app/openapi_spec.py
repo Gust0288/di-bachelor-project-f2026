@@ -1,0 +1,241 @@
+def build_spec() -> dict:
+    return {
+        "openapi": "3.0.3",
+        "info": {
+            "title": "DI Indmeldelsesportal API",
+            "version": "1.0",
+            "description": (
+                "Backend API til DI's selvbetjeningswizard. "
+                "Start med POST /registration/session, gem derefter hvert step med "
+                "POST /registration/session/{session_id}/step/{n}."
+            ),
+        },
+        "tags": [
+            {"name": "Flow",       "description": "Wizard flow-definition"},
+            {"name": "Session",    "description": "Opret og hent session"},
+            {"name": "Steps",      "description": "Gem step-data og hent forslag"},
+            {"name": "Dokumenter", "description": "Fil-upload"},
+        ],
+        "paths": {
+            "/registration/flow": {
+                "get": {
+                    "tags": ["Flow"],
+                    "summary": "Hent komplet wizard flow-definition",
+                    "description": "Returnerer alle 11 steps med felter, valgmuligheder og blokerende options.",
+                    "responses": {
+                        "200": {"description": "Flow-definition JSON med version, total_steps og steps[]"}
+                    },
+                }
+            },
+            "/registration/session": {
+                "post": {
+                    "tags": ["Session"],
+                    "summary": "Opret ny wizard-session",
+                    "responses": {
+                        "201": {
+                            "description": "Session oprettet",
+                            "content": {"application/json": {"example": {
+                                "session_id": "550e8400-e29b-41d4-a716-446655440000",
+                                "current_step": 1,
+                                "expires_at": "2026-05-18T10:00:00+00:00",
+                            }}},
+                        }
+                    },
+                }
+            },
+            "/registration/session/{session_id}": {
+                "get": {
+                    "tags": ["Session"],
+                    "summary": "Hent session state (til genoptagelse)",
+                    "parameters": [{"name": "session_id", "in": "path", "required": True, "schema": {"type": "string"}}],
+                    "responses": {
+                        "200": {"description": "Session med current_step, tier, flags og step_data"},
+                        "404": {"description": "Session ikke fundet eller udløbet"},
+                    },
+                }
+            },
+            "/registration/session/{session_id}/submit": {
+                "post": {
+                    "tags": ["Session"],
+                    "summary": "Afslut wizard og opret registrering",
+                    "parameters": [{"name": "session_id", "in": "path", "required": True, "schema": {"type": "string"}}],
+                    "responses": {
+                        "200": {"description": "Registrering oprettet"},
+                        "400": {"description": "Wizard ikke gennemført endnu"},
+                        "404": {"description": "Session ikke fundet"},
+                    },
+                }
+            },
+            "/registration/session/{session_id}/step/{step_number}": {
+                "post": {
+                    "tags": ["Steps"],
+                    "summary": "Gem data for et wizard-step",
+                    "description": (
+                        "**Membership beregnes automatisk efter step 6** ud fra:\n\n"
+                        "- **Step 3** services: `overenskomst`, `personalejuridisk_raadgivning`, `erhvervsjuridisk_raadgivning` → løfter SMV til Arbejdsgiver. "
+                        "`byggegaranti` / `di_byggeri_sektion` → tilføjer DI Byggeri → Branchemedlem for erhverv.\n"
+                        "- **Step 4** ansatte: 1-9=mikro→Associeret, 10-49=smv, 50+=erhverv\n"
+                        "- **Step 5** overenskomst: `nej`→non_ovk flag, `ja`+`direkte`→established_ag flag (dokument påkrævet), `ved_ikke`/`anden`→BLOKERET\n"
+                        "- **Step 6** branches: mandatory fællesskab tilføjes automatisk fra branchekode\n\n"
+                        "Resultat gemmes i `session.step_data[\"7\"][\"computed_membership\"]`."
+                    ),
+                    "parameters": [
+                        {"name": "session_id",   "in": "path", "required": True, "schema": {"type": "string"}},
+                        {"name": "step_number",  "in": "path", "required": True, "schema": {"type": "integer", "minimum": 1, "maximum": 10}},
+                    ],
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {"type": "object"},
+                                "examples": {
+                                    "Step 1 – Virksomhedsinformation": {"value": {
+                                        "cvr_number": "12345678",
+                                        "company_name": "Test A/S",
+                                        "contact_name": "Jane Doe",
+                                        "contact_email": "jane@test.dk",
+                                        "contact_phone": "12345678",
+                                    }},
+                                    "Step 2 – Bekræft CVR-oplysninger": {"value": {
+                                        "cvr_confirmed": True,
+                                    }},
+                                    "Step 3 – Servicevalg (løfter til Arbejdsgiver)": {"value": {
+                                        "selected_services": ["overenskomst", "personalejuridisk_raadgivning"],
+                                    }},
+                                    "Step 3 – Servicevalg (Byggegaranti → DI Byggeri påkrævet)": {"value": {
+                                        "selected_services": ["byggegaranti"],
+                                    }},
+                                    "Step 4 – Medarbejdere (mikro 1-9)": {"value": {"employee_count": 5}},
+                                    "Step 4 – Medarbejdere (SMV 10-49)": {"value": {"employee_count": 25}},
+                                    "Step 4 – Medarbejdere (Erhverv 50+)": {"value": {"employee_count": 75}},
+                                    "Step 5 – Overenskomst: Nej → non_ovk flag": {"value": {
+                                        "overenskomst_status": "nej",
+                                    }},
+                                    "Step 5 – Overenskomst: Ja + direkte → established_ag flag (dokument påkrævet)": {"value": {
+                                        "overenskomst_status": "ja",
+                                        "overenskomst_type": "direkte",
+                                        "document_id": "550e8400-e29b-41d4-a716-446655440000",
+                                    }},
+                                    "Step 5 – BLOKERENDE: Ved ikke": {"value": {"overenskomst_status": "ved_ikke"}},
+                                    "Step 5 – BLOKERENDE: Anden overenskomsttype": {"value": {
+                                        "overenskomst_status": "ja",
+                                        "overenskomst_type": "anden",
+                                    }},
+                                    "Step 6 – Branchefællesskaber (mandatory tilføjes automatisk)": {"value": {
+                                        "branchefaellesskaber": ["di-byggeri"],
+                                    }},
+                                    "Step 7 – Bekræft Associeret": {"value": {
+                                        "membership_type": "Associeret",
+                                        "accept_membership": True,
+                                    }},
+                                    "Step 7 – Bekræft Arbejdsgiver": {"value": {
+                                        "membership_type": "Arbejdsgiver",
+                                        "accept_membership": True,
+                                    }},
+                                    "Step 7 – Bekræft Branchemedlem": {"value": {
+                                        "membership_type": "Branchemedlem",
+                                        "accept_membership": True,
+                                    }},
+                                    "Step 8 – Kontaktpersoner": {"value": {
+                                        "managing_director": {"name": "Jane Doe", "email": "jane@test.dk", "phone": "12345678"},
+                                        "hr_contact": {"name": "HR Person", "email": "hr@test.dk"},
+                                    }},
+                                    "Step 9 – Accepter betingelser": {"value": {
+                                        "accept_terms": True,
+                                        "accept_authority": True,
+                                    }},
+                                    "Step 10 – MitID (mock)": {"value": {}},
+                                },
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Step gemt. is_blocked=true hvis blokerende svar er valgt.",
+                            "content": {"application/json": {"example": {
+                                "session_id": "uuid",
+                                "current_step": 6,
+                                "tier": "smv",
+                                "flags": {"non_ovk": True},
+                                "is_blocked": False,
+                                "blocking_popup": None,
+                                "next_step": 6,
+                            }}},
+                        },
+                        "404": {"description": "Session ikke fundet"},
+                        "422": {"description": "Valideringsfejl"},
+                    },
+                },
+                "get": {
+                    "tags": ["Steps"],
+                    "summary": "Hent gemt data for et step (back-navigation)",
+                    "parameters": [
+                        {"name": "session_id",  "in": "path", "required": True, "schema": {"type": "string"}},
+                        {"name": "step_number", "in": "path", "required": True, "schema": {"type": "integer"}},
+                    ],
+                    "responses": {
+                        "200": {"description": "Gemt step-data"},
+                        "404": {"description": "Session ikke fundet"},
+                    },
+                },
+            },
+            "/registration/session/{session_id}/step/6/suggestions": {
+                "get": {
+                    "tags": ["Steps"],
+                    "summary": "Hent DI branchefællesskabs-forslag til step 6",
+                    "description": "Returnerer mandatory (låst), suggested og all (alle 13 fællesskaber) baseret på CVR-branchekode.",
+                    "parameters": [{"name": "session_id", "in": "path", "required": True, "schema": {"type": "string"}}],
+                    "responses": {
+                        "200": {
+                            "description": "Forslag til branchefællesskaber",
+                            "content": {"application/json": {"example": {
+                                "mandatory": ["di-byggeri"],
+                                "suggested": ["di-teknik-og-installation"],
+                                "all": [{"id": "di-byggeri", "name": "DI Byggeri"}],
+                            }}},
+                        },
+                        "404": {"description": "Session ikke fundet"},
+                    },
+                }
+            },
+            "/documents/upload": {
+                "post": {
+                    "tags": ["Dokumenter"],
+                    "summary": "Upload dokument (f.eks. overenskomst til step 5)",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "multipart/form-data": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "session_id": {"type": "string"},
+                                        "file": {"type": "string", "format": "binary"},
+                                    },
+                                    "required": ["session_id", "file"],
+                                }
+                            }
+                        },
+                    },
+                    "responses": {
+                        "201": {"description": "Dokument uploadet"},
+                        "400": {"description": "Mangler session_id eller fil"},
+                    },
+                }
+            },
+            "/cvr/lookup": {
+                "get": {
+                    "tags": ["Flow"],
+                    "summary": "Slå virksomhed op via CVR eller navn",
+                    "parameters": [
+                        {"name": "vat",  "in": "query", "schema": {"type": "string"}, "description": "CVR-nummer (8 cifre)"},
+                        {"name": "name", "in": "query", "schema": {"type": "string"}, "description": "Virksomhedsnavn (min. 3 tegn)"},
+                    ],
+                    "responses": {
+                        "200": {"description": "Virksomhedsoplysninger"},
+                        "404": {"description": "Virksomhed ikke fundet"},
+                    },
+                }
+            },
+        },
+    }
