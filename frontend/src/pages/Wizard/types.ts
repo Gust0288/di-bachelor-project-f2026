@@ -69,6 +69,17 @@ export type StepSubmitResponse = {
   next_step: number | null
 }
 
+export type StepDataResponse = {
+  step_number: number
+  data: Record<string, unknown>
+}
+
+export type BranchSuggestionsResponse = {
+  mandatory: string[]
+  suggested: string[]
+  all: Array<{ id: string; name: string }>
+}
+
 export type CvrHiddenFields = {
   cvr_number: string
   company_name: string

@@ -1,5 +1,11 @@
 import { apiFetch } from './client'
-import type { FlowDefinition, SessionState, StepSubmitResponse } from '../pages/Wizard/types'
+import type {
+  BranchSuggestionsResponse,
+  FlowDefinition,
+  SessionState,
+  StepDataResponse,
+  StepSubmitResponse,
+} from '../pages/Wizard/types'
 
 type CreateSessionResponse = {
   session_id: string
@@ -32,4 +38,26 @@ export function saveStep(
       body: JSON.stringify(data),
     },
   )
+}
+
+export function getStep(sessionId: string, stepNumber: number): Promise<StepDataResponse> {
+  return apiFetch<StepDataResponse>(
+    `/registration/session/${sessionId}/step/${stepNumber}`,
+  )
+}
+
+export function getBranchSuggestions(sessionId: string): Promise<BranchSuggestionsResponse> {
+  return apiFetch<BranchSuggestionsResponse>(
+    `/registration/session/${sessionId}/step/6/suggestions`,
+  )
+}
+
+export function uploadDocument(sessionId: string, file: File): Promise<{ document_id: string }> {
+  const formData = new FormData()
+  formData.append('session_id', sessionId)
+  formData.append('file', file)
+  return apiFetch<{ document_id: string }>('/documents/upload', {
+    method: 'POST',
+    body: formData,
+  })
 }

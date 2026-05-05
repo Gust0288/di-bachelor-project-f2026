@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { createSession, getFlow, saveStep as apiSaveStep } from '../../api/registration'
+import { createSession, getFlow, getSession, saveStep as apiSaveStep } from '../../api/registration'
 import type { FlowDefinition, StepSubmitResponse } from './types'
 
 type WizardSessionState = {
@@ -12,6 +12,7 @@ type WizardSessionState = {
 
 type UseWizardSessionReturn = WizardSessionState & {
   saveStep: (stepNumber: number, data: Record<string, unknown>) => Promise<StepSubmitResponse>
+  refetchSession: () => Promise<void>
 }
 
 export function useWizardSession(): UseWizardSessionReturn {
@@ -63,5 +64,14 @@ export function useWizardSession(): UseWizardSessionReturn {
     return response
   }
 
-  return { ...state, saveStep }
+  async function refetchSession(): Promise<void> {
+    if (!state.sessionId) return
+    const session = await getSession(state.sessionId)
+    setState((s) => ({
+      ...s,
+      stepData: { ...s.stepData, ...session.step_data },
+    }))
+  }
+
+  return { ...state, saveStep, refetchSession }
 }
