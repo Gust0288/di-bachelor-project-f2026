@@ -9,11 +9,11 @@ class Step1Data(BaseModel):
     # CVR-data (sendes fra frontend efter CVR-opslag)
     cvr_number: str
     company_name: str
-    company_type: Optional[str] = None       # virksomhedsform
-    address: Optional[str] = None            # adresse
-    zip_code: Optional[str] = None           # postnummer
-    city: Optional[str] = None               # by
-    industry_code: Optional[str] = None      # branchekode
+    company_type: Optional[str] = None  # virksomhedsform
+    address: Optional[str] = None  # adresse
+    zip_code: Optional[str] = None  # postnummer
+    city: Optional[str] = None  # by
+    industry_code: Optional[str] = None  # branchekode
     industry_description: Optional[str] = None  # branchetekst
 
     # Kontaktpersonens oplysninger
