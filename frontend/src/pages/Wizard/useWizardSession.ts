@@ -6,6 +6,8 @@ type WizardSessionState = {
   sessionId: string | null
   flow: FlowDefinition | null
   stepData: Record<string, Record<string, unknown>>
+  tier: string | null
+  flags: Record<string, unknown>
   isLoading: boolean
   error: string | null
 }
@@ -20,6 +22,8 @@ export function useWizardSession(): UseWizardSessionReturn {
     sessionId: null,
     flow: null,
     stepData: {},
+    tier: null,
+    flags: {},
     isLoading: true,
     error: null,
   })
@@ -36,6 +40,8 @@ export function useWizardSession(): UseWizardSessionReturn {
           sessionId: sessionData.session_id,
           flow: flowData,
           stepData: {},
+          tier: null,
+          flags: {},
           isLoading: false,
           error: null,
         })
@@ -70,6 +76,8 @@ export function useWizardSession(): UseWizardSessionReturn {
     setState((s) => ({
       ...s,
       stepData: { ...s.stepData, ...session.step_data },
+      tier: session.tier,
+      flags: session.flags,
     }))
   }
 

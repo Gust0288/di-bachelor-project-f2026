@@ -27,6 +27,19 @@
   }
 }
 
+.contentBox__headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.contentBox__action {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: var(--color-dark-100);
+}
+
 .contentBox__content {
   display: grid;
   gap: var(--spacing-md);

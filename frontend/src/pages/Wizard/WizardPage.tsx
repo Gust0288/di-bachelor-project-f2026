@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Button from '../../components/Button/Button'
 import { Form } from '../../components/Form/Form'
 import InlineAlert from '../../components/InlineAlert/InlineAlert'
@@ -31,6 +31,37 @@ import type { ContactPerson } from './steps/ContactPersonFields'
 const wizardStepCount = wizardStepLabels.length
 
 const emptyContact = (): ContactPerson => ({ name: '', email: '', phone: '', title: '' })
+
+const ARBEJDSGIVER_SERVICES = new Set([
+  'overenskomst',
+  'personalejuridisk_raadgivning',
+  'erhvervsjuridisk_raadgivning',
+])
+const BYGGERI_SERVICES = new Set(['byggegaranti', 'di_byggeri_sektion'])
+
+function computeTier(employeeCount: number | undefined): string | null {
+  if (employeeCount === undefined) return null
+  if (employeeCount >= 50) return 'erhverv'
+  if (employeeCount >= 10) return 'smv'
+  return 'mikro'
+}
+
+function computeMembership(
+  tier: string | null,
+  established_ag: boolean,
+  branchefaellesskaber: string[],
+  selectedServices: string[],
+): string | undefined {
+  if (!tier) return undefined
+  const services = new Set(selectedServices)
+  const branches = new Set(branchefaellesskaber)
+  if ([...services].some((s) => BYGGERI_SERVICES.has(s))) branches.add('di-byggeri')
+  const hasBranch = branches.size > 0
+  const serviceRequiresArbejdsgiver = [...services].some((s) => ARBEJDSGIVER_SERVICES.has(s))
+  if (tier === 'erhverv') return hasBranch ? 'Branchemedlem' : 'Erhvervsmedlem'
+  if (tier === 'smv') return established_ag || serviceRequiresArbejdsgiver ? 'Arbejdsgiver' : 'Associeret'
+  return 'Associeret'
+}
 
 export default function WizardPage() {
   // ── Step 1 state ──────────────────────────────────────────────
@@ -82,6 +113,18 @@ export default function WizardPage() {
 
   const { sessionId, saveStep, refetchSession, stepData, isLoading: sessionLoading, error: sessionError } =
     useWizardSession()
+
+  // Keep a stable ref to refetchSession so the effect below doesn't re-run on every render
+  const refetchRef = useRef(refetchSession)
+  useEffect(() => { refetchRef.current = refetchSession })
+
+  // Whenever step 7 (membership) becomes active, fetch the latest computed membership
+  // from backend — handles going back and changing services/employees/overenskomst/branches
+  useEffect(() => {
+    if (currentStepIndex === 6 && sessionId) {
+      refetchRef.current()
+    }
+  }, [currentStepIndex, sessionId])
 
   const canAccessBranchStep = hasCompletedCompanyInformation(formData)
 
@@ -276,11 +319,19 @@ export default function WizardPage() {
         setValidationMessage('Bekræft den anbefalede medlemskabstype for at fortsætte.')
         return
       }
-      const computedMembership = stepData['7']?.computed_membership as string | undefined
+      const step5 = stepData['5'] ?? {}
+      const established_ag =
+        step5.overenskomst_status === 'ja' && step5.overenskomst_type === 'direkte'
+      const localMembership = computeMembership(
+        computeTier(stepData['4']?.employee_count as number | undefined),
+        Boolean(established_ag),
+        stepData['6']?.branchefaellesskaber as string[] ?? [],
+        stepData['3']?.selected_services as string[] ?? [],
+      )
       setIsSaving(true)
       try {
         const response = await saveStep(7, {
-          membership_type: computedMembership ?? '',
+          membership_type: localMembership ?? '',
           accept_membership: acceptMembership,
         })
         setCurrentStepIndex((response.next_step ?? 8) - 1)
@@ -421,17 +472,42 @@ export default function WizardPage() {
             onSelectionChange={setSelectedFaellesskaber}
           />
         )
-      case 6:
+      case 6: {
+        const employeeCount = stepData['4']?.employee_count as number | undefined
+        const localTier = computeTier(employeeCount)
+        const step5 = stepData['5'] ?? {}
+        const established_ag =
+          step5.overenskomst_status === 'ja' && step5.overenskomst_type === 'direkte'
+        const localMembership = computeMembership(
+          localTier,
+          Boolean(established_ag),
+          stepData['6']?.branchefaellesskaber as string[] ?? [],
+          stepData['3']?.selected_services as string[] ?? [],
+        )
         return (
           <MembershipStep
-            computedMembership={stepData['7']?.computed_membership as string | undefined}
+            computedMembership={localMembership}
+            tier={localTier}
+            flags={{ established_ag: Boolean(established_ag) }}
+            employeeCount={employeeCount}
+            selectedServices={stepData['3']?.selected_services as string[] | undefined}
+            overenskomstStatus={stepData['5']?.overenskomst_status as string | undefined}
+            overenskomstType={stepData['5']?.overenskomst_type as string | undefined}
+            branchefaellesskaber={stepData['6']?.branchefaellesskaber as string[] | undefined}
             acceptMembership={acceptMembership}
             onAcceptChange={setAcceptMembership}
           />
         )
+      }
       case 7:
         return (
           <ContactsStep
+            step1Contact={{
+              name: formData.contactName,
+              email: formData.contactEmail,
+              phone: formData.contactPhone,
+              title: formData.contactJobTitle,
+            }}
             managingDirector={managingDirector}
             onManagingDirectorChange={setManagingDirector}
             hrContact={hrContact}

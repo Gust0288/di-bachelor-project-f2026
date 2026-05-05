@@ -1,12 +1,16 @@
 import { useState } from 'react'
-import Checkbox from '../../../components/Checkbox/Checkbox'
+import Button from '../../../components/Button/Button'
 import ContentBox from '../../../components/ContentBox'
 import RadioCardGroup from '../../../components/RadioCardGroup/RadioCardGroup'
 import ContactPersonFields, { type ContactPerson } from './ContactPersonFields'
 
 const emptyContact = (): ContactPerson => ({ name: '', email: '', phone: '', title: '' })
 
+type ContactMode = 'none' | 'step1' | 'custom'
+type Step1Contact = { name: string; email: string; phone: string; title: string }
+
 type ContactsStepProps = {
+  step1Contact: Step1Contact
   managingDirector: ContactPerson
   onManagingDirectorChange: (value: ContactPerson) => void
   hrContact: ContactPerson | null
@@ -19,7 +23,29 @@ type ContactsStepProps = {
   onInvoiceDeliveryChange: (value: string) => void
 }
 
+function useOptionalContact(
+  step1Contact: Step1Contact,
+  onChange: (v: ContactPerson | null) => void,
+) {
+  const [mode, setMode] = useState<ContactMode>('none')
+
+  function handleModeChange(next: string) {
+    const m = next as ContactMode
+    setMode(m)
+    if (m === 'none') {
+      onChange(null)
+    } else if (m === 'step1') {
+      onChange({ name: step1Contact.name, email: step1Contact.email, phone: step1Contact.phone, title: step1Contact.title })
+    } else {
+      onChange(emptyContact())
+    }
+  }
+
+  return { mode, handleModeChange }
+}
+
 export default function ContactsStep({
+  step1Contact,
   managingDirector,
   onManagingDirectorChange,
   hrContact,
@@ -31,17 +57,30 @@ export default function ContactsStep({
   invoiceDelivery,
   onInvoiceDeliveryChange,
 }: ContactsStepProps) {
-  const [showHr, setShowHr] = useState(hrContact !== null)
-  const [showPayroll, setShowPayroll] = useState(payrollContact !== null)
-  const [showSignatory, setShowSignatory] = useState(authorizedSignatory !== null)
+  const hr = useOptionalContact(step1Contact, onHrContactChange)
+  const payroll = useOptionalContact(step1Contact, onPayrollContactChange)
+  const signatory = useOptionalContact(step1Contact, onAuthorizedSignatoryChange)
 
-  function toggleOptional(
-    show: boolean,
-    setShow: (v: boolean) => void,
-    onChange: (v: ContactPerson | null) => void,
-  ) {
-    setShow(show)
-    onChange(show ? emptyContact() : null)
+  const step1Option = {
+    value: 'step1' as const,
+    title: step1Contact.name || 'Kontaktperson fra trin 1',
+    description: step1Contact.email || undefined,
+  }
+
+  function step1Action(current: ContactPerson, onChange: (v: ContactPerson) => void) {
+    if (!step1Contact.name && !step1Contact.email) return undefined
+    return (
+      <Button
+        type="button"
+        variant="styleless"
+        size="sm"
+        onPress={() =>
+          onChange({ ...current, name: step1Contact.name, email: step1Contact.email, phone: step1Contact.phone, title: step1Contact.title })
+        }
+      >
+        Anvend fra trin 1
+      </Button>
+    )
   }
 
   return (
@@ -49,6 +88,7 @@ export default function ContactsStep({
       <ContentBox
         title="Administrerende direktør"
         description="Oplysninger om administrerende direktør. Kontrollér at de er korrekte."
+        action={step1Action(managingDirector, onManagingDirectorChange)}
       >
         <ContactPersonFields
           value={managingDirector}
@@ -61,13 +101,17 @@ export default function ContactsStep({
         title="Primær kontaktperson for personalejura"
         description="Den person DI kontakter ved personalejuridiske spørgsmål."
       >
-        <Checkbox
-          isSelected={showHr}
-          onChange={(checked) => toggleOptional(checked, setShowHr, onHrContactChange)}
-        >
-          Tilføj HR-kontakt
-        </Checkbox>
-        {showHr && hrContact ? (
+        <RadioCardGroup
+          label="Hvem er primær HR-kontakt?"
+          options={[
+            { value: 'none', title: 'Tilføj ikke' },
+            step1Option,
+            { value: 'custom', title: 'Tilføj anden kontaktperson' },
+          ]}
+          value={hr.mode}
+          onChange={hr.handleModeChange}
+        />
+        {hr.mode !== 'none' && hrContact ? (
           <ContactPersonFields value={hrContact} onChange={onHrContactChange} />
         ) : null}
       </ContentBox>
@@ -76,13 +120,17 @@ export default function ContactsStep({
         title="Lønsumsinberreter"
         description="Den person der indberetter lønsum til DI."
       >
-        <Checkbox
-          isSelected={showPayroll}
-          onChange={(checked) => toggleOptional(checked, setShowPayroll, onPayrollContactChange)}
-        >
-          Tilføj lønkontakt
-        </Checkbox>
-        {showPayroll && payrollContact ? (
+        <RadioCardGroup
+          label="Hvem indberetter lønsum?"
+          options={[
+            { value: 'none', title: 'Tilføj ikke' },
+            step1Option,
+            { value: 'custom', title: 'Tilføj anden kontaktperson' },
+          ]}
+          value={payroll.mode}
+          onChange={payroll.handleModeChange}
+        />
+        {payroll.mode !== 'none' && payrollContact ? (
           <ContactPersonFields value={payrollContact} onChange={onPayrollContactChange} />
         ) : null}
       </ContentBox>
@@ -91,19 +139,18 @@ export default function ContactsStep({
         title="Anden tegningsberettiget"
         description="Udfyldes kun hvis en anden person end adm. dir. tegner virksomheden."
       >
-        <Checkbox
-          isSelected={showSignatory}
-          onChange={(checked) =>
-            toggleOptional(checked, setShowSignatory, onAuthorizedSignatoryChange)
-          }
-        >
-          Tilføj tegningsberettiget
-        </Checkbox>
-        {showSignatory && authorizedSignatory ? (
-          <ContactPersonFields
-            value={authorizedSignatory}
-            onChange={onAuthorizedSignatoryChange}
-          />
+        <RadioCardGroup
+          label="Er der en anden tegningsberettiget?"
+          options={[
+            { value: 'none', title: 'Nej' },
+            step1Option,
+            { value: 'custom', title: 'Tilføj anden kontaktperson' },
+          ]}
+          value={signatory.mode}
+          onChange={signatory.handleModeChange}
+        />
+        {signatory.mode !== 'none' && authorizedSignatory ? (
+          <ContactPersonFields value={authorizedSignatory} onChange={onAuthorizedSignatoryChange} />
         ) : null}
       </ContentBox>
 
