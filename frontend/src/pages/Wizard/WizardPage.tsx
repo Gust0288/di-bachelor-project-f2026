@@ -16,6 +16,9 @@ import AssociationsStep from './steps/06AssociationsStep'
 import MembershipStep from './steps/07MembershipStep'
 import ContactsStep from './steps/08ContactsStep'
 import ApprovalStep from './steps/09ApprovalStep'
+import MitIdVerificationStep, {
+  type MitIdStatus,
+} from './steps/10MitIdVerificationStep'
 import WizardHeader from './WizardHeader'
 import styles from './WizardPage.module.scss'
 import WizardSummary from './WizardSummary'
@@ -50,7 +53,9 @@ export default function WizardPage() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [selectedCompany, setSelectedCompany] = useState<CompanyOption | undefined>(undefined)
   const [validationMessage, setValidationMessage] = useState<string>()
+  const [mitIdStatus, setMitIdStatus] = useState<MitIdStatus>('idle')
   const canAccessBranchStep = hasCompletedCompanyInformation(formData)
+  const isMitIdStep = currentStepIndex === wizardStepCount - 1
 
   const wizardSteps = useMemo<WizardStep[]>(
     () =>
@@ -84,6 +89,11 @@ export default function WizardPage() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (isMitIdStep) {
+      return
+    }
+
     const message = getStepValidationMessage(currentStepIndex, formData)
 
     if (message) {
@@ -124,6 +134,14 @@ export default function WizardPage() {
     setCurrentStepIndex(stepIndex)
   }
 
+  function handleMitIdVerification() {
+    setMitIdStatus('pending')
+
+    window.setTimeout(() => {
+      setMitIdStatus('verified')
+    }, 1600)
+  }
+
   function renderCurrentStep() {
     switch (currentStepIndex) {
       case 0:
@@ -156,6 +174,13 @@ export default function WizardPage() {
         return <ContactsStep />
       case 8:
         return <ApprovalStep />
+      case 9:
+        return (
+          <MitIdVerificationStep
+            status={mitIdStatus}
+            onVerify={handleMitIdVerification}
+          />
+        )
       default:
         return null
     }
@@ -195,7 +220,12 @@ export default function WizardPage() {
               Tilbage
             </Button>
           ) : null}
-          <Button type="submit">Fortsæt</Button>
+          <Button
+            type="submit"
+            isDisabled={isMitIdStep && mitIdStatus !== 'verified'}
+          >
+            {isMitIdStep ? 'Afslut' : 'Fortsæt'}
+          </Button>
         </footer>
       </Form>
     </WizardLayout>
