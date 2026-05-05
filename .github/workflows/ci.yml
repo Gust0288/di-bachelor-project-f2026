@@ -65,7 +65,7 @@ jobs:
         run: black --check backend/
 
       - name: Lint
-        run: flake8 --max-line-length=88 backend/
+        run: flake8 --config backend/.flake8 backend/
 
   # ── STAGE: build ───────────────────────────────────────────────────────────
 
