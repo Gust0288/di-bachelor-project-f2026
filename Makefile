@@ -38,7 +38,7 @@ venv: ## Vis kommando til at aktivere Python venv
 
 lint: ## Kør linters (ESLint + Flake8)
 	cd frontend && npm run lint
-	cd backend && $(CURDIR)/$(VENV)/python -m flake8 --max-line-length=88 .
+	cd backend && $(CURDIR)/$(VENV)/python -m flake8 .
 
 format: ## Formatér backend-kode (Black)
 	cd backend && $(CURDIR)/$(VENV)/python -m black .

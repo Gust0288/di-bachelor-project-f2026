@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from contextlib import suppress
 from typing import Any
 
 from pydantic import ValidationError
