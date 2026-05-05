@@ -20,36 +20,26 @@ import WizardHeader from './WizardHeader'
 import styles from './WizardPage.module.scss'
 import WizardSummary from './WizardSummary'
 import { initialFormData } from './wizard.constants'
-import {
-  calculateWizardProgress,
-  hasCompletedBranchInformation,
-  hasCompletedCompanyInformation,
-} from './wizardProgress'
+import { hasCompletedCompanyInformation } from './wizardProgress'
 import { wizardStepLabels } from './wizardSteps'
 import type { CompanyOption, WizardFormData } from './wizard.types'
+import type { CvrHiddenFields } from './types'
+import { useWizardSession } from './useWizardSession'
+import { calculateWizardProgress } from './wizardProgress'
 
 const wizardStepCount = wizardStepLabels.length
-
-function getStepValidationMessage(
-  stepIndex: number,
-  formData: WizardFormData,
-) {
-  if (stepIndex === 0 && !hasCompletedCompanyInformation(formData)) {
-    return 'Udfyld kontaktoplysningerne og vælg virksomheden fra CVR-søgningen, før du fortsætter.'
-  }
-
-  if (stepIndex === 1 && !hasCompletedBranchInformation(formData)) {
-    return 'Bekræft om branchekoden er korrekt, før du fortsætter.'
-  }
-
-  return undefined
-}
 
 export default function WizardPage() {
   const [formData, setFormData] = useState(initialFormData)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [selectedCompany, setSelectedCompany] = useState<CompanyOption | undefined>(undefined)
   const [validationMessage, setValidationMessage] = useState<string>()
+  const [cvrData, setCvrData] = useState<CvrHiddenFields | null>(null)
+  const [cvrConfirmed, setCvrConfirmed] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const { sessionId, saveStep, isLoading: sessionLoading, error: sessionError } = useWizardSession()
+
   const canAccessBranchStep = hasCompletedCompanyInformation(formData)
 
   const wizardSteps = useMemo<WizardStep[]>(
@@ -82,19 +72,67 @@ export default function WizardPage() {
     }))
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const message = getStepValidationMessage(currentStepIndex, formData)
+    setValidationMessage(undefined)
 
-    if (message) {
-      setValidationMessage(message)
+    if (currentStepIndex === 0) {
+      if (!hasCompletedCompanyInformation(formData)) {
+        setValidationMessage(
+          'Udfyld kontaktoplysningerne og vælg virksomheden fra CVR-søgningen, før du fortsætter.',
+        )
+        return
+      }
+      if (!cvrData) {
+        setValidationMessage('Vælg en virksomhed fra CVR-søgningen, før du fortsætter.')
+        return
+      }
+
+      setIsSaving(true)
+      try {
+        const payload: Record<string, unknown> = {
+          cvr_number: cvrData.cvr_number,
+          company_name: cvrData.company_name,
+          company_type: cvrData.company_type,
+          address: cvrData.address,
+          zip_code: cvrData.zip_code,
+          city: cvrData.city,
+          industry_code: cvrData.industry_code,
+          industry_description: cvrData.industry_description,
+          contact_name: formData.contactName,
+          contact_email: formData.contactEmail,
+          contact_phone: formData.contactPhone || undefined,
+          website: formData.website || undefined,
+        }
+        const response = await saveStep(1, payload)
+        setCurrentStepIndex((response.next_step ?? 2) - 1)
+      } catch {
+        setValidationMessage('Noget gik galt. Prøv igen.')
+      } finally {
+        setIsSaving(false)
+      }
       return
     }
 
-    setValidationMessage(undefined)
-    setCurrentStepIndex((stepIndex) =>
-      Math.min(stepIndex + 1, wizardStepCount - 1),
-    )
+    if (currentStepIndex === 1) {
+      if (!cvrConfirmed) {
+        setValidationMessage('Bekræft virksomhedsoplysningerne for at fortsætte.')
+        return
+      }
+
+      setIsSaving(true)
+      try {
+        const response = await saveStep(2, { cvr_confirmed: cvrConfirmed })
+        setCurrentStepIndex((response.next_step ?? 3) - 1)
+      } catch {
+        setValidationMessage('Noget gik galt. Prøv igen.')
+      } finally {
+        setIsSaving(false)
+      }
+      return
+    }
+
+    setCurrentStepIndex((stepIndex) => Math.min(stepIndex + 1, wizardStepCount - 1))
   }
 
   function handleBack() {
@@ -103,20 +141,11 @@ export default function WizardPage() {
   }
 
   function handleStepSelect(stepIndex: number) {
-    if (stepIndex === currentStepIndex) {
-      return
-    }
+    if (stepIndex === currentStepIndex) return
 
     if (stepIndex < currentStepIndex) {
       setValidationMessage(undefined)
       setCurrentStepIndex(stepIndex)
-      return
-    }
-
-    const message = getStepValidationMessage(currentStepIndex, formData)
-
-    if (message) {
-      setValidationMessage(message)
       return
     }
 
@@ -132,14 +161,15 @@ export default function WizardPage() {
             formData={formData}
             onFieldChange={updateField}
             onCompanyFound={setSelectedCompany}
+            onCvrDataChange={setCvrData}
           />
         )
       case 1:
         return (
           <BranchStep
-            formData={formData}
-            selectedCompany={selectedCompany}
-            onFieldChange={updateField}
+            cvrData={cvrData}
+            cvrConfirmed={cvrConfirmed}
+            onCvrConfirmedChange={setCvrConfirmed}
           />
         )
       case 2:
@@ -159,6 +189,24 @@ export default function WizardPage() {
       default:
         return null
     }
+  }
+
+  if (sessionLoading) {
+    return (
+      <WizardLayout progressIndicator={null} summary={null}>
+        <p>Indlæser...</p>
+      </WizardLayout>
+    )
+  }
+
+  if (sessionError) {
+    return (
+      <WizardLayout progressIndicator={null} summary={null}>
+        <InlineAlert tone="danger" title="Kunne ikke starte">
+          {sessionError}
+        </InlineAlert>
+      </WizardLayout>
+    )
   }
 
   return (
@@ -195,7 +243,9 @@ export default function WizardPage() {
               Tilbage
             </Button>
           ) : null}
-          <Button type="submit">Fortsæt</Button>
+          <Button type="submit" isDisabled={isSaving || !sessionId}>
+            {isSaving ? 'Gemmer...' : 'Fortsæt'}
+          </Button>
         </footer>
       </Form>
     </WizardLayout>
