@@ -3,14 +3,24 @@
   gap: var(--spacing-sm);
 
   &__header {
+    position: var(--radio-card-group-header-position, static);
+    overflow: var(--radio-card-group-header-overflow, visible);
     display: grid;
+    width: var(--radio-card-group-header-size, auto);
+    height: var(--radio-card-group-header-size, auto);
     gap: 0.35rem;
+    clip-path: var(--radio-card-group-header-clip-path, none);
+    white-space: var(--radio-card-group-header-white-space, normal);
   }
 
   &__options {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
     gap: var(--spacing-sm);
+  }
+
+  &[data-align-cards='start'] &__options {
+    align-items: start;
   }
 
   &__option {
@@ -55,9 +65,14 @@
     gap: 0.25rem;
     line-height: 1.4;
 
+    strong {
+      font-weight: 600;
+    }
+
     span {
       color: var(--color-dark-100);
       font-size: 0.88rem;
+      font-weight: 400;
     }
   }
 }

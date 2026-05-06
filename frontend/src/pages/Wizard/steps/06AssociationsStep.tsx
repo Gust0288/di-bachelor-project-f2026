@@ -3,6 +3,7 @@ import Checkbox from '../../../components/Checkbox/Checkbox'
 import ContentBox from '../../../components/ContentBox'
 import { getBranchSuggestions } from '../../../api/registration'
 import type { BranchSuggestionsResponse } from '../types'
+import styles from '../WizardPage.module.scss'
 
 type AssociationsStepProps = {
   sessionId: string
@@ -28,7 +29,7 @@ export default function AssociationsStep({
           onSelectionChange([...data.mandatory, ...data.suggested])
         }
       })
-      .catch(() => {/* non-critical — user can still proceed */})
+      .catch(() => {/* non-critical - user can still proceed */})
       .finally(() => setIsLoading(false))
   // Only run once when sessionId is available
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -43,7 +44,14 @@ export default function AssociationsStep({
   }
 
   if (isLoading) {
-    return <ContentBox title="Branchefællesskaber"><p>Henter forslag...</p></ContentBox>
+    return (
+      <ContentBox
+        title="Branchefællesskaber"
+        description="Vi henter de fællesskaber, der passer til virksomhedens branchekode."
+      >
+        <p>Henter forslag...</p>
+      </ContentBox>
+    )
   }
 
   const mandatory = suggestions?.mandatory ?? []
@@ -59,14 +67,16 @@ export default function AssociationsStep({
           title="Obligatorisk fællesskab"
           description="Baseret på jeres branchekode er I automatisk tilmeldt dette fællesskab. Det kan ikke fravælges."
         >
-          {mandatory.map((id) => {
-            const community = all.find((c) => c.id === id)
-            return (
-              <Checkbox key={id} isSelected isDisabled>
-                {community?.name ?? id}
-              </Checkbox>
-            )
-          })}
+          <div className={styles.checkboxList}>
+            {mandatory.map((id) => {
+              const community = all.find((c) => c.id === id)
+              return (
+                <Checkbox key={id} isSelected isDisabled>
+                  {community?.name ?? id}
+                </Checkbox>
+              )
+            })}
+          </div>
         </ContentBox>
       ) : null}
 
@@ -75,32 +85,39 @@ export default function AssociationsStep({
           title="Foreslåede fællesskaber"
           description="Disse fællesskaber er relevante for jeres branche. I kan fravælge dem."
         >
-          {suggested.map((id) => {
-            const community = all.find((c) => c.id === id)
-            return (
-              <Checkbox
-                key={id}
-                isSelected={selectedFaellesskaber.includes(id)}
-                onChange={(checked) => toggle(id, checked)}
-              >
-                {community?.name ?? id}
-              </Checkbox>
-            )
-          })}
+          <div className={styles.checkboxList}>
+            {suggested.map((id) => {
+              const community = all.find((c) => c.id === id)
+              return (
+                <Checkbox
+                  key={id}
+                  isSelected={selectedFaellesskaber.includes(id)}
+                  onChange={(checked) => toggle(id, checked)}
+                >
+                  {community?.name ?? id}
+                </Checkbox>
+              )
+            })}
+          </div>
         </ContentBox>
       ) : null}
 
       {others.length > 0 ? (
-        <ContentBox title="Andre fællesskaber" description="Tilmeld jer yderligere fællesskaber efter behov.">
-          {others.map((community) => (
-            <Checkbox
-              key={community.id}
-              isSelected={selectedFaellesskaber.includes(community.id)}
-              onChange={(checked) => toggle(community.id, checked)}
-            >
-              {community.name}
-            </Checkbox>
-          ))}
+        <ContentBox
+          title="Andre fællesskaber"
+          description="Tilmeld jer yderligere fællesskaber efter behov."
+        >
+          <div className={styles.checkboxList}>
+            {others.map((community) => (
+              <Checkbox
+                key={community.id}
+                isSelected={selectedFaellesskaber.includes(community.id)}
+                onChange={(checked) => toggle(community.id, checked)}
+              >
+                {community.name}
+              </Checkbox>
+            ))}
+          </div>
         </ContentBox>
       ) : null}
     </>

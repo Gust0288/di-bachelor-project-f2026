@@ -29,6 +29,15 @@ export function calculateWizardProgress(formData: WizardFormData) {
   return Math.round((completedFields / requiredProgressFields.length) * 100)
 }
 
+export function calculateAnsweredProgress(answers: Array<boolean | null>) {
+  const applicableAnswers = answers.filter((answer) => answer !== null)
+
+  if (applicableAnswers.length === 0) return 0
+
+  const answeredCount = applicableAnswers.filter(Boolean).length
+  return Math.round((answeredCount / applicableAnswers.length) * 100)
+}
+
 export function hasCompletedCompanyInformation(formData: WizardFormData) {
   return companyInformationRequiredFields.every((field) =>
     hasFieldValue(formData, field),

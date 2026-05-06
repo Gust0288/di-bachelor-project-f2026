@@ -17,12 +17,14 @@ type Props = Omit<RadioGroupProps, 'children'> & {
   label: ReactNode
   description?: string
   options: Option[]
+  alignCards?: 'stretch' | 'start'
 }
 
 function RadioCardGroup({
   label,
   description,
   options,
+  alignCards = 'stretch',
   className,
   ...props
 }: Props) {
@@ -30,6 +32,7 @@ function RadioCardGroup({
     <RadioGroup
       {...props}
       className={[styles.radioCardGroup, className].filter(Boolean).join(' ')}
+      data-align-cards={alignCards}
     >
       <div className={styles.radioCardGroup__header}>
         <Label>{label}</Label>

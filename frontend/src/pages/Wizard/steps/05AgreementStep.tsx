@@ -51,6 +51,7 @@ export default function AgreementStep({
       >
         <RadioCardGroup
           label="Har virksomheden en overenskomst?"
+          alignCards="start"
           options={[
             { value: 'nej', title: 'Nej', description: 'Virksomheden har ingen overenskomst.' },
             { value: 'ved_ikke', title: 'Ved ikke', description: 'Vi er usikre på vores overenskomstsituation.' },
@@ -63,7 +64,10 @@ export default function AgreementStep({
       </ContentBox>
 
       {overenskomstStatus === 'ja' ? (
-        <ContentBox title="Type af overenskomst">
+        <ContentBox
+          title="Type af overenskomst"
+          description="Vælg hvordan overenskomsten er indgået, så vi kan vurdere næste skridt korrekt."
+        >
           <RadioCardGroup
             label="Hvilken type overenskomst?"
             options={[

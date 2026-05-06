@@ -12,11 +12,13 @@
     --button-hover-box-shadow,
     var(--_button-box-shadow-color)
   );
+  --_button-height: var(--button-height, auto);
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
+  height: var(--_button-height);
   padding: var(--spacing-md);
   border: 0;
   border-radius: var(--radius-sm);

@@ -1,6 +1,7 @@
 import Checkbox from '../../../components/Checkbox/Checkbox'
 import ContentBox from '../../../components/ContentBox'
 import SummaryList from '../../../components/SummaryList/SummaryList'
+import styles from '../WizardPage.module.scss'
 
 const TIER_LABELS: Record<string, string> = {
   mikro: 'Mikro',
@@ -111,7 +112,7 @@ export default function MembershipStep({
     >
       <SummaryList items={summaryItems} />
 
-      <div>
+      <div className={styles.membershipRecommendation}>
         <strong>{computedMembership ?? 'Beregnes...'}</strong>
         <p>{reason}</p>
       </div>

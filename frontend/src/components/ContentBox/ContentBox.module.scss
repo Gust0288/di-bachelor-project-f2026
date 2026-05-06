@@ -43,4 +43,10 @@
 .contentBox__content {
   display: grid;
   gap: var(--spacing-md);
+
+  --radio-card-group-header-position: absolute;
+  --radio-card-group-header-size: 1px;
+  --radio-card-group-header-overflow: hidden;
+  --radio-card-group-header-clip-path: inset(50%);
+  --radio-card-group-header-white-space: nowrap;
 }

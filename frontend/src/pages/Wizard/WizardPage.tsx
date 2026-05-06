@@ -25,7 +25,7 @@ import WizardHeader from './WizardHeader'
 import styles from './WizardPage.module.scss'
 import WizardSummary from './WizardSummary'
 import { initialFormData } from './wizard.constants'
-import { calculateWizardProgress, hasCompletedCompanyInformation } from './wizardProgress'
+import { calculateAnsweredProgress, hasCompletedCompanyInformation } from './wizardProgress'
 import { wizardStepLabels } from './wizardSteps'
 import type { CompanyOption, WizardFormData } from './wizard.types'
 import type { BlockingPopup, CvrHiddenFields } from './types'
@@ -158,10 +158,51 @@ export default function WizardPage() {
     [canAccessBranchStep, currentStepIndex],
   )
 
-  const progressPercentage = useMemo(
-    () => calculateWizardProgress(formData),
-    [formData],
-  )
+  const progressPercentage = useMemo(() => {
+    const hasEmployeeCount = noEmployees || employeeCount !== ''
+    const hasManagingDirector = managingDirector.name.trim().length > 0 && managingDirector.email.trim().length > 0
+
+    return calculateAnsweredProgress([
+      formData.contactName.trim().length > 0,
+      formData.contactJobTitle.trim().length > 0,
+      formData.contactEmail.trim().length > 0,
+      formData.contactPhone.trim().length > 0,
+      formData.companyId.trim().length > 0,
+      cvrConfirmed,
+      selectedServices.length > 0,
+      selectedServices.includes('andet') ? andetBeskrivelse.trim().length > 0 : null,
+      hasEmployeeCount,
+      employeeTypes.length > 0,
+      totalLoensum !== '',
+      overenskomstStatus.length > 0,
+      overenskomstStatus === 'ja' ? overenskomstType.length > 0 : null,
+      overenskomstType === 'direkte' ? documentId.length > 0 : null,
+      selectedFaellesskaber.length > 0,
+      acceptMembership,
+      hasManagingDirector,
+      invoiceDelivery.length > 0,
+      acceptTerms,
+      acceptAuthority,
+    ])
+  }, [
+    acceptAuthority,
+    acceptMembership,
+    acceptTerms,
+    andetBeskrivelse,
+    cvrConfirmed,
+    documentId,
+    employeeCount,
+    employeeTypes,
+    formData,
+    invoiceDelivery,
+    managingDirector,
+    noEmployees,
+    overenskomstStatus,
+    overenskomstType,
+    selectedFaellesskaber,
+    selectedServices,
+    totalLoensum,
+  ])
 
   function updateField<Key extends keyof WizardFormData>(key: Key, value: WizardFormData[Key]) {
     setValidationMessage(undefined)

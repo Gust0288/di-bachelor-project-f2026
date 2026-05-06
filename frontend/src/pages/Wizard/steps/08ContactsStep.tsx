@@ -154,7 +154,10 @@ export default function ContactsStep({
         ) : null}
       </ContentBox>
 
-      <ContentBox title="Faktura">
+      <ContentBox
+        title="Faktura"
+        description="Vælg hvordan virksomheden ønsker at modtage fakturaer fra DI."
+      >
         <RadioCardGroup
           label="Hvordan ønsker I at modtage jeres faktura?"
           options={[

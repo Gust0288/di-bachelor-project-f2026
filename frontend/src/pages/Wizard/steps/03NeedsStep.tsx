@@ -53,7 +53,10 @@ export default function NeedsStep({
       </ContentBox>
 
       {selectedServices.includes('andet') ? (
-        <ContentBox title="Beskriv venligst">
+        <ContentBox
+          title="Beskriv venligst"
+          description="Skriv kort hvad I har brug for, hvis de faste valgmuligheder ikke dækker behovet."
+        >
           <TextAreaField
             label="Hvad har I brug for?"
             placeholder="Beskriv jeres behov"
