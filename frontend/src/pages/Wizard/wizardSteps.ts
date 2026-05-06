@@ -8,5 +8,4 @@ export const wizardStepLabels = [
   'Medlemsskab',
   'Kontaktpersoner',
   'Godkendelse',
-  'MitID',
 ] as const

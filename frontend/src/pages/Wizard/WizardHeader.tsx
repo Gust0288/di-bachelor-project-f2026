@@ -10,7 +10,7 @@ export default function WizardHeader({
   currentStepIndex,
   progressPercentage,
 }: WizardHeaderProps) {
-  const currentStepLabel = wizardStepLabels[currentStepIndex]
+  const currentStepLabel = wizardStepLabels[currentStepIndex] ?? 'MitID verificering'
 
   return (
     <header className={styles.header}>

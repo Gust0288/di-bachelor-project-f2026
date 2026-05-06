@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { CheckCircle2, Clock3, FileCheck2, Mail } from 'lucide-react'
 import Button from '../../components/Button/Button'
 import { Form } from '../../components/Form/Form'
 import InlineAlert from '../../components/InlineAlert/InlineAlert'
@@ -30,8 +31,10 @@ import type { CompanyOption, WizardFormData } from './wizard.types'
 import type { BlockingPopup, CvrHiddenFields } from './types'
 import { useWizardSession } from './useWizardSession'
 import type { ContactPerson } from './steps/ContactPersonFields'
+import { submitRegistration } from '../../api/registration'
 
 const wizardStepCount = wizardStepLabels.length
+const mitIdStepIndex = wizardStepCount
 
 const emptyContact = (): ContactPerson => ({ name: '', email: '', phone: '', title: '' })
 
@@ -113,6 +116,9 @@ export default function WizardPage() {
   const [validationMessage, setValidationMessage] = useState<string>()
 
   const [mitIdStatus, setMitIdStatus] = useState<MitIdStatus>('idle')
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submittedRegistrationId, setSubmittedRegistrationId] = useState<string | null>(null)
+  const [submittedAt, setSubmittedAt] = useState<Date | null>(null)
 
   const [isSaving, setIsSaving] = useState(false)
   const [blockingPopup, setBlockingPopup] = useState<BlockingPopup | null>(null)
@@ -133,7 +139,9 @@ export default function WizardPage() {
   }, [currentStepIndex, sessionId])
 
   const canAccessBranchStep = hasCompletedCompanyInformation(formData)
-  const isMitIdStep = currentStepIndex === wizardStepCount - 1
+  const isMitIdStep = currentStepIndex === mitIdStepIndex
+  const isPostWizard = isMitIdStep || isSubmitted
+  const isApprovalStep = currentStepIndex === wizardStepCount - 1
 
   const wizardSteps = useMemo<WizardStep[]>(
     () =>
@@ -398,7 +406,7 @@ export default function WizardPage() {
       setIsSaving(true)
       try {
         await saveStep(9, { accept_terms: acceptTerms, accept_authority: acceptAuthority })
-        setCurrentStepIndex((prev) => Math.min(prev + 1, wizardStepCount - 1))
+        setCurrentStepIndex(mitIdStepIndex)
       } catch {
         setValidationMessage('Noget gik galt. Prøv igen.')
       } finally {
@@ -412,6 +420,7 @@ export default function WizardPage() {
 
   function handleBack() {
     setValidationMessage(undefined)
+    setIsSubmitted(false)
     setCurrentStepIndex((stepIndex) => Math.max(stepIndex - 1, 0))
   }
 
@@ -421,15 +430,107 @@ export default function WizardPage() {
     setCurrentStepIndex(stepIndex)
   }
 
-  function handleMitIdVerification() {
-    setMitIdStatus('pending')
+  async function completeMitIdVerification() {
+    if (!sessionId) return
 
-    window.setTimeout(() => {
+    setIsSaving(true)
+    try {
+      await saveStep(10, {})
+      const result = await submitRegistration(sessionId)
+      setSubmittedRegistrationId(result.registration_id)
+      setSubmittedAt(new Date())
       setMitIdStatus('verified')
-    }, 1600)
+      setIsSubmitted(true)
+    } catch {
+      setMitIdStatus('login')
+      setValidationMessage('Noget gik galt ved afslutningen. Prøv igen.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  function handleMitIdVerification() {
+    setValidationMessage(undefined)
+
+    if (mitIdStatus === 'idle') {
+      setMitIdStatus('redirecting')
+
+      window.setTimeout(() => {
+        setMitIdStatus('login')
+      }, 900)
+      return
+    }
+
+    if (mitIdStatus === 'login') {
+      setMitIdStatus('approving')
+
+      window.setTimeout(() => {
+        completeMitIdVerification()
+      }, 1200)
+    }
   }
 
   function renderCurrentStep() {
+    if (isSubmitted) {
+      const submittedDate = submittedAt
+        ? submittedAt.toLocaleDateString('da-DK', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
+        : null
+
+      return (
+        <section className={styles.submissionReceipt} aria-live="polite">
+          <div className={styles.submissionReceipt__hero}>
+            <CheckCircle2 aria-hidden="true" />
+            <span>Indsendt</span>
+            <h2>Tak for din anmodning om indmeldelse</h2>
+            <p>
+              Vi har modtaget jeres oplysninger og gennemgår anmodningen. Vi vender tilbage på den angivne kontaktmail, hvis vi mangler yderligere oplysninger.
+            </p>
+          </div>
+
+          <dl className={styles.submissionReceipt__details}>
+            <div>
+              <dt>Virksomhed</dt>
+              <dd>{selectedCompany?.label ?? cvrData?.company_name ?? 'Ikke angivet'}</dd>
+            </div>
+            <div>
+              <dt>Reference</dt>
+              <dd>{submittedRegistrationId ?? sessionId}</dd>
+            </div>
+            <div>
+              <dt>Indsendt</dt>
+              <dd>{submittedDate ?? 'Netop nu'}</dd>
+            </div>
+            <div>
+              <dt>Kontaktmail</dt>
+              <dd>{formData.contactEmail || 'Ikke angivet'}</dd>
+            </div>
+          </dl>
+
+          <div className={styles.submissionReceipt__nextSteps}>
+            <h3>Hvad sker der nu?</h3>
+            <ul>
+              <li>
+                <FileCheck2 aria-hidden="true" />
+                <span>DI gennemgår indmeldelsen og de oplysninger, I har sendt.</span>
+              </li>
+              <li>
+                <Mail aria-hidden="true" />
+                <span>I får besked på kontaktmailen, når behandlingen er færdig, eller hvis vi har spørgsmål.</span>
+              </li>
+              <li>
+                <Clock3 aria-hidden="true" />
+                <span>I behøver ikke gøre mere lige nu. Gem gerne reference-id'et, hvis I kontakter DI om sagen.</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
     switch (currentStepIndex) {
       case 0:
         return (
@@ -579,6 +680,27 @@ export default function WizardPage() {
     )
   }
 
+  if (isPostWizard) {
+    return (
+      <main className={styles.postWizardPage}>
+        <Form className={`${styles.form} ${styles.postWizardForm}`} noValidate onSubmit={handleSubmit}>
+          {validationMessage ? (
+            <InlineAlert tone="danger" title="Der mangler oplysninger">
+              {validationMessage}
+            </InlineAlert>
+          ) : null}
+
+          {renderCurrentStep()}
+        </Form>
+
+        <BlockingDialog
+          popup={blockingPopup}
+          onClose={() => setBlockingPopup(null)}
+        />
+      </main>
+    )
+  }
+
   return (
     <WizardLayout
       progressIndicator={
@@ -615,9 +737,13 @@ export default function WizardPage() {
           ) : null}
           <Button
             type="submit"
-            isDisabled={(isMitIdStep && mitIdStatus !== 'verified') || isSaving || !sessionId}
+            isDisabled={
+              (isMitIdStep && (mitIdStatus !== 'verified' || isSubmitted)) ||
+              isSaving ||
+              !sessionId
+            }
           >
-            {isMitIdStep ? 'Afslut' : isSaving ? 'Gemmer...' : 'Fortsæt'}
+            {isSaving ? 'Gemmer...' : isApprovalStep ? 'Bekræft' : 'Fortsæt'}
           </Button>
         </footer>
       </Form>

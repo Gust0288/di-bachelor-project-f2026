@@ -1,9 +1,9 @@
-import { CheckCircle2, ShieldCheck } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, CheckCircle2, LockKeyhole, ShieldCheck, Smartphone } from 'lucide-react'
 import Button from '../../../components/Button/Button'
-import ContentBox from '../../../components/ContentBox'
 import styles from '../WizardPage.module.scss'
 
-export type MitIdStatus = 'idle' | 'pending' | 'verified'
+export type MitIdStatus = 'idle' | 'redirecting' | 'login' | 'approving' | 'verified'
 
 type MitIdVerificationStepProps = {
   status: MitIdStatus
@@ -14,39 +14,110 @@ export default function MitIdVerificationStep({
   status,
   onVerify,
 }: MitIdVerificationStepProps) {
-  const isPending = status === 'pending'
-  const isVerified = status === 'verified'
+  const [userId, setUserId] = useState('')
+  const isRedirecting = status === 'redirecting'
+  const isLogin = status === 'login'
+  const isApproving = status === 'approving'
+  const isBusy = isRedirecting || isApproving
+
+  if (status === 'idle') {
+    return (
+      <section className={styles.mitIdStartCard}>
+        <header className={styles.mitIdStartCard__header}>
+          <h2>MitID verificering</h2>
+          <p>
+            Du bliver sendt videre til MitID, logger ind og vender automatisk tilbage til indmeldelsen.
+          </p>
+        </header>
+
+        <div className={styles.mitIdSimulation}>
+          <div className={styles.mitIdSimulation__brand} aria-hidden="true">
+            <ShieldCheck />
+            <strong>MitID</strong>
+          </div>
+
+          <div className={styles.mitIdSimulation__content}>
+            <h2>Godkend indmeldelsen</h2>
+            <p>Du forlader DI kortvarigt for at godkende anmodningen med MitID.</p>
+          </div>
+
+          <Button type="button" onPress={onVerify}>
+            Fortsæt til MitID
+          </Button>
+        </div>
+      </section>
+    )
+  }
 
   return (
-    <ContentBox
-      title="MitID verificering"
-      description="Dette er en simpel simulering til prototypen og ikke en rigtig MitID-integration."
-    >
-      <div className={styles.mitIdSimulation}>
-        <div className={styles.mitIdSimulation__brand} aria-hidden="true">
-          {isVerified ? <CheckCircle2 /> : <ShieldCheck />}
-          <strong>MitID</strong>
-        </div>
+    <section className={styles.mitIdExternalPage} aria-live="polite">
+      <div className={styles.mitIdExternalPage__content}>
+        <div className={styles.mitIdLoginPanel}>
+          <div className={styles.mitIdLoginPanel__brand}>
+            <span>MitID</span>
+          </div>
 
-        <div className={styles.mitIdSimulation__content}>
-          <h2>{isVerified ? 'Godkendt' : 'Godkend indmeldelsen'}</h2>
-          <p>
-            {isVerified
-              ? 'MitID-godkendelsen er gennemført, og indmeldelsen er klar til at blive afsluttet.'
-              : 'Tryk på knappen for at simulere, at brugeren godkender indmeldelsen i MitID.'}
-          </p>
-        </div>
+          {isRedirecting ? (
+            <>
+              <ShieldCheck aria-hidden="true" />
+              <h2>Du sendes videre</h2>
+              <p>Der oprettes en sikker login-anmodning hos MitID.</p>
+              <div className={styles.mitIdProgress} aria-hidden="true">
+                <span />
+              </div>
+            </>
+          ) : isLogin ? (
+            <>
+              <LockKeyhole aria-hidden="true" />
+              <h2>Log ind med MitID</h2>
+              <p>Godkend DI-indmeldelsen med dit MitID.</p>
 
-        <Button
-          type="button"
-          onPress={onVerify}
-          isDisabled={isPending || isVerified}
-          isSpinning={isPending}
-          spinnerAriaLabel="Afventer MitID-godkendelse"
-        >
-          {isVerified ? 'Godkendt med MitID' : 'Send anmodning'}
-        </Button>
+              <label className={styles.mitIdLoginPanel__field}>
+                Bruger-ID
+                <input
+                  placeholder="Indtast bruger-ID"
+                  value={userId}
+                  onChange={(event) => setUserId(event.target.value)}
+                />
+              </label>
+
+              <div className={styles.mitIdLoginPanel__device}>
+                <Smartphone aria-hidden="true" />
+                <span>Åbn MitID appen og godkend anmodningen</span>
+              </div>
+
+              <Button type="button" onPress={onVerify} isDisabled={userId.trim().length < 4}>
+                Godkend i MitID
+              </Button>
+            </>
+          ) : isApproving ? (
+            <>
+              <ShieldCheck aria-hidden="true" />
+              <h2>Godkendelse modtaget</h2>
+              <p>Du sendes automatisk tilbage til DI-indmeldelsen.</p>
+              <div className={styles.mitIdProgress} aria-hidden="true">
+                <span />
+              </div>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 aria-hidden="true" />
+              <h2>Tilbage hos DI</h2>
+              <p>Identiteten er verificeret. Du kan nu afslutte anmodningen.</p>
+              <div className={styles.mitIdLoginPanel__return}>
+                <ArrowLeft aria-hidden="true" />
+                <span>Du er tilbage på DI's indmeldelsesflow</span>
+              </div>
+            </>
+          )}
+
+          {isBusy ? (
+            <span className={styles.mitIdLoginPanel__status}>
+              {isRedirecting ? 'Forbinder...' : 'Sender svar tilbage...'}
+            </span>
+          ) : null}
+        </div>
       </div>
-    </ContentBox>
+    </section>
   )
 }

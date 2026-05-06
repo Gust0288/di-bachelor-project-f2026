@@ -5,6 +5,7 @@ import type {
   SessionState,
   StepDataResponse,
   StepSubmitResponse,
+  SubmitRegistrationResponse,
 } from '../pages/Wizard/types'
 
 type CreateSessionResponse = {
@@ -49,6 +50,13 @@ export function getStep(sessionId: string, stepNumber: number): Promise<StepData
 export function getBranchSuggestions(sessionId: string): Promise<BranchSuggestionsResponse> {
   return apiFetch<BranchSuggestionsResponse>(
     `/registration/session/${sessionId}/step/6/suggestions`,
+  )
+}
+
+export function submitRegistration(sessionId: string): Promise<SubmitRegistrationResponse> {
+  return apiFetch<SubmitRegistrationResponse>(
+    `/registration/session/${sessionId}/submit`,
+    { method: 'POST' },
   )
 }
 

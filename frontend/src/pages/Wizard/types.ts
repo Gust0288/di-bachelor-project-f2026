@@ -80,6 +80,12 @@ export type BranchSuggestionsResponse = {
   all: Array<{ id: string; name: string }>
 }
 
+export type SubmitRegistrationResponse = {
+  registration_id: string
+  session_id: string
+  status: string
+}
+
 export type CvrHiddenFields = {
   cvr_number: string
   company_name: string
