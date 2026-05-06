@@ -1,50 +1,70 @@
 .PHONY: help install up up-build down dev test test-backend test-db venv lint format typecheck db-init
 
-VENV = backend/.venv/bin
+ifeq ($(OS),Windows_NT)
+PYTHON := backend/.venv/Scripts/python.exe
+ACTIVATE := backend\.venv\Scripts\activate
+else
+PYTHON := backend/.venv/bin/python
+ACTIVATE := source backend/.venv/bin/activate
+endif
 
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+	@echo Available targets:
+	@echo   make install       Installer afhaengigheder
+	@echo   make up            Start Docker-stack
+	@echo   make up-build      Start Docker-stack og byg images
+	@echo   make down          Stop Docker-stack
+	@echo   make dev           Start frontend dev-server
+	@echo   make test          Koer frontend-tests
+	@echo   make test-backend  Koer backend integrationstests
+	@echo   make test-db       Koer DB persistenstests
+	@echo   make venv          Opret venv og vis aktivering
+	@echo   make lint          Koer linters
+	@echo   make format        Formater backend-kode
+	@echo   make typecheck     Koer TypeScript type-check
+	@echo   make db-init       Initialiser databaseskema
 
-install: ## Installer afhængigheder (frontend + backend)
+install:
 	cd frontend && npm ci
-	cd backend && pip install -r requirements.txt
+	python -m venv backend/.venv
+	"$(PYTHON)" -m pip install -r backend/requirements.txt
 
-up: ## Start Docker-stack (backend + db)
-	docker-compose up
+up:
+	docker compose up
 
-up-build: ## Start Docker-stack og byg images
-	docker-compose up --build
+up-build:
+	docker compose up --build
 
-down: ## Stop Docker-stack
-	docker-compose down
+down:
+	docker compose down
 
-dev: ## Start frontend dev-server (Vite, :5173)
+dev:
 	cd frontend && npm run dev
 
-test: ## Kør frontend-tests (Jest)
+test:
 	cd frontend && npm test
 
-test-backend: ## Kør backend integration + DB persistenstests
-	cd backend && $(CURDIR)/$(VENV)/python -m pytest tests/test_wizard_flow.py -v
+test-backend:
+	"$(PYTHON)" -m pytest backend/tests/test_wizard_flow.py -v
 
-test-db: ## Kør kun DB persistenstests
-	cd backend && $(CURDIR)/$(VENV)/python -m pytest tests/test_wizard_flow.py::TestDatabasePersistence -v
+test-db:
+	"$(PYTHON)" -m pytest backend/tests/test_wizard_flow.py::TestDatabasePersistence -v
 
-venv: ## Vis kommando til at aktivere Python venv
-	@echo "Kør i din terminal:"
-	@echo ""
-	@echo "  source $(CURDIR)/$(VENV)/activate"
-	@echo ""
+venv:
+	python -m venv backend/.venv
+	"$(PYTHON)" -m pip install -r backend/requirements.txt
+	@echo Koer i din terminal:
+	@echo   $(ACTIVATE)
 
-lint: ## Kør linters (ESLint + Flake8)
+lint:
 	cd frontend && npm run lint
-	cd backend && $(CURDIR)/$(VENV)/python -m flake8 .
+	"$(PYTHON)" -m flake8 backend
 
-format: ## Formatér backend-kode (Black)
-	cd backend && $(CURDIR)/$(VENV)/python -m black .
+format:
+	"$(PYTHON)" -m black backend
 
-typecheck: ## TypeScript type-check (ingen output)
+typecheck:
 	cd frontend && npx tsc --noEmit
 
-db-init: ## Initialisér databaseskema
-	cd backend && python -m app.core.database
+db-init:
+	cd backend && "../$(PYTHON)" -m app.core.database

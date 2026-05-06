@@ -1,16 +1,16 @@
 #!/bin/sh
 set -e
 
-echo "Venter på PostgreSQL..."
+echo "Venter paa PostgreSQL..."
 until pg_isready -h "${DB_HOST:-db}" -p "${DB_PORT:-5432}" -U "${DB_USER:-user}" 2>/dev/null; do
   sleep 1
 done
 echo "PostgreSQL er klar."
 
-echo "Kører database schema..."
+echo "Koerer database schema..."
 psql "$DATABASE_URL" -f /app/schema.sql
 
-echo "Kører migrationer..."
+echo "Koerer migrationer..."
 psql "$DATABASE_URL" -f /app/migrations/001_wizard_additions.sql
 
 echo "Starter Flask..."
