@@ -64,22 +64,45 @@ def build_spec() -> dict:
                     "responses": {
                         "200": {
                             "description": "Session med current_step, tier, flags og step_data",
-                            "content": {"application/json": {"example": {
-                                "session_id": "550e8400-e29b-41d4-a716-446655440000",
-                                "current_step": 7,
-                                "tier": "smv",
-                                "flags": {"established_ag": True},
-                                "status": "draft",
-                                "expires_at": "2026-05-18T10:00:00+00:00",
-                                "step_data": {
-                                    "1": {"cvr_number": "12345678", "company_name": "Test A/S", "contact_name": "Jane Doe", "contact_email": "jane@test.dk"},
-                                    "3": {"selected_services": ["overenskomst", "personalejuridisk_raadgivning"]},
-                                    "4": {"employee_count": 25},
-                                    "5": {"overenskomst_status": "ja", "overenskomst_type": "direkte", "document_id": "uuid"},
-                                    "6": {"branchefaellesskaber": ["di-handel"]},
-                                    "7": {"computed_membership": "Arbejdsgiver", "membership_type": "Arbejdsgiver"},
-                                },
-                            }}},
+                            "content": {
+                                "application/json": {
+                                    "example": {
+                                        "session_id": "550e8400-e29b-41d4-a716-446655440000",
+                                        "current_step": 7,
+                                        "tier": "smv",
+                                        "flags": {"established_ag": True},
+                                        "status": "draft",
+                                        "expires_at": "2026-05-18T10:00:00+00:00",
+                                        "step_data": {
+                                            "1": {
+                                                "cvr_number": "12345678",
+                                                "company_name": "Test A/S",
+                                                "contact_name": "Jane Doe",
+                                                "contact_email": "jane@test.dk",
+                                            },
+                                            "3": {
+                                                "selected_services": [
+                                                    "overenskomst",
+                                                    "personalejuridisk_raadgivning",
+                                                ]
+                                            },
+                                            "4": {"employee_count": 25},
+                                            "5": {
+                                                "overenskomst_status": "ja",
+                                                "overenskomst_type": "direkte",
+                                                "document_id": "uuid",
+                                            },
+                                            "6": {
+                                                "branchefaellesskaber": ["di-handel"]
+                                            },
+                                            "7": {
+                                                "computed_membership": "Arbejdsgiver",
+                                                "membership_type": "Arbejdsgiver",
+                                            },
+                                        },
+                                    }
+                                }
+                            },
                         },
                         "404": {"description": "Session ikke fundet eller udløbet"},
                     },
@@ -104,13 +127,19 @@ def build_spec() -> dict:
                     "responses": {
                         "200": {
                             "description": "Registrering oprettet – data er nu i registrations-tabellen",
-                            "content": {"application/json": {"example": {
-                                "registration_id": "550e8400-e29b-41d4-a716-446655440000",
-                                "session_id": "661f9511-f30c-52e5-b827-557766551111",
-                                "status": "submitted",
-                            }}},
+                            "content": {
+                                "application/json": {
+                                    "example": {
+                                        "registration_id": "550e8400-e29b-41d4-a716-446655440000",
+                                        "session_id": "661f9511-f30c-52e5-b827-557766551111",
+                                        "status": "submitted",
+                                    }
+                                }
+                            },
                         },
-                        "400": {"description": "Wizard ikke gennemført endnu (current_step < 11)"},
+                        "400": {
+                            "description": "Wizard ikke gennemført endnu (current_step < 11)"
+                        },
                         "404": {"description": "Session ikke fundet eller udløbet"},
                     },
                 }
@@ -181,30 +210,45 @@ def build_spec() -> dict:
                                             "selected_services": ["byggegaranti"],
                                         }
                                     },
-                                    "Step 4 – Medarbejdere (mikro, 5 ansatte)": {"value": {
-                                        "employee_count": 5,
-                                        "no_employees": False,
-                                        "employee_types": ["funktionaer", "timeloennet"],
-                                        "total_loensum": 1500000,
-                                    }},
-                                    "Step 4 – Medarbejdere (SMV, 25 ansatte)": {"value": {
-                                        "employee_count": 25,
-                                        "no_employees": False,
-                                        "employee_types": ["funktionaer"],
-                                        "total_loensum": 8000000,
-                                    }},
-                                    "Step 4 – Medarbejdere (Erhverv, 75 ansatte)": {"value": {
-                                        "employee_count": 75,
-                                        "no_employees": False,
-                                        "employee_types": ["funktionaer", "timeloennet", "vikar"],
-                                        "total_loensum": 25000000,
-                                    }},
-                                    "Step 4 – Ingen ansatte endnu": {"value": {
-                                        "employee_count": 0,
-                                        "no_employees": True,
-                                        "employee_types": ["ved_ikke"],
-                                        "total_loensum": 0,
-                                    }},
+                                    "Step 4 – Medarbejdere (mikro, 5 ansatte)": {
+                                        "value": {
+                                            "employee_count": 5,
+                                            "no_employees": False,
+                                            "employee_types": [
+                                                "funktionaer",
+                                                "timeloennet",
+                                            ],
+                                            "total_loensum": 1500000,
+                                        }
+                                    },
+                                    "Step 4 – Medarbejdere (SMV, 25 ansatte)": {
+                                        "value": {
+                                            "employee_count": 25,
+                                            "no_employees": False,
+                                            "employee_types": ["funktionaer"],
+                                            "total_loensum": 8000000,
+                                        }
+                                    },
+                                    "Step 4 – Medarbejdere (Erhverv, 75 ansatte)": {
+                                        "value": {
+                                            "employee_count": 75,
+                                            "no_employees": False,
+                                            "employee_types": [
+                                                "funktionaer",
+                                                "timeloennet",
+                                                "vikar",
+                                            ],
+                                            "total_loensum": 25000000,
+                                        }
+                                    },
+                                    "Step 4 – Ingen ansatte endnu": {
+                                        "value": {
+                                            "employee_count": 0,
+                                            "no_employees": True,
+                                            "employee_types": ["ved_ikke"],
+                                            "total_loensum": 0,
+                                        }
+                                    },
                                     "Step 5 – Overenskomst: Nej → non_ovk flag": {
                                         "value": {
                                             "overenskomst_status": "nej",

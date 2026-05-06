@@ -34,4 +34,14 @@ describe('ContentBox', () => {
     expect(screen.queryByRole('heading')).not.toBeInTheDocument()
     expect(screen.getByText('Kun beskrivelse')).toBeInTheDocument()
   })
+
+  it('renders action element', () => {
+    render(
+      <ContentBox title="Titel" action={<button>Handlinger</button>}>
+        Indhold
+      </ContentBox>,
+    )
+
+    expect(screen.getByRole('button', { name: 'Handlinger' })).toBeInTheDocument()
+  })
 })

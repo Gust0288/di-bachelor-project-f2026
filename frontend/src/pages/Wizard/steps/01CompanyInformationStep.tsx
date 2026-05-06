@@ -7,21 +7,37 @@ import type {
   WizardFieldUpdater,
   WizardFormData,
 } from '../wizard.types'
+import type { CvrHiddenFields } from '../types'
 
 type CompanyInformationStepProps = {
   formData: WizardFormData
   onFieldChange: WizardFieldUpdater
   onCompanyFound: (company: CompanyOption) => void
+  onCvrDataChange: (fields: CvrHiddenFields) => void
 }
 
 export default function CompanyInformationStep({
   formData,
   onFieldChange,
   onCompanyFound,
+  onCvrDataChange,
 }: CompanyInformationStepProps) {
   function handleCompanySelect(company: CompanyOption) {
     onFieldChange('companyId', company.id)
     onCompanyFound(company)
+
+    const firstBranch = company.branchCodes[0]
+    const postalParts = company.postalCodeAndCity?.split(' ') ?? []
+    onCvrDataChange({
+      cvr_number: company.id,
+      company_name: company.label,
+      company_type: company.companyType ?? '',
+      address: company.address ?? '',
+      zip_code: postalParts[0] ?? '',
+      city: postalParts.slice(1).join(' '),
+      industry_code: firstBranch?.code ?? '',
+      industry_description: firstBranch?.title ?? '',
+    })
   }
 
   return (

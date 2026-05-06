@@ -197,13 +197,22 @@ FLOW_DEFINITION: dict = {
                     "label": "Hvilke typer medarbejdere har virksomheden?",
                     "required": True,
                     "options": [
-                        {"value": "funktionaer",                          "label": "Funktionær (funktionærkontrakt)"},
-                        {"value": "timeloennet",                          "label": "Timelønnet"},
-                        {"value": "timeloennet_funktionaer_lignende",     "label": "Timelønnet ansat på funktionærlignende kontrakt"},
-                        {"value": "vikar",                                "label": "Vikar"},
-                        {"value": "byggeri_og_anlaeg",                    "label": "Medarbejdere inden for byggeri og anlæg"},
-                        {"value": "mandskabsudlejning",                   "label": "Mandskabsudlejning"},
-                        {"value": "ved_ikke",                             "label": "Ved ikke"},
+                        {
+                            "value": "funktionaer",
+                            "label": "Funktionær (funktionærkontrakt)",
+                        },
+                        {"value": "timeloennet", "label": "Timelønnet"},
+                        {
+                            "value": "timeloennet_funktionaer_lignende",
+                            "label": "Timelønnet ansat på funktionærlignende kontrakt",
+                        },
+                        {"value": "vikar", "label": "Vikar"},
+                        {
+                            "value": "byggeri_og_anlaeg",
+                            "label": "Medarbejdere inden for byggeri og anlæg",
+                        },
+                        {"value": "mandskabsudlejning", "label": "Mandskabsudlejning"},
+                        {"value": "ved_ikke", "label": "Ved ikke"},
                     ],
                 },
                 {
@@ -378,8 +387,11 @@ FLOW_DEFINITION: dict = {
                     "label": "Hvordan ønsker I at modtage jeres faktura?",
                     "required": True,
                     "options": [
-                        {"value": "email",            "label": "På e-mail"},
-                        {"value": "betalingsservice", "label": "Via Betalingsservice (BS)"},
+                        {"value": "email", "label": "På e-mail"},
+                        {
+                            "value": "betalingsservice",
+                            "label": "Via Betalingsservice (BS)",
+                        },
                     ],
                 },
             ],
