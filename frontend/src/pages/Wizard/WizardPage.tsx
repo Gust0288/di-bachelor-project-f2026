@@ -852,6 +852,11 @@ export default function WizardPage() {
           <div className={styles.resumeSplash__track}>
             <div className={styles.resumeSplash__bar} />
           </div>
+          <div className={styles.resumeSplash__contact}>
+            <p>Brug for hjælp?</p>
+            <a href="tel:+4533773377">33 77 33 77</a>
+            <a href="mailto:di@di.dk">di@di.dk</a>
+          </div>
         </div>
       </div>
     )

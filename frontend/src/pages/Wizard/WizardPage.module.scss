@@ -40,6 +40,35 @@
   to   { width: 100%; }
 }
 
+.resumeSplash__contact {
+  display: flex;
+  gap: var(--spacing-xs) var(--spacing-md);
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-block-start: var(--spacing-md);
+  border-block-start: 1px solid var(--color-border-default);
+  width: 100%;
+
+  p {
+    margin: 0;
+    color: var(--color-dark-100);
+    font-size: 0.875rem;
+    width: 100%;
+  }
+
+  a {
+    color: var(--color-interaction);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .form {
   display: grid;
   gap: var(--spacing-xl);
