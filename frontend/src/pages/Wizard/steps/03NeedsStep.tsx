@@ -1,16 +1,10 @@
 import Checkbox from '../../../components/Checkbox/Checkbox'
 import ContentBox from '../../../components/ContentBox'
 import TextAreaField from '../../../components/TextAreaField/TextAreaField'
+import { SERVICE_LABELS } from '../wizard.constants'
 import styles from '../WizardPage.module.scss'
 
-const SERVICE_OPTIONS = [
-  { value: 'overenskomst', label: 'Overenskomst' },
-  { value: 'personalejuridisk_raadgivning', label: 'Personalejuridisk rådgivning' },
-  { value: 'erhvervsjuridisk_raadgivning', label: 'Erhvervsjuridisk rådgivning' },
-  { value: 'byggegaranti', label: 'Byggegaranti' },
-  { value: 'di_byggeri_sektion', label: 'Medlemskab af sektion i DI Byggeri' },
-  { value: 'andet', label: 'Andet' },
-] as const
+const SERVICE_OPTIONS = Object.entries(SERVICE_LABELS).map(([value, label]) => ({ value, label }))
 
 type NeedsStepProps = {
   selectedServices: string[]

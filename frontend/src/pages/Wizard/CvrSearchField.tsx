@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { lookupByName, lookupByVat } from '../../api/cvr'
 import InputField from '../../components/InputField/InputField'
 import type { CompanyOption, CvrResult } from './wizard.types'
@@ -6,6 +6,8 @@ import styles from './CvrSearchField.module.scss'
 
 type CvrSearchFieldProps = {
   onCompanySelect: (company: CompanyOption) => void
+  onQueryChange?: (query: string) => void
+  initialQuery?: string
 }
 
 function mapCvrResultToCompanyOption(company: CvrResult): CompanyOption {
@@ -23,14 +25,23 @@ function mapCvrResultToCompanyOption(company: CvrResult): CompanyOption {
 
 export default function CvrSearchField({
   onCompanySelect,
+  onQueryChange,
+  initialQuery = '',
 }: CvrSearchFieldProps) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialQuery)
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<CvrResult | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const skipSearch = useRef(initialQuery !== '')
+
+  function handleQueryChange(value: string) {
+    skipSearch.current = false
+    setQuery(value)
+  }
 
   useEffect(() => {
+    if (skipSearch.current) return
     const trimmed = query.trim()
     const isVat = /^\d+$/.test(trimmed)
 
@@ -72,9 +83,12 @@ export default function CvrSearchField({
   }, [query])
 
   function handleSelect(company: CvrResult) {
-    setQuery(`${company.navn} (CVR: ${company.cvr})`)
+    const displayValue = `${company.navn} (CVR: ${company.cvr})`
+    skipSearch.current = true
+    setQuery(displayValue)
     setIsOpen(false)
     onCompanySelect(mapCvrResultToCompanyOption(company))
+    onQueryChange?.(displayValue)
   }
 
   return (
@@ -86,7 +100,7 @@ export default function CvrSearchField({
         }
         placeholder="Fx 16077593 eller Novo Nordisk"
         value={query}
-        onChange={setQuery}
+        onChange={handleQueryChange}
         isRequired
       />
       {isOpen && result ? (

@@ -95,3 +95,4 @@ setup_github.sh
 settings.local.json
 
 backend/uploads/
+backend/resources
