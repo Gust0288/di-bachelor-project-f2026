@@ -105,5 +105,7 @@ def admin_login(email: str, password: str) -> dict:
     if not row or not verify_password(password, row["password_hash"]):
         raise ValueError("Forkert email eller adgangskode")
 
-    token = create_token({"sub": str(row["id"]), "role": "admin"}, expires_in_minutes=480)
+    token = create_token(
+        {"sub": str(row["id"]), "role": "admin"}, expires_in_minutes=480
+    )
     return {"token": token, "admin_id": str(row["id"])}
