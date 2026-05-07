@@ -269,12 +269,17 @@ def submit_registration(session_id: str) -> dict:
     step4 = step_data.get("4", {})
     step7 = step_data.get("7", {})
 
-    address: dict[str, Any] = {}
     if step2.get("address_choice") == "manual":
-        address = {
+        address: dict[str, Any] = {
             "street": step2.get("manual_address"),
             "zip": step2.get("manual_zip"),
             "city": step2.get("manual_city"),
+        }
+    else:
+        address = {
+            "street": step1.get("address"),
+            "zip": step1.get("zip_code"),
+            "city": step1.get("city"),
         }
 
     answers = {
