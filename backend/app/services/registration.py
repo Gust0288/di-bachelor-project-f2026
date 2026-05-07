@@ -271,7 +271,9 @@ async def send_email_verification(session_id: str) -> str:
         if not row:
             raise LookupError("Session ikke fundet eller udløbet")
 
-        email = row["contact_email"] or (row["step_data"] or {}).get("1", {}).get("contact_email")
+        email = row["contact_email"] or (row["step_data"] or {}).get("1", {}).get(
+            "contact_email"
+        )
         if not email:
             raise ValueError("Ingen email tilknyttet sessionen")
 
