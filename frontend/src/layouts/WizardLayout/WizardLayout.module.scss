@@ -5,8 +5,9 @@
     minmax(12rem, 0.75fr)
     minmax(28rem, 2fr)
     minmax(17rem, 0.9fr);
-  min-height: 100%;
-  overflow-x: auto;
+  grid-template-rows: 1fr;
+  height: 100%;
+  overflow: hidden;
   background: var(--color-surfaces-surface-1);
 
   @media (width < 77.8125em) {
@@ -16,6 +17,7 @@
     grid-template-columns:
       minmax(28rem, 2fr)
       minmax(17rem, 0.9fr);
+    grid-template-rows: auto 1fr;
   }
 
   @media (width < 77.8125em) {
@@ -30,15 +32,9 @@
 .left,
 .right {
   min-width: 0;
+  overflow-y: auto;
   padding: clamp(var(--spacing-md), 2vw, var(--spacing-xl));
   background: var(--color-white);
-
-}
-
-.left > *,
-.summaryShell {
-  position: sticky;
-  top: var(--spacing-lg);
 }
 
 .left {
@@ -66,9 +62,10 @@
 .center {
   grid-area: center;
   min-width: 0;
+  overflow-y: auto;
   padding: clamp(var(--spacing-lg), 3vw, var(--spacing-2xl))
     clamp(var(--spacing-md), 2.5vw, var(--spacing-xl))
-    var(--spacing-2xl);
+    var(--spacing-3xl);
 }
 
 .summaryShell {

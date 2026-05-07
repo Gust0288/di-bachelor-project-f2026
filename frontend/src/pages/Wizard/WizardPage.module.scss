@@ -112,7 +112,7 @@
   flex-wrap: wrap;
   gap: var(--spacing-sm);
   justify-content: flex-end;
-  padding-block-start: var(--spacing-md);
+  padding-block: var(--spacing-md) var(--spacing-2xl);
   border-block-start: 1px solid var(--color-border-default);
 }
 
