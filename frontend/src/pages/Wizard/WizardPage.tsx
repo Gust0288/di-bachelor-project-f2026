@@ -135,6 +135,11 @@ export default function WizardPage() {
   const refetchRef = useRef(refetchSession)
   useEffect(() => { refetchRef.current = refetchSession })
 
+  const centerRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    centerRef.current?.scrollTo({ top: 0 })
+  }, [currentStepIndex])
+
   // Whenever step 7 (membership) becomes active, fetch the latest computed membership
   // from backend — handles going back and changing services/employees/overenskomst/branches
   useEffect(() => {
@@ -754,6 +759,7 @@ export default function WizardPage() {
 
   return (
     <WizardLayout
+      centerRef={centerRef}
       progressIndicator={
         <WizardStepsNavigation
           steps={wizardSteps}

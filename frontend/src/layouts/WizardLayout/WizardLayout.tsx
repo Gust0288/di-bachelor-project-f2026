@@ -8,12 +8,14 @@ interface WizardLayoutProps {
   progressIndicator: React.ReactNode
   summary: React.ReactNode
   children: React.ReactNode
+  centerRef?: React.RefObject<HTMLElement>
 }
 
 export default function WizardLayout({
   progressIndicator,
   summary,
   children,
+  centerRef,
 }: WizardLayoutProps) {
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(false)
   const [isHelpOpen, setIsHelpOpen] = useState(false)
@@ -33,7 +35,7 @@ export default function WizardLayout({
       data-summary-collapsed={isSummaryHidden || undefined}
     >
       <aside className={styles.left}>{progressIndicator}</aside>
-      <main className={styles.center}>{children}</main>
+      <main ref={centerRef} className={styles.center}>{children}</main>
       <aside className={styles.right}>
         <div className={styles.summaryShell}>
           {canCollapseSummary ? (
