@@ -88,7 +88,7 @@ def get_session(session_id: str) -> dict:
     with get_db_cursor(dict_rows=True) as (_, cur):
         cur.execute(
             """
-            SELECT id, current_step, tier, flags, step_data, status, expires_at
+            SELECT id, current_step, tier, flags, step_data, status, expires_at, updated_at
             FROM registration_sessions
             WHERE id = %s AND status = 'draft' AND expires_at > NOW()
             """,
@@ -107,6 +107,7 @@ def get_session(session_id: str) -> dict:
         "step_data": row["step_data"] or {},
         "status": row["status"],
         "expires_at": row["expires_at"].isoformat(),
+        "updated_at": row["updated_at"].isoformat(),
     }
 
 

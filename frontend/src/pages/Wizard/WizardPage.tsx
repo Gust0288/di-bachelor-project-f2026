@@ -128,8 +128,18 @@ export default function WizardPage() {
   const [emailVerificationPending, setEmailVerificationPending] = useState(false)
   const [verificationEmail, setVerificationEmail] = useState('')
 
-  const { sessionId, saveStep, refetchSession, stepData, currentStep, sendEmailVerification, confirmEmailVerification, isLoading: sessionLoading, error: sessionError } =
+  const { sessionId, saveStep, refetchSession, stepData, currentStep, resumedAt, sendEmailVerification, confirmEmailVerification, isLoading: sessionLoading, error: sessionError } =
     useWizardSession()
+
+  const [showResumeSplash, setShowResumeSplash] = useState(false)
+  useEffect(() => {
+    if (!sessionLoading && resumedAt) {
+      setShowResumeSplash(true)
+      const t = setTimeout(() => setShowResumeSplash(false), 5000)
+      return () => clearTimeout(t)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionLoading])
 
   useEffect(() => {
     if (!sessionLoading && currentStep > 1) {
@@ -824,6 +834,26 @@ export default function WizardPage() {
       <WizardLayout progressIndicator={null} summary={null}>
         <p>Indlæser...</p>
       </WizardLayout>
+    )
+  }
+
+  if (showResumeSplash && resumedAt) {
+    const date = new Date(resumedAt).toLocaleDateString('da-DK', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+    return (
+      <div className={styles.resumeSplash}>
+        <div className={styles.resumeSplash__inner}>
+          <p className={styles.resumeSplash__text}>
+            Du fortsætter dit indmeldingsflow fra din session d. {date}
+          </p>
+          <div className={styles.resumeSplash__track}>
+            <div className={styles.resumeSplash__bar} />
+          </div>
+        </div>
+      </div>
     )
   }
 

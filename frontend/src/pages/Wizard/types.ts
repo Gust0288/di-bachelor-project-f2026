@@ -57,6 +57,7 @@ export type SessionState = {
   step_data: Record<string, Record<string, unknown>>
   status: string
   expires_at: string
+  updated_at: string
 }
 
 export type StepSubmitResponse = {

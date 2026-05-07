@@ -14,6 +14,7 @@ type WizardSessionState = {
   flow: FlowDefinition | null
   stepData: Record<string, Record<string, unknown>>
   currentStep: number
+  resumedAt: string | null
   tier: string | null
   flags: Record<string, unknown>
   isLoading: boolean
@@ -33,6 +34,7 @@ export function useWizardSession(): UseWizardSessionReturn {
     flow: null,
     stepData: {},
     currentStep: 1,
+    resumedAt: null,
     tier: null,
     flags: {},
     isLoading: true,
@@ -58,6 +60,7 @@ export function useWizardSession(): UseWizardSessionReturn {
             flow: flowData,
             stepData: sessionData.step_data ?? {},
             currentStep: sessionData.current_step ?? 1,
+            resumedAt: sessionData.updated_at,
             tier: sessionData.tier ?? null,
             flags: sessionData.flags ?? {},
             isLoading: false,
@@ -70,6 +73,7 @@ export function useWizardSession(): UseWizardSessionReturn {
             flow: flowData,
             stepData: {},
             currentStep: 1,
+            resumedAt: null,
             tier: null,
             flags: {},
             isLoading: false,
