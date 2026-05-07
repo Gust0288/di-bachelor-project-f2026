@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import random
+import string
+from datetime import datetime, timezone, timedelta
 from typing import Any
 
 from pydantic import ValidationError
@@ -8,6 +11,7 @@ from pydantic import ValidationError
 from app.core.database import get_db_cursor
 from app.schemas.registration import STEP_SCHEMAS
 from app.services.branch_mapping import get_suggestions
+from app.services.email_verification import send_verification_email
 from app.services.flow_definition import FLOW_DEFINITION
 from app.services.membership import calculate_membership, compute_tier
 
@@ -255,6 +259,74 @@ def get_branch_suggestions(session_id: str) -> dict:
     industry_code = step1.get("industry_code") or ""
     branch_codes = [industry_code] if industry_code else []
     return get_suggestions(branch_codes)
+
+
+async def send_email_verification(session_id: str) -> str:
+    with get_db_cursor(dict_rows=True) as (_, cur):
+        cur.execute(
+            "SELECT contact_email, step_data FROM registration_sessions WHERE id = %s AND status = 'draft' AND expires_at > NOW()",
+            (session_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            raise LookupError("Session ikke fundet eller udløbet")
+
+        email = row["contact_email"] or (row["step_data"] or {}).get("1", {}).get("contact_email")
+        if not email:
+            raise ValueError("Ingen email tilknyttet sessionen")
+
+        code = "".join(random.choices(string.digits, k=6))
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+
+        cur.execute(
+            """
+            UPDATE registration_sessions
+            SET email_verification_code = %s,
+                email_verification_expires_at = %s,
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (code, expires_at, session_id),
+        )
+
+    await send_verification_email(email, code)
+    return email
+
+
+def confirm_email_verification(session_id: str, code: str) -> None:
+    with get_db_cursor(dict_rows=True) as (_, cur):
+        cur.execute(
+            """
+            SELECT email_verification_code, email_verification_expires_at
+            FROM registration_sessions
+            WHERE id = %s AND status = 'draft' AND expires_at > NOW()
+            FOR UPDATE
+            """,
+            (session_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            raise LookupError("Session ikke fundet eller udløbet")
+
+        if not row["email_verification_code"]:
+            raise ValueError("Ingen bekræftelseskode er sendt")
+
+        if row["email_verification_expires_at"] < datetime.now(timezone.utc):
+            raise ValueError("Bekræftelseskoden er udløbet")
+
+        if row["email_verification_code"] != code:
+            raise ValueError("Forkert bekræftelseskode")
+
+        cur.execute(
+            """
+            UPDATE registration_sessions
+            SET email_verified = TRUE,
+                email_verification_code = NULL,
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (session_id,),
+        )
 
 
 def submit_registration(session_id: str) -> dict:

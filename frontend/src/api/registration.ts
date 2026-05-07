@@ -60,6 +60,27 @@ export function submitRegistration(sessionId: string): Promise<SubmitRegistratio
   )
 }
 
+export function sendEmailVerification(sessionId: string): Promise<{ email: string }> {
+  return apiFetch<{ email: string }>(
+    `/registration/session/${sessionId}/email-verification/send`,
+    { method: 'POST' },
+  )
+}
+
+export function confirmEmailVerification(
+  sessionId: string,
+  code: string,
+): Promise<{ verified: boolean }> {
+  return apiFetch<{ verified: boolean }>(
+    `/registration/session/${sessionId}/email-verification/confirm`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    },
+  )
+}
+
 export function uploadDocument(sessionId: string, file: File): Promise<{ document_id: string }> {
   const formData = new FormData()
   formData.append('session_id', sessionId)

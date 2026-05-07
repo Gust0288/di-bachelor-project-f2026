@@ -12,6 +12,12 @@ class Settings(BaseSettings):
     cvr_api_key: str = Field(default="", alias="CVR_API_KEY")
     jwt_secret: str = Field(default="change-me-in-production", alias="JWT_SECRET")
 
+    smtp_host: str = Field(default="smtp.gmail.com", alias="SMTP_HOST")
+    smtp_port: int = Field(default=587, alias="SMTP_PORT")
+    smtp_user: str = Field(default="", alias="SMTP_USER")
+    smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
+    email_from: str = Field(default="", alias="EMAIL_FROM")
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

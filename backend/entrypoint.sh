@@ -12,6 +12,7 @@ psql "$DATABASE_URL" -f /app/schema.sql
 
 echo "Koerer migrationer..."
 psql "$DATABASE_URL" -f /app/migrations/001_wizard_additions.sql
+psql "$DATABASE_URL" -f /app/migrations/002_email_verification.sql
 
 echo "Starter Flask..."
 exec flask --app app.main:app run --host 0.0.0.0 --port 8000

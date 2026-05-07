@@ -21,6 +21,7 @@ import MitIdVerificationStep, {
   type MitIdStatus,
 } from './steps/10MitIdVerificationStep'
 import BlockingDialog from './BlockingDialog'
+import EmailVerificationOverlay from './EmailVerificationOverlay'
 import WizardHeader from './WizardHeader'
 import styles from './WizardPage.module.scss'
 import WizardSummary from './WizardSummary'
@@ -124,8 +125,10 @@ export default function WizardPage() {
 
   const [isSaving, setIsSaving] = useState(false)
   const [blockingPopup, setBlockingPopup] = useState<BlockingPopup | null>(null)
+  const [emailVerificationPending, setEmailVerificationPending] = useState(false)
+  const [verificationEmail, setVerificationEmail] = useState('')
 
-  const { sessionId, saveStep, refetchSession, stepData, isLoading: sessionLoading, error: sessionError } =
+  const { sessionId, saveStep, refetchSession, stepData, sendEmailVerification, confirmEmailVerification, isLoading: sessionLoading, error: sessionError } =
     useWizardSession()
 
   // Keep a stable ref to refetchSession so the effect below doesn't re-run on every render
@@ -234,7 +237,7 @@ export default function WizardPage() {
       }
       setIsSaving(true)
       try {
-        const response = await saveStep(1, {
+        await saveStep(1, {
           cvr_number: cvrData.cvr_number,
           company_name: cvrData.company_name,
           company_type: cvrData.company_type,
@@ -248,7 +251,9 @@ export default function WizardPage() {
           contact_phone: formData.contactPhone || undefined,
           website: formData.website || undefined,
         })
-        setCurrentStepIndex((response.next_step ?? 2) - 1)
+        const email = await sendEmailVerification()
+        setVerificationEmail(email)
+        setEmailVerificationPending(true)
       } catch {
         setValidationMessage('Noget gik galt. Prøv igen.')
       } finally {
@@ -818,6 +823,17 @@ export default function WizardPage() {
       <BlockingDialog
         popup={blockingPopup}
         onClose={() => setBlockingPopup(null)}
+      />
+
+      <EmailVerificationOverlay
+        email={verificationEmail}
+        isOpen={emailVerificationPending}
+        onVerified={() => {
+          setEmailVerificationPending(false)
+          setCurrentStepIndex(1)
+        }}
+        onResend={() => sendEmailVerification().then(() => undefined)}
+        onConfirm={confirmEmailVerification}
       />
     </WizardLayout>
   )

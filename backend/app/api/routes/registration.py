@@ -271,6 +271,34 @@ def get_branch_suggestions(session_id: str):
     return jsonify(suggestions)
 
 
+@registration_bp.post("/session/<session_id>/email-verification/send")
+async def send_email_verification(session_id: str):
+    try:
+        email = await reg_service.send_email_verification(session_id)
+    except LookupError as e:
+        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Kunne ikke sende email: {e}"}), 500
+    return jsonify({"email": email})
+
+
+@registration_bp.post("/session/<session_id>/email-verification/confirm")
+def confirm_email_verification(session_id: str):
+    data = request.get_json(silent=True) or {}
+    code = str(data.get("code", "")).strip()
+    if not code:
+        return jsonify({"error": "Mangler bekræftelseskode"}), 400
+    try:
+        reg_service.confirm_email_verification(session_id, code)
+    except LookupError as e:
+        return jsonify({"error": str(e)}), 404
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify({"verified": True})
+
+
 @registration_bp.post("/session/<session_id>/submit")
 def submit_registration(session_id: str):
     """

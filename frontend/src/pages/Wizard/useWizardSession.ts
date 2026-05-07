@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { createSession, getFlow, getSession, saveStep as apiSaveStep } from '../../api/registration'
+import {
+  confirmEmailVerification as apiConfirmEmailVerification,
+  createSession,
+  getFlow,
+  getSession,
+  saveStep as apiSaveStep,
+  sendEmailVerification as apiSendEmailVerification,
+} from '../../api/registration'
 import type { FlowDefinition, StepSubmitResponse } from './types'
 
 type WizardSessionState = {
@@ -15,6 +22,8 @@ type WizardSessionState = {
 type UseWizardSessionReturn = WizardSessionState & {
   saveStep: (stepNumber: number, data: Record<string, unknown>) => Promise<StepSubmitResponse>
   refetchSession: () => Promise<void>
+  sendEmailVerification: () => Promise<string>
+  confirmEmailVerification: (code: string) => Promise<void>
 }
 
 export function useWizardSession(): UseWizardSessionReturn {
@@ -70,6 +79,17 @@ export function useWizardSession(): UseWizardSessionReturn {
     return response
   }
 
+  async function sendEmailVerification(): Promise<string> {
+    if (!state.sessionId) throw new Error('Ingen aktiv session')
+    const response = await apiSendEmailVerification(state.sessionId)
+    return response.email
+  }
+
+  async function confirmEmailVerification(code: string): Promise<void> {
+    if (!state.sessionId) throw new Error('Ingen aktiv session')
+    await apiConfirmEmailVerification(state.sessionId, code)
+  }
+
   async function refetchSession(): Promise<void> {
     if (!state.sessionId) return
     const session = await getSession(state.sessionId)
@@ -81,5 +101,5 @@ export function useWizardSession(): UseWizardSessionReturn {
     }))
   }
 
-  return { ...state, saveStep, refetchSession }
+  return { ...state, saveStep, refetchSession, sendEmailVerification, confirmEmailVerification }
 }
