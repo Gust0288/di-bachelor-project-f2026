@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CheckCircle2 } from 'lucide-react'
 import Button from '../../components/Button/Button'
 import { Confirm, ConfirmContent, ConfirmFooter } from '../../components/Confirm'
@@ -27,11 +27,14 @@ export default function EmailVerificationOverlay({
   const [resendMessage, setResendMessage] = useState<string | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
+  const onVerifiedRef = useRef(onVerified)
+  useEffect(() => { onVerifiedRef.current = onVerified })
+
   useEffect(() => {
     if (!showSuccess) return
-    const timer = setTimeout(onVerified, 5000)
+    const timer = setTimeout(() => onVerifiedRef.current(), 5000)
     return () => clearTimeout(timer)
-  }, [showSuccess, onVerified])
+  }, [showSuccess])
 
   async function handleConfirm() {
     if (code.length !== 6) return
