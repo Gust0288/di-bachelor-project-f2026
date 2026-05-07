@@ -74,6 +74,7 @@ export default function WizardPage() {
   const [formData, setFormData] = useState<WizardFormData>(initialFormData)
   const [selectedCompany, setSelectedCompany] = useState<CompanyOption | undefined>(undefined)
   const [cvrData, setCvrData] = useState<CvrHiddenFields | null>(null)
+  const [cvrQuery, setCvrQuery] = useState('')
 
   // ── Step 2 state ──────────────────────────────────────────────
   const [cvrConfirmed, setCvrConfirmed] = useState(false)
@@ -96,6 +97,7 @@ export default function WizardPage() {
 
   // ── Step 6 state ──────────────────────────────────────────────
   const [selectedFaellesskaber, setSelectedFaellesskaber] = useState<string[]>([])
+  const [allFaellesskaber, setAllFaellesskaber] = useState<{ id: string; name: string }[]>([])
 
   // ── Step 7 state ──────────────────────────────────────────────
   const [acceptMembership, setAcceptMembership] = useState(false)
@@ -331,7 +333,7 @@ export default function WizardPage() {
         setValidationMessage('Angiv hvilken type overenskomst for at fortsætte.')
         return
       }
-      if (overenskomstType === 'direkte' && !documentId) {
+      if (overenskomstStatus === 'ja' && overenskomstType === 'direkte' && !documentId) {
         setValidationMessage('Upload overenskomstdokumentet for at fortsætte.')
         return
       }
@@ -339,8 +341,8 @@ export default function WizardPage() {
       try {
         const response = await saveStep(5, {
           overenskomst_status: overenskomstStatus,
-          ...(overenskomstType ? { overenskomst_type: overenskomstType } : {}),
-          ...(documentId ? { document_id: documentId } : {}),
+          ...(overenskomstType && overenskomstStatus === 'ja' ? { overenskomst_type: overenskomstType } : {}),
+          ...(documentId && overenskomstType === 'direkte' && overenskomstStatus === 'ja' ? { document_id: documentId } : {}),
         })
         if (response.is_blocked && response.blocking_popup) {
           setBlockingPopup(response.blocking_popup)
@@ -580,6 +582,8 @@ export default function WizardPage() {
             onFieldChange={updateField}
             onCompanyFound={setSelectedCompany}
             onCvrDataChange={setCvrData}
+            cvrQuery={cvrQuery}
+            onCvrQueryChange={setCvrQuery}
           />
         )
       case 1:
@@ -632,6 +636,7 @@ export default function WizardPage() {
             sessionId={sessionId ?? ''}
             selectedFaellesskaber={selectedFaellesskaber}
             onSelectionChange={setSelectedFaellesskaber}
+            onAllLoaded={setAllFaellesskaber}
           />
         )
       case 6: {
@@ -753,7 +758,28 @@ export default function WizardPage() {
         />
       }
       summary={
-        <WizardSummary formData={formData} selectedCompany={selectedCompany} />
+        <WizardSummary
+          formData={formData}
+          selectedCompany={selectedCompany}
+          selectedServices={selectedServices}
+          andetBeskrivelse={andetBeskrivelse}
+          employeeCount={employeeCount}
+          noEmployees={noEmployees}
+          overenskomstStatus={overenskomstStatus}
+          selectedFaellesskaber={selectedFaellesskaber}
+          allFaellesskaber={allFaellesskaber}
+          managingDirector={managingDirector}
+          hrContact={hrContact}
+          payrollContact={payrollContact}
+          authorizedSignatory={authorizedSignatory}
+          invoiceDelivery={invoiceDelivery}
+          computedMembership={computeMembership(
+            computeTier(noEmployees ? 0 : (employeeCount !== '' ? employeeCount : undefined)),
+            overenskomstStatus === 'ja',
+            selectedFaellesskaber,
+            selectedServices,
+          )}
+        />
       }
     >
       <Form className={styles.form} noValidate onSubmit={handleSubmit}>

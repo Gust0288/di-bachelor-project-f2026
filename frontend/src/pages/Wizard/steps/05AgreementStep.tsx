@@ -84,7 +84,7 @@ export default function AgreementStep({
         </ContentBox>
       ) : null}
 
-      {overenskomstType === 'direkte' ? (
+      {overenskomstStatus === 'ja' && overenskomstType === 'direkte' ? (
         <ContentBox
           title="Upload overenskomst"
           description="Upload jeres overenskomstdokument (PDF eller billede)."

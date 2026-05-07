@@ -9,12 +9,14 @@ type AssociationsStepProps = {
   sessionId: string
   selectedFaellesskaber: string[]
   onSelectionChange: (ids: string[]) => void
+  onAllLoaded: (all: { id: string; name: string }[]) => void
 }
 
 export default function AssociationsStep({
   sessionId,
   selectedFaellesskaber,
   onSelectionChange,
+  onAllLoaded,
 }: AssociationsStepProps) {
   const [suggestions, setSuggestions] = useState<BranchSuggestionsResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -24,6 +26,7 @@ export default function AssociationsStep({
     getBranchSuggestions(sessionId)
       .then((data) => {
         setSuggestions(data)
+        onAllLoaded(data.all)
         // Pre-select mandatory + suggested on first load
         if (selectedFaellesskaber.length === 0) {
           onSelectionChange([...data.mandatory, ...data.suggested])

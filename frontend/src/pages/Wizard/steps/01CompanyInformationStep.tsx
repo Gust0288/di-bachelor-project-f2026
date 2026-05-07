@@ -14,6 +14,8 @@ type CompanyInformationStepProps = {
   onFieldChange: WizardFieldUpdater
   onCompanyFound: (company: CompanyOption) => void
   onCvrDataChange: (fields: CvrHiddenFields) => void
+  cvrQuery: string
+  onCvrQueryChange: (query: string) => void
 }
 
 export default function CompanyInformationStep({
@@ -21,6 +23,8 @@ export default function CompanyInformationStep({
   onFieldChange,
   onCompanyFound,
   onCvrDataChange,
+  cvrQuery,
+  onCvrQueryChange,
 }: CompanyInformationStepProps) {
   function handleCompanySelect(company: CompanyOption) {
     onFieldChange('companyId', company.id)
@@ -93,7 +97,11 @@ export default function CompanyInformationStep({
         title="Virksomhed"
         description="Søg på CVR-nummer eller virksomhedsnavn og vælg den korrekte virksomhed."
       >
-        <CvrSearchField onCompanySelect={handleCompanySelect} />
+        <CvrSearchField
+          onCompanySelect={handleCompanySelect}
+          initialQuery={cvrQuery}
+          onQueryChange={onCvrQueryChange}
+        />
       </ContentBox>
 
       <ContentBox
