@@ -73,3 +73,15 @@ CREATE INDEX IF NOT EXISTS idx_registrations_status
 
 CREATE INDEX IF NOT EXISTS idx_registrations_cvr_number
     ON registrations (cvr_number);
+
+CREATE TABLE IF NOT EXISTS login_otps (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT NOT NULL,
+    code CHAR(6) NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL,
+    used BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_login_otps_email_expires
+    ON login_otps (email, expires_at);

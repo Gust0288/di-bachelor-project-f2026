@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template_string
 from flask_cors import CORS
 
+from app.api.routes.auth import auth_bp
 from app.api.routes.cvr import cvr_bp
 from app.api.routes.documents import documents_bp
 from app.api.routes.registration import registration_bp
@@ -10,6 +11,7 @@ from app.openapi_spec import build_spec
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])
 
+app.register_blueprint(auth_bp)
 app.register_blueprint(cvr_bp)
 app.register_blueprint(registration_bp)
 app.register_blueprint(documents_bp)

@@ -13,6 +13,7 @@ type WizardSessionState = {
   sessionId: string | null
   flow: FlowDefinition | null
   stepData: Record<string, Record<string, unknown>>
+  currentStep: number
   tier: string | null
   flags: Record<string, unknown>
   isLoading: boolean
@@ -31,6 +32,7 @@ export function useWizardSession(): UseWizardSessionReturn {
     sessionId: null,
     flow: null,
     stepData: {},
+    currentStep: 1,
     tier: null,
     flags: {},
     isLoading: true,
@@ -42,18 +44,38 @@ export function useWizardSession(): UseWizardSessionReturn {
     if (initialized.current) return
     initialized.current = true
 
+    const resumeSessionId = new URLSearchParams(window.location.search).get('session')
+
     async function init() {
       try {
-        const [flowData, sessionData] = await Promise.all([getFlow(), createSession()])
-        setState({
-          sessionId: sessionData.session_id,
-          flow: flowData,
-          stepData: {},
-          tier: null,
-          flags: {},
-          isLoading: false,
-          error: null,
-        })
+        if (resumeSessionId) {
+          const [flowData, sessionData] = await Promise.all([
+            getFlow(),
+            getSession(resumeSessionId),
+          ])
+          setState({
+            sessionId: sessionData.session_id,
+            flow: flowData,
+            stepData: sessionData.step_data ?? {},
+            currentStep: sessionData.current_step ?? 1,
+            tier: sessionData.tier ?? null,
+            flags: sessionData.flags ?? {},
+            isLoading: false,
+            error: null,
+          })
+        } else {
+          const [flowData, sessionData] = await Promise.all([getFlow(), createSession()])
+          setState({
+            sessionId: sessionData.session_id,
+            flow: flowData,
+            stepData: {},
+            currentStep: 1,
+            tier: null,
+            flags: {},
+            isLoading: false,
+            error: null,
+          })
+        }
       } catch (err) {
         setState((s) => ({
           ...s,

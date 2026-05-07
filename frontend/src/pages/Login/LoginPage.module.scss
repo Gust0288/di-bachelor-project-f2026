@@ -1,0 +1,83 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  height: 100%;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-text-subtle);
+  font-size: 0.875rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border-default);
+  }
+}
+
+.otpLabel {
+  font-size: 0.9375rem;
+  color: var(--color-text-subtle);
+  margin: 0;
+}
+
+.otpWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.backLink {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  align-self: flex-start;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.adminLink {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  align-self: center;
+
+  &:hover {
+    color: var(--color-text-default);
+  }
+}

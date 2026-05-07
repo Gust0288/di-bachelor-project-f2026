@@ -222,23 +222,31 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
 
         new_current_step = max(current_step, step_number + 1)
 
+        extra_sets = ""
+        extra_params: list = []
+        if step_number == 1 and step_payload.get("contact_email"):
+            extra_sets = ", contact_email = %s"
+            extra_params = [step_payload["contact_email"]]
+
         cur.execute(
-            """
+            f"""
             UPDATE registration_sessions
             SET step_data    = %s::jsonb,
                 flags        = %s::jsonb,
                 tier         = %s,
                 current_step = %s,
                 updated_at   = NOW()
+                {extra_sets}
             WHERE id = %s
             """,
-            (
+            [
                 json.dumps(merged_step_data),
                 json.dumps(new_flags),
                 new_tier,
                 new_current_step,
+                *extra_params,
                 session_id,
-            ),
+            ],
         )
 
     return {

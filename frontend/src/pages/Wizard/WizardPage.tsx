@@ -128,8 +128,15 @@ export default function WizardPage() {
   const [emailVerificationPending, setEmailVerificationPending] = useState(false)
   const [verificationEmail, setVerificationEmail] = useState('')
 
-  const { sessionId, saveStep, refetchSession, stepData, sendEmailVerification, confirmEmailVerification, isLoading: sessionLoading, error: sessionError } =
+  const { sessionId, saveStep, refetchSession, stepData, currentStep, sendEmailVerification, confirmEmailVerification, isLoading: sessionLoading, error: sessionError } =
     useWizardSession()
+
+  useEffect(() => {
+    if (!sessionLoading && currentStep > 1) {
+      setCurrentStepIndex(currentStep - 1)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionLoading])
 
   // Keep a stable ref to refetchSession so the effect below doesn't re-run on every render
   const refetchRef = useRef(refetchSession)

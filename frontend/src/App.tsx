@@ -3,6 +3,7 @@ import Header from './components/Header'
 import { MyToastRegion } from './components/Toast/Toast'
 import WizardPage from './pages/Wizard/WizardPage'
 import LoginPage from './pages/Login/LoginPage'
+import AdminPage from './pages/Admin/AdminPage'
 import styles from './App.module.scss'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
             <Route path="/" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/wizard" element={<WizardPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </main>
       </div>
