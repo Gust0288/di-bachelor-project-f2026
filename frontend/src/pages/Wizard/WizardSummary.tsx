@@ -1,6 +1,7 @@
 import { OVERENSKOMST_STATUS_LABELS, SERVICE_LABELS } from './wizard.constants'
 import type { ContactPerson } from './steps/ContactPersonFields'
 import type { CompanyOption, WizardFormData } from './wizard.types'
+import { wizardSteps } from './wizardSteps'
 import styles from './WizardPage.module.scss'
 
 const INVOICE_LABELS: Record<string, string> = {
@@ -9,6 +10,7 @@ const INVOICE_LABELS: Record<string, string> = {
 }
 
 type WizardSummaryProps = {
+  currentStepIndex: number
   formData: WizardFormData
   selectedCompany?: CompanyOption
   selectedServices: string[]
@@ -52,6 +54,7 @@ function groupedContactItems(
 }
 
 export default function WizardSummary({
+  currentStepIndex,
   formData,
   selectedCompany,
   selectedServices,
@@ -96,50 +99,82 @@ export default function WizardSummary({
           .join(', ')
       : null
 
-  const summaryItems = [
-    selectedCompany && {
-      label: 'Virksomhedens navn',
-      value: `${selectedCompany.label} (CVR: ${selectedCompany.id})`,
+  const stepGroups: Array<{ stepIndex: number; items: SummaryItem[] }> = [
+    {
+      stepIndex: 0,
+      items: [
+        selectedCompany && {
+          label: 'Virksomhedens navn',
+          value: `${selectedCompany.label} (CVR: ${selectedCompany.id})`,
+        },
+        primaryBranch && {
+          label: 'Primær branche',
+          value: `${primaryBranch.code} ${primaryBranch.title}`,
+        },
+        formData.contactName && {
+          label: 'Kontaktperson',
+          value: formData.contactName,
+        },
+      ].filter((item): item is SummaryItem => Boolean(item)),
     },
-    primaryBranch && {
-      label: 'Primær branche',
-      value: `${primaryBranch.code} ${primaryBranch.title}`,
+    {
+      stepIndex: 2,
+      items: [
+        servicesValue && { label: 'Valgte services', value: servicesValue },
+      ].filter((item): item is SummaryItem => Boolean(item)),
     },
-    formData.contactName && {
-      label: 'Kontaktperson',
-      value: formData.contactName,
+    {
+      stepIndex: 3,
+      items: [
+        employeeValue && { label: 'Antal ansatte', value: employeeValue },
+      ].filter((item): item is SummaryItem => Boolean(item)),
     },
-    servicesValue && {
-      label: 'Valgte services',
-      value: servicesValue,
+    {
+      stepIndex: 4,
+      items: [
+        overenskomstValue && { label: 'Overenskomst', value: overenskomstValue },
+      ].filter((item): item is SummaryItem => Boolean(item)),
     },
-    employeeValue && {
-      label: 'Antal ansatte',
-      value: employeeValue,
+    {
+      stepIndex: 5,
+      items: [
+        faellesskabValue && {
+          label: 'Fællesskaber og foreninger',
+          value: faellesskabValue,
+        },
+      ].filter((item): item is SummaryItem => Boolean(item)),
     },
-    overenskomstValue && {
-      label: 'Overenskomst',
-      value: overenskomstValue,
+    {
+      stepIndex: 6,
+      items: [
+        computedMembership && {
+          label: 'Beregnet medlemskab',
+          value: computedMembership,
+        },
+      ].filter((item): item is SummaryItem => Boolean(item)),
     },
-    faellesskabValue && {
-      label: 'Fællesskaber og foreninger',
-      value: faellesskabValue,
+    {
+      stepIndex: 7,
+      items: groupedContactItems([
+        { label: 'Administrerende direktør', person: managingDirector },
+        { label: 'HR-kontakt', person: hrContact },
+        { label: 'Lønsumsinberetter', person: payrollContact },
+        { label: 'Anden tegningsberettiget', person: authorizedSignatory },
+      ]),
     },
-    computedMembership && {
-      label: 'Beregnet medlemskab',
-      value: computedMembership,
+    {
+      stepIndex: 8,
+      items: [
+        invoiceDelivery && {
+          label: 'Faktura',
+          value: INVOICE_LABELS[invoiceDelivery] ?? invoiceDelivery,
+        },
+      ].filter((item): item is SummaryItem => Boolean(item)),
     },
-    ...groupedContactItems([
-      { label: 'Administrerende direktør', person: managingDirector },
-      { label: 'HR-kontakt', person: hrContact },
-      { label: 'Lønsumsinberetter', person: payrollContact },
-      { label: 'Anden tegningsberettiget', person: authorizedSignatory },
-    ]),
-    invoiceDelivery && {
-      label: 'Faktura',
-      value: INVOICE_LABELS[invoiceDelivery] ?? invoiceDelivery,
-    },
-  ].filter((item): item is SummaryItem => Boolean(item))
+  ]
+
+  const filledGroups = stepGroups.filter((g) => g.items.length > 0)
+  const hasAnyItems = filledGroups.length > 0
 
   return (
     <section className={styles.summary} aria-labelledby="wizard-summary-title">
@@ -147,15 +182,29 @@ export default function WizardSummary({
         <h2 id="wizard-summary-title">Opsummering af dine valg</h2>
       </header>
 
-      {summaryItems.length > 0 ? (
-        <dl className={styles.summaryDetails}>
-          {summaryItems.map((item) => (
-            <div key={item.label}>
-              <dt>{item.label}</dt>
-              <dd>{item.value}</dd>
+      {hasAnyItems ? (
+        stepGroups.map((group) =>
+          group.items.length > 0 ? (
+            <div
+              key={group.stepIndex}
+              data-step-index={group.stepIndex}
+              className={styles.summaryGroup}
+              data-active={group.stepIndex === currentStepIndex || undefined}
+            >
+              <p className={styles.summaryGroupLabel}>
+                {wizardSteps[group.stepIndex]?.label}
+              </p>
+              <dl className={styles.summaryDetails}>
+                {group.items.map((item) => (
+                  <div key={item.label}>
+                    <dt>{item.label}</dt>
+                    <dd>{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
-          ))}
-        </dl>
+          ) : null,
+        )
       ) : (
         <p className={styles.summaryValueMuted}>
           Dine oplysninger vises her, efterhånden som du udfylder formularen.

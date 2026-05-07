@@ -136,8 +136,19 @@ export default function WizardPage() {
   useEffect(() => { refetchRef.current = refetchSession })
 
   const centerRef = useRef<HTMLElement>(null)
+  const summaryRef = useRef<HTMLElement>(null)
   useEffect(() => {
     centerRef.current?.scrollTo({ top: 0 })
+
+    const container = summaryRef.current
+    const activeSection = container?.querySelector<HTMLElement>(
+      `[data-step-index="${currentStepIndex}"]`,
+    )
+    if (container && activeSection) {
+      const containerMid = container.clientHeight / 2
+      const targetTop = activeSection.offsetTop - containerMid + activeSection.offsetHeight / 2
+      container.scrollTo({ top: targetTop, behavior: 'smooth' })
+    }
   }, [currentStepIndex])
 
   // Whenever step 7 (membership) becomes active, fetch the latest computed membership
@@ -760,6 +771,7 @@ export default function WizardPage() {
   return (
     <WizardLayout
       centerRef={centerRef}
+      summaryRef={summaryRef}
       progressIndicator={
         <WizardStepsNavigation
           steps={wizardSteps}
@@ -770,6 +782,7 @@ export default function WizardPage() {
       }
       summary={
         <WizardSummary
+          currentStepIndex={currentStepIndex}
           formData={formData}
           selectedCompany={selectedCompany}
           selectedServices={selectedServices}
