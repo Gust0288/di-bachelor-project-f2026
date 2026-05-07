@@ -138,6 +138,89 @@ export default function WizardPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionLoading])
 
+  // Hydrate individual step states from session data when resuming an existing session
+  useEffect(() => {
+    if (sessionLoading || Object.keys(stepData).length === 0) return
+
+    const s1 = stepData['1']
+    if (s1) {
+      setFormData({
+        contactName: (s1.contact_name as string) ?? '',
+        contactJobTitle: '',
+        contactEmail: (s1.contact_email as string) ?? '',
+        contactPhone: (s1.contact_phone as string) ?? '',
+        companyId: (s1.cvr_number as string) ?? '',
+        website: (s1.website as string) ?? '',
+        branchCodesCorrect: '',
+      })
+      setCvrData({
+        cvr_number: (s1.cvr_number as string) ?? '',
+        company_name: (s1.company_name as string) ?? '',
+        company_type: (s1.company_type as string) ?? '',
+        address: (s1.address as string) ?? '',
+        zip_code: (s1.zip_code as string) ?? '',
+        city: (s1.city as string) ?? '',
+        industry_code: (s1.industry_code as string) ?? '',
+        industry_description: (s1.industry_description as string) ?? '',
+      })
+      setSelectedCompany({
+        id: (s1.cvr_number as string) ?? '',
+        label: (s1.company_name as string) ?? '',
+        branchCodes: [],
+      })
+    }
+
+    const s2 = stepData['2']
+    if (s2?.cvr_confirmed) setCvrConfirmed(true)
+
+    const s3 = stepData['3']
+    if (s3) {
+      setSelectedServices((s3.selected_services as string[]) ?? [])
+      setAndetBeskrivelse((s3.andet_beskrivelse as string) ?? '')
+    }
+
+    const s4 = stepData['4']
+    if (s4) {
+      setNoEmployees(Boolean(s4.no_employees))
+      setEmployeeCount((s4.employee_count as number | undefined) ?? '')
+      setEmployeeTypes((s4.employee_types as string[]) ?? [])
+      setTotalLoensum((s4.total_loensum as number | undefined) ?? '')
+    }
+
+    const s5 = stepData['5']
+    if (s5) {
+      setOverenskomstStatus((s5.overenskomst_status as string) ?? '')
+      setOverenskomstType((s5.overenskomst_type as string) ?? '')
+      setDocumentId((s5.document_id as string) ?? '')
+    }
+
+    const s6 = stepData['6']
+    if (s6?.branchefaellesskaber) setSelectedFaellesskaber(s6.branchefaellesskaber as string[])
+
+    const s7 = stepData['7']
+    if (s7?.accept_membership) setAcceptMembership(Boolean(s7.accept_membership))
+
+    const s8 = stepData['8']
+    if (s8) {
+      const toContact = (obj: unknown): ContactPerson => {
+        const c = obj as Record<string, string>
+        return { name: c?.name ?? '', email: c?.email ?? '', phone: c?.phone ?? '', title: c?.title ?? '' }
+      }
+      if (s8.managing_director) setManagingDirector(toContact(s8.managing_director))
+      if (s8.hr_contact) setHrContact(toContact(s8.hr_contact))
+      if (s8.payroll_contact) setPayrollContact(toContact(s8.payroll_contact))
+      if (s8.authorized_signatory) setAuthorizedSignatory(toContact(s8.authorized_signatory))
+      if (s8.invoice_delivery) setInvoiceDelivery(s8.invoice_delivery as string)
+    }
+
+    const s9 = stepData['9']
+    if (s9) {
+      setAcceptTerms(Boolean(s9.accept_terms))
+      setAcceptAuthority(Boolean(s9.accept_authority))
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionLoading])
+
   // Keep a stable ref to refetchSession so the effect below doesn't re-run on every render
   const refetchRef = useRef(refetchSession)
   useEffect(() => { refetchRef.current = refetchSession })
