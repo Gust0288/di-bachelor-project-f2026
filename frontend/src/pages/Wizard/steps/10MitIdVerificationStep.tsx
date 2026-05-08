@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, CheckCircle2, LockKeyhole, ShieldCheck, Smartphone } from 'lucide-react'
+import { CheckCircle2, LockKeyhole, ShieldCheck, Smartphone } from 'lucide-react'
 import Button from '../../../components/Button/Button'
 import styles from '../WizardPage.module.scss'
 
@@ -26,7 +26,7 @@ export default function MitIdVerificationStep({
         <header className={styles.mitIdStartCard__header}>
           <h2>MitID verificering</h2>
           <p>
-            Du bliver sendt videre til MitID, logger ind og vender automatisk tilbage til indmeldelsen.
+            Du bliver sendt videre til MitID og godkender indmeldelsen. Efter godkendelsen vises en kvittering.
           </p>
         </header>
 
@@ -94,7 +94,7 @@ export default function MitIdVerificationStep({
             <>
               <ShieldCheck aria-hidden="true" />
               <h2>Godkendelse modtaget</h2>
-              <p>Du sendes automatisk tilbage til DI-indmeldelsen.</p>
+              <p>Godkendelsen behandles. Når den er registreret, vises kvitteringen.</p>
               <div className={styles.mitIdProgress} aria-hidden="true">
                 <span />
               </div>
@@ -102,12 +102,8 @@ export default function MitIdVerificationStep({
           ) : (
             <>
               <CheckCircle2 aria-hidden="true" />
-              <h2>Tilbage hos DI</h2>
-              <p>Identiteten er verificeret. Du kan nu afslutte anmodningen.</p>
-              <div className={styles.mitIdLoginPanel__return}>
-                <ArrowLeft aria-hidden="true" />
-                <span>Du er tilbage på DI's indmeldelsesflow</span>
-              </div>
+              <h2>Kvittering</h2>
+              <p>Identiteten er verificeret, og indmeldelsen er godkendt med MitID.</p>
             </>
           )}
 
