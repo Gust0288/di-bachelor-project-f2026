@@ -31,6 +31,7 @@ describe('apiFetch', () => {
       ok: false,
       status: 500,
       statusText: 'Server Error',
+      json: jest.fn().mockResolvedValue(null),
     })
 
     await expect(apiFetch('/health')).rejects.toThrow(
