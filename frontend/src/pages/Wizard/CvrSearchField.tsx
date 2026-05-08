@@ -35,9 +35,16 @@ export default function CvrSearchField({
   const [error, setError] = useState<string | null>(null)
   const skipSearch = useRef(initialQuery !== '')
 
+  useEffect(() => {
+    if (initialQuery === query) return
+    skipSearch.current = initialQuery !== ''
+    setQuery(initialQuery)
+  }, [initialQuery, query])
+
   function handleQueryChange(value: string) {
     skipSearch.current = false
     setQuery(value)
+    onQueryChange?.(value)
   }
 
   useEffect(() => {

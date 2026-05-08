@@ -216,6 +216,40 @@ class TestStepSave:
         assert data["is_blocked"] is False
         assert data["current_step"] == 2
 
+    def test_step1_persists_contact_job_title(self, client):
+        sid = self._new_session(client)
+        resp = client.post(
+            f"/registration/session/{sid}/step/1",
+            json={
+                "cvr_number": "12345678",
+                "company_name": "Test A/S",
+                "contact_name": "Test Person",
+                "contact_job_title": "Direktør",
+                "contact_email": "test@test.dk",
+            },
+        )
+        assert resp.status_code == 200
+
+        session = client.get(f"/registration/session/{sid}").get_json()
+        assert session["step_data"]["1"]["contact_job_title"] == "Direktør"
+
+    def test_step1_normalizes_camel_case_contact_job_title(self, client):
+        sid = self._new_session(client)
+        resp = client.post(
+            f"/registration/session/{sid}/step/1",
+            json={
+                "cvr_number": "12345678",
+                "company_name": "Test A/S",
+                "contact_name": "Test Person",
+                "contactJobTitle": "Økonomichef",
+                "contact_email": "test@test.dk",
+            },
+        )
+        assert resp.status_code == 200
+
+        session = client.get(f"/registration/session/{sid}").get_json()
+        assert session["step_data"]["1"]["contact_job_title"] == "Økonomichef"
+
     def test_step1_invalid_cvr_returns_422(self, client):
         sid = self._new_session(client)
         resp = client.post(

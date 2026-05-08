@@ -77,6 +77,13 @@ FLOW_DEFINITION: dict = {
                     "autocomplete": "name",
                 },
                 {
+                    "field_id": "contact_job_title",
+                    "type": "text",
+                    "label": "Stillingsbetegnelse",
+                    "required": True,
+                    "autocomplete": "organization-title",
+                },
+                {
                     "field_id": "contact_email",
                     "type": "email",
                     "label": "Email",

@@ -1,7 +1,9 @@
 import type { FormEvent } from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircle2, Clock3, FileCheck2, Mail } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import Button from '../../components/Button/Button'
+import { Confirm, ConfirmContent, ConfirmFooter } from '../../components/Confirm'
 import { Form } from '../../components/Form/Form'
 import InlineAlert from '../../components/InlineAlert/InlineAlert'
 import WizardStepsNavigation, {
@@ -36,6 +38,7 @@ import { submitRegistration } from '../../api/registration'
 
 const wizardStepCount = wizardStepLabels.length
 const mitIdStepIndex = wizardStepCount
+const wizardStepHistoryStateKey = 'wizardStepIndex'
 
 const emptyContact = (): ContactPerson => ({ name: '', email: '', phone: '', title: '' })
 
@@ -71,6 +74,8 @@ function computeMembership(
 }
 
 export default function WizardPage() {
+  const navigate = useNavigate()
+
   // ── Step 1 state ──────────────────────────────────────────────
   const [formData, setFormData] = useState<WizardFormData>(initialFormData)
   const [selectedCompany, setSelectedCompany] = useState<CompanyOption | undefined>(undefined)
@@ -127,6 +132,11 @@ export default function WizardPage() {
   const [blockingPopup, setBlockingPopup] = useState<BlockingPopup | null>(null)
   const [emailVerificationPending, setEmailVerificationPending] = useState(false)
   const [verificationEmail, setVerificationEmail] = useState('')
+  const [pendingHomeNavigation, setPendingHomeNavigation] = useState<string | null>(null)
+  const currentStepIndexRef = useRef(currentStepIndex)
+  const isSubmittedRef = useRef(isSubmitted)
+  const isApplyingBrowserHistoryRef = useRef(false)
+  const lastHistoryStepIndexRef = useRef(currentStepIndex)
 
   const { sessionId, saveStep, refetchSession, stepData, currentStep, resumedAt, sendEmailVerification, confirmEmailVerification, isLoading: sessionLoading, error: sessionError } =
     useWizardSession()
@@ -154,18 +164,30 @@ export default function WizardPage() {
 
     const s1 = stepData['1']
     if (s1) {
+      const cvrNumber = (s1.cvr_number as string) ?? ''
+      const companyName = (s1.company_name as string) ?? ''
+      const contactJobTitle =
+        (s1.contact_job_title as string | undefined) ??
+        (s1.contactJobTitle as string | undefined) ??
+        (s1.contact_title as string | undefined) ??
+        (s1.title as string | undefined) ??
+        ''
+      const cvrDisplayValue = companyName && cvrNumber
+        ? `${companyName} (CVR: ${cvrNumber})`
+        : companyName || cvrNumber
+
       setFormData({
         contactName: (s1.contact_name as string) ?? '',
-        contactJobTitle: '',
+        contactJobTitle,
         contactEmail: (s1.contact_email as string) ?? '',
         contactPhone: (s1.contact_phone as string) ?? '',
-        companyId: (s1.cvr_number as string) ?? '',
+        companyId: cvrNumber,
         website: (s1.website as string) ?? '',
         branchCodesCorrect: '',
       })
       setCvrData({
-        cvr_number: (s1.cvr_number as string) ?? '',
-        company_name: (s1.company_name as string) ?? '',
+        cvr_number: cvrNumber,
+        company_name: companyName,
         company_type: (s1.company_type as string) ?? '',
         address: (s1.address as string) ?? '',
         zip_code: (s1.zip_code as string) ?? '',
@@ -174,10 +196,11 @@ export default function WizardPage() {
         industry_description: (s1.industry_description as string) ?? '',
       })
       setSelectedCompany({
-        id: (s1.cvr_number as string) ?? '',
-        label: (s1.company_name as string) ?? '',
+        id: cvrNumber,
+        label: companyName,
         branchCodes: [],
       })
+      setCvrQuery(cvrDisplayValue)
     }
 
     const s2 = stepData['2']
@@ -259,24 +282,173 @@ export default function WizardPage() {
     }
   }, [currentStepIndex, sessionId])
 
-  const canAccessBranchStep = hasCompletedCompanyInformation(formData)
   const isMitIdStep = currentStepIndex === mitIdStepIndex
   const isPostWizard = isMitIdStep || isSubmitted
   const isApprovalStep = currentStepIndex === wizardStepCount - 1
+
+  const completedWizardSteps = useMemo(
+    () => [
+      hasCompletedCompanyInformation(formData) && Boolean(cvrData),
+      cvrConfirmed,
+      selectedServices.length > 0 &&
+        (!selectedServices.includes('andet') || andetBeskrivelse.trim().length > 0),
+      (noEmployees || employeeCount !== '') &&
+        employeeTypes.length > 0 &&
+        totalLoensum !== '',
+      overenskomstStatus.length > 0 &&
+        (overenskomstStatus !== 'ja' || overenskomstType.length > 0) &&
+        (
+          overenskomstStatus !== 'ja' ||
+          overenskomstType !== 'direkte' ||
+          documentId.length > 0
+        ),
+      selectedFaellesskaber.length > 0,
+      acceptMembership,
+      managingDirector.name.trim().length > 0 &&
+        managingDirector.email.trim().length > 0 &&
+        invoiceDelivery.length > 0,
+      acceptTerms && acceptAuthority,
+    ],
+    [
+      acceptAuthority,
+      acceptMembership,
+      acceptTerms,
+      andetBeskrivelse,
+      cvrConfirmed,
+      cvrData,
+      documentId,
+      employeeCount,
+      employeeTypes,
+      formData,
+      invoiceDelivery,
+      managingDirector,
+      noEmployees,
+      overenskomstStatus,
+      overenskomstType,
+      selectedFaellesskaber,
+      selectedServices,
+      totalLoensum,
+    ],
+  )
+
+  const canAccessWizardStep = useCallback((stepIndex: number) => {
+    if (stepIndex <= 0) return true
+    return completedWizardSteps
+      .slice(0, stepIndex)
+      .every(Boolean)
+  }, [completedWizardSteps])
+
+  useEffect(() => {
+    currentStepIndexRef.current = currentStepIndex
+  }, [currentStepIndex])
+
+  useEffect(() => {
+    isSubmittedRef.current = isSubmitted
+  }, [isSubmitted])
+
+  useEffect(() => {
+    const handleHomeClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        isSubmittedRef.current
+      ) {
+        return
+      }
+
+      const target = event.target instanceof Element ? event.target : null
+      const link = target?.closest<HTMLAnchorElement>('a[href]')
+      if (!link) return
+
+      const url = new URL(link.href, window.location.href)
+      if (url.origin !== window.location.origin || url.pathname !== '/' || url.search || url.hash) {
+        return
+      }
+
+      event.preventDefault()
+      setPendingHomeNavigation(url.pathname)
+    }
+
+    document.addEventListener('click', handleHomeClick, true)
+    return () => document.removeEventListener('click', handleHomeClick, true)
+  }, [])
+
+  useEffect(() => {
+    const currentState = window.history.state as Record<string, unknown> | null
+    window.history.replaceState(
+      { ...(currentState ?? {}), [wizardStepHistoryStateKey]: currentStepIndexRef.current },
+      '',
+      window.location.href,
+    )
+    lastHistoryStepIndexRef.current = currentStepIndexRef.current
+
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state as Record<string, unknown> | null
+      const stepIndex = state?.[wizardStepHistoryStateKey]
+      if (typeof stepIndex !== 'number' || isSubmittedRef.current) return
+      const boundedStepIndex = Math.max(0, Math.min(stepIndex, mitIdStepIndex))
+
+      setValidationMessage(undefined)
+      setIsSubmitted(false)
+      isApplyingBrowserHistoryRef.current = true
+      lastHistoryStepIndexRef.current = boundedStepIndex
+      setCurrentStepIndex(boundedStepIndex)
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  useEffect(() => {
+    if (isSubmitted) return
+
+    if (isApplyingBrowserHistoryRef.current) {
+      isApplyingBrowserHistoryRef.current = false
+      lastHistoryStepIndexRef.current = currentStepIndex
+      return
+    }
+
+    const lastStepIndex = lastHistoryStepIndexRef.current
+    if (currentStepIndex === lastStepIndex) return
+
+    if (currentStepIndex > lastStepIndex) {
+      for (let stepIndex = lastStepIndex + 1; stepIndex <= currentStepIndex; stepIndex += 1) {
+        const state = window.history.state as Record<string, unknown> | null
+        window.history.pushState(
+          { ...(state ?? {}), [wizardStepHistoryStateKey]: stepIndex },
+          '',
+          window.location.href,
+        )
+      }
+    } else {
+      const state = window.history.state as Record<string, unknown> | null
+      window.history.replaceState(
+        { ...(state ?? {}), [wizardStepHistoryStateKey]: currentStepIndex },
+        '',
+        window.location.href,
+      )
+    }
+
+    lastHistoryStepIndexRef.current = currentStepIndex
+  }, [currentStepIndex, isSubmitted])
 
   const wizardSteps = useMemo<WizardStep[]>(
     () =>
       wizardStepLabels.map((label, index) => ({
         label,
-        isDisabled: index === 1 && !canAccessBranchStep,
+        isDisabled: !canAccessWizardStep(index),
         status:
-          index < currentStepIndex
+          index < currentStepIndex && completedWizardSteps[index]
             ? 'complete'
             : index === currentStepIndex
               ? 'current'
               : 'upcoming',
       })),
-    [canAccessBranchStep, currentStepIndex],
+    [canAccessWizardStep, completedWizardSteps, currentStepIndex],
   )
 
   const progressPercentage = useMemo(() => {
@@ -363,6 +535,8 @@ export default function WizardPage() {
           industry_code: cvrData.industry_code,
           industry_description: cvrData.industry_description,
           contact_name: formData.contactName,
+          contact_job_title: formData.contactJobTitle,
+          contactJobTitle: formData.contactJobTitle,
           contact_email: formData.contactEmail,
           contact_phone: formData.contactPhone || undefined,
           website: formData.website || undefined,
@@ -588,8 +762,19 @@ export default function WizardPage() {
     setCurrentStepIndex((stepIndex) => Math.max(stepIndex - 1, 0))
   }
 
+  function cancelHomeNavigation() {
+    setPendingHomeNavigation(null)
+  }
+
+  function confirmHomeNavigation() {
+    const destination = pendingHomeNavigation ?? '/'
+    setPendingHomeNavigation(null)
+    navigate(destination)
+  }
+
   function handleStepSelect(stepIndex: number) {
     if (stepIndex === currentStepIndex) return
+    if (!canAccessWizardStep(stepIndex)) return
     setValidationMessage(undefined)
     setCurrentStepIndex(stepIndex)
   }
@@ -872,6 +1057,31 @@ export default function WizardPage() {
     )
   }
 
+  const homeNavigationWarningDialog = (
+    <Confirm
+      headline="Forlad indmeldelsesflowet?"
+      isOpen={pendingHomeNavigation !== null}
+      onOpenChange={(open) => {
+        if (!open) cancelHomeNavigation()
+      }}
+    >
+      <ConfirmContent className={styles.homeNavigationWarning}>
+        <p>
+          Hvis du går til forsiden nu, forlader du indmeldelsesflowet.
+          Oplysninger, der ikke er gemt på det nuværende trin, bliver slettet.
+        </p>
+      </ConfirmContent>
+      <ConfirmFooter className={styles.homeNavigationWarningFooter}>
+        <Button type="button" variant="outline" onPress={cancelHomeNavigation}>
+          Bliv i flowet
+        </Button>
+        <Button type="button" variant="danger" onPress={confirmHomeNavigation}>
+          Gå til forsiden
+        </Button>
+      </ConfirmFooter>
+    </Confirm>
+  )
+
   if (isPostWizard) {
     return (
       <main className={styles.postWizardPage}>
@@ -889,6 +1099,7 @@ export default function WizardPage() {
           popup={blockingPopup}
           onClose={() => setBlockingPopup(null)}
         />
+        {homeNavigationWarningDialog}
       </main>
     )
   }
@@ -968,6 +1179,7 @@ export default function WizardPage() {
         popup={blockingPopup}
         onClose={() => setBlockingPopup(null)}
       />
+      {homeNavigationWarningDialog}
 
       <EmailVerificationOverlay
         email={verificationEmail}
