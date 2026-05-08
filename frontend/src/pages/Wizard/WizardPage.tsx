@@ -138,8 +138,19 @@ export default function WizardPage() {
   const isApplyingBrowserHistoryRef = useRef(false)
   const lastHistoryStepIndexRef = useRef(currentStepIndex)
 
-  const { sessionId, saveStep, refetchSession, stepData, currentStep, resumedAt, sendEmailVerification, confirmEmailVerification, isLoading: sessionLoading, error: sessionError } =
-    useWizardSession()
+  const {
+    sessionId,
+    saveStep,
+    refetchSession,
+    stepData,
+    currentStep,
+    resumedAt,
+    sendEmailVerification,
+    confirmEmailVerification,
+    emailVerified,
+    isLoading: sessionLoading,
+    error: sessionError,
+  } = useWizardSession()
 
   const [showResumeSplash, setShowResumeSplash] = useState(false)
   useEffect(() => {
@@ -541,9 +552,13 @@ export default function WizardPage() {
           contact_phone: formData.contactPhone || undefined,
           website: formData.website || undefined,
         })
-        const email = await sendEmailVerification()
-        setVerificationEmail(email)
-        setEmailVerificationPending(true)
+        if (emailVerified && stepData['1']?.contact_email === formData.contactEmail) {
+          setCurrentStepIndex(1)
+        } else {
+          const email = await sendEmailVerification()
+          setVerificationEmail(email)
+          setEmailVerificationPending(true)
+        }
       } catch (err) {
         setValidationMessage(err instanceof Error ? err.message : 'Noget gik galt. Prøv igen.')
       } finally {

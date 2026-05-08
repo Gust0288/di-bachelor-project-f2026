@@ -88,7 +88,8 @@ def get_session(session_id: str) -> dict:
     with get_db_cursor(dict_rows=True) as (_, cur):
         cur.execute(
             """
-            SELECT id, current_step, tier, flags, step_data, status, expires_at, updated_at
+            SELECT id, current_step, tier, flags, step_data, status, expires_at,
+                   updated_at, email_verified
             FROM registration_sessions
             WHERE id = %s AND status = 'draft' AND expires_at > NOW()
             """,
@@ -108,6 +109,7 @@ def get_session(session_id: str) -> dict:
         "status": row["status"],
         "expires_at": row["expires_at"].isoformat(),
         "updated_at": row["updated_at"].isoformat(),
+        "email_verified": bool(row["email_verified"]),
     }
 
 
@@ -121,7 +123,7 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
         # Lock row for the transaction
         cur.execute(
             """
-            SELECT id, current_step, tier, flags, step_data, status
+            SELECT id, current_step, tier, flags, step_data, status, contact_email
             FROM registration_sessions
             WHERE id = %s AND status = 'draft' AND expires_at > NOW()
             FOR UPDATE
@@ -248,9 +250,16 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
         extra_params: list = []
         if step_number == 1:
             extra_sets_parts = []
+            contact_email = step_payload.get("contact_email")
             if step_payload.get("contact_email"):
                 extra_sets_parts.append("contact_email = %s")
-                extra_params.append(step_payload["contact_email"])
+                extra_params.append(contact_email)
+                if contact_email != row["contact_email"]:
+                    extra_sets_parts.extend([
+                        "email_verified = FALSE",
+                        "email_verification_code = NULL",
+                        "email_verification_expires_at = NULL",
+                    ])
             if step_payload.get("contact_name"):
                 extra_sets_parts.append("contact_name = %s")
                 extra_params.append(step_payload["contact_name"])
@@ -304,7 +313,11 @@ def get_branch_suggestions(session_id: str) -> dict:
 async def send_email_verification(session_id: str) -> str:
     with get_db_cursor(dict_rows=True) as (_, cur):
         cur.execute(
-            "SELECT contact_email, step_data FROM registration_sessions WHERE id = %s AND status = 'draft' AND expires_at > NOW()",
+            """
+            SELECT contact_email, step_data, email_verified
+            FROM registration_sessions
+            WHERE id = %s AND status = 'draft' AND expires_at > NOW()
+            """,
             (session_id,),
         )
         row = cur.fetchone()
@@ -316,6 +329,8 @@ async def send_email_verification(session_id: str) -> str:
         )
         if not email:
             raise ValueError("Ingen email tilknyttet sessionen")
+        if row["email_verified"] and row["contact_email"] == email:
+            return email
 
         code = "".join(random.choices(string.digits, k=6))
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
@@ -364,6 +379,7 @@ def confirm_email_verification(session_id: str, code: str) -> None:
             UPDATE registration_sessions
             SET email_verified = TRUE,
                 email_verification_code = NULL,
+                email_verification_expires_at = NULL,
                 updated_at = NOW()
             WHERE id = %s
             """,
