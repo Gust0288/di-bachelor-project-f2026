@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, EmailStr, field_validator, model_validator
+from pydantic import AliasChoices, BaseModel, EmailStr, Field, field_validator, model_validator
 
 
 class Step1Data(BaseModel):
@@ -18,6 +18,10 @@ class Step1Data(BaseModel):
 
     # Kontaktpersonens oplysninger
     contact_name: str
+    contact_job_title: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("contact_job_title", "contactJobTitle"),
+    )
     contact_email: EmailStr
     contact_phone: Optional[str] = None
     website: Optional[str] = None

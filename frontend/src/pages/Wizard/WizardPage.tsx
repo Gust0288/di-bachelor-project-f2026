@@ -164,18 +164,30 @@ export default function WizardPage() {
 
     const s1 = stepData['1']
     if (s1) {
+      const cvrNumber = (s1.cvr_number as string) ?? ''
+      const companyName = (s1.company_name as string) ?? ''
+      const contactJobTitle =
+        (s1.contact_job_title as string | undefined) ??
+        (s1.contactJobTitle as string | undefined) ??
+        (s1.contact_title as string | undefined) ??
+        (s1.title as string | undefined) ??
+        ''
+      const cvrDisplayValue = companyName && cvrNumber
+        ? `${companyName} (CVR: ${cvrNumber})`
+        : companyName || cvrNumber
+
       setFormData({
         contactName: (s1.contact_name as string) ?? '',
-        contactJobTitle: '',
+        contactJobTitle,
         contactEmail: (s1.contact_email as string) ?? '',
         contactPhone: (s1.contact_phone as string) ?? '',
-        companyId: (s1.cvr_number as string) ?? '',
+        companyId: cvrNumber,
         website: (s1.website as string) ?? '',
         branchCodesCorrect: '',
       })
       setCvrData({
-        cvr_number: (s1.cvr_number as string) ?? '',
-        company_name: (s1.company_name as string) ?? '',
+        cvr_number: cvrNumber,
+        company_name: companyName,
         company_type: (s1.company_type as string) ?? '',
         address: (s1.address as string) ?? '',
         zip_code: (s1.zip_code as string) ?? '',
@@ -184,10 +196,11 @@ export default function WizardPage() {
         industry_description: (s1.industry_description as string) ?? '',
       })
       setSelectedCompany({
-        id: (s1.cvr_number as string) ?? '',
-        label: (s1.company_name as string) ?? '',
+        id: cvrNumber,
+        label: companyName,
         branchCodes: [],
       })
+      setCvrQuery(cvrDisplayValue)
     }
 
     const s2 = stepData['2']
@@ -471,6 +484,8 @@ export default function WizardPage() {
           industry_code: cvrData.industry_code,
           industry_description: cvrData.industry_description,
           contact_name: formData.contactName,
+          contact_job_title: formData.contactJobTitle,
+          contactJobTitle: formData.contactJobTitle,
           contact_email: formData.contactEmail,
           contact_phone: formData.contactPhone || undefined,
           website: formData.website || undefined,
