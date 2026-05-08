@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify, request
 
+from app.extensions import limiter
 from app.services.cvr import lookup_company
 
 cvr_bp = Blueprint("cvr", __name__, url_prefix="/cvr")
 
 
 @cvr_bp.get("/lookup")
+@limiter.limit("20 per minute")
 def lookup():
     vat = request.args.get("vat")
     name = request.args.get("name")

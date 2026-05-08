@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from flask import Blueprint, jsonify, request
 
+from app.extensions import limiter
 from app.services.auth import admin_login, send_login_otp, verify_login_otp
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @auth_bp.post("/otp/send")
+@limiter.limit("3 per minute")
 async def otp_send():
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
@@ -22,6 +24,7 @@ async def otp_send():
 
 
 @auth_bp.post("/otp/verify")
+@limiter.limit("5 per minute")
 def otp_verify():
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
@@ -39,6 +42,7 @@ def otp_verify():
 
 
 @auth_bp.post("/admin/login")
+@limiter.limit("5 per minute")
 def admin_login_route():
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()

@@ -370,8 +370,8 @@ export default function WizardPage() {
         const email = await sendEmailVerification()
         setVerificationEmail(email)
         setEmailVerificationPending(true)
-      } catch {
-        setValidationMessage('Noget gik galt. Prøv igen.')
+      } catch (err) {
+        setValidationMessage(err instanceof Error ? err.message : 'Noget gik galt. Prøv igen.')
       } finally {
         setIsSaving(false)
       }

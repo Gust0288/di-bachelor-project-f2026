@@ -1,3 +1,5 @@
+import uuid as _uuid
+
 from flask import Blueprint, jsonify, request
 from pydantic import ValidationError
 
@@ -5,6 +7,14 @@ from app.services import registration as reg_service
 from app.services.flow_definition import FLOW_DEFINITION
 
 registration_bp = Blueprint("registration", __name__, url_prefix="/registration")
+
+
+def _valid_uuid(value: str) -> bool:
+    try:
+        _uuid.UUID(value)
+        return True
+    except ValueError:
+        return False
 
 
 def _pydantic_errors(e: ValidationError) -> list[dict]:
@@ -85,6 +95,8 @@ def get_session(session_id: str):
       404:
         description: Session ikke fundet eller udløbet.
     """
+    if not _valid_uuid(session_id):
+        return jsonify({"error": "Ugyldig session_id"}), 404
     try:
         session = reg_service.get_session(session_id)
     except LookupError as e:
@@ -197,6 +209,8 @@ def submit_step(session_id: str, step_number: int):
       422:
         description: Valideringsfejl i input data.
     """
+    if not _valid_uuid(session_id):
+        return jsonify({"error": "Ugyldig session_id"}), 404
     data = request.get_json(silent=True) or {}
     try:
         result = reg_service.save_step(session_id, step_number, data)
@@ -236,6 +250,8 @@ def get_step_data(session_id: str, step_number: int):
       404:
         description: Session ikke fundet.
     """
+    if not _valid_uuid(session_id):
+        return jsonify({"error": "Ugyldig session_id"}), 404
     try:
         session = reg_service.get_session(session_id)
     except LookupError as e:
@@ -264,6 +280,8 @@ def get_branch_suggestions(session_id: str):
       404:
         description: Session ikke fundet.
     """
+    if not _valid_uuid(session_id):
+        return jsonify({"error": "Ugyldig session_id"}), 404
     try:
         suggestions = reg_service.get_branch_suggestions(session_id)
     except LookupError as e:
@@ -273,6 +291,8 @@ def get_branch_suggestions(session_id: str):
 
 @registration_bp.post("/session/<session_id>/email-verification/send")
 async def send_email_verification(session_id: str):
+    if not _valid_uuid(session_id):
+        return jsonify({"error": "Ugyldig session_id"}), 404
     try:
         email = await reg_service.send_email_verification(session_id)
     except LookupError as e:
@@ -286,6 +306,8 @@ async def send_email_verification(session_id: str):
 
 @registration_bp.post("/session/<session_id>/email-verification/confirm")
 def confirm_email_verification(session_id: str):
+    if not _valid_uuid(session_id):
+        return jsonify({"error": "Ugyldig session_id"}), 404
     data = request.get_json(silent=True) or {}
     code = str(data.get("code", "")).strip()
     if not code:
@@ -330,6 +352,8 @@ def submit_registration(session_id: str):
       404:
         description: Session ikke fundet.
     """
+    if not _valid_uuid(session_id):
+        return jsonify({"error": "Ugyldig session_id"}), 404
     try:
         result = reg_service.submit_registration(session_id)
     except LookupError as e:

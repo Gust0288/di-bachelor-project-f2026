@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS registrations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     session_id UUID NOT NULL UNIQUE REFERENCES registration_sessions(id) ON DELETE CASCADE,
     company_name TEXT NOT NULL,
-    cvr_number VARCHAR(8) NOT NULL,
+    cvr_number VARCHAR(8) NOT NULL UNIQUE,
     contact_name TEXT NOT NULL,
     contact_email TEXT NOT NULL,
     contact_phone TEXT,

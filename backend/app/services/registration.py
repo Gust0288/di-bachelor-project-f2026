@@ -151,6 +151,17 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
             except ValidationError:
                 raise
 
+        # Afvis step 1 hvis CVR allerede er registreret
+        if step_number == 1 and step_payload.get("cvr_number"):
+            cur.execute(
+                "SELECT id FROM registrations WHERE cvr_number = %s",
+                (step_payload["cvr_number"],),
+            )
+            if cur.fetchone():
+                raise ValueError(
+                    "En virksomhed med dette CVR-nummer er allerede registreret hos DI"
+                )
+
         # Check for blocking options BEFORE setting flags
         is_blocked, popup = _check_blocking(step_number, raw_data)
 
@@ -384,6 +395,15 @@ def submit_registration(session_id: str) -> dict:
     }
 
     with get_db_cursor(dict_rows=True) as (_, cur):
+        cur.execute(
+            "SELECT id FROM registrations WHERE cvr_number = %s",
+            (step1.get("cvr_number", ""),),
+        )
+        if cur.fetchone():
+            raise ValueError(
+                "En virksomhed med dette CVR-nummer er allerede registreret"
+            )
+
         cur.execute(
             """
             INSERT INTO registrations (

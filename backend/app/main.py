@@ -6,10 +6,13 @@ from app.api.routes.cvr import cvr_bp
 from app.api.routes.documents import documents_bp
 from app.api.routes.registration import registration_bp
 from app.core.database import ping_database
+from app.extensions import limiter
 from app.openapi_spec import build_spec
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB
 CORS(app, origins=["http://localhost:5173"])
+limiter.init_app(app)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(cvr_bp)

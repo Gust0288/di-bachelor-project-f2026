@@ -10,6 +10,7 @@ class Settings(BaseSettings):
         alias="DATABASE_URL",
     )
     cvr_api_key: str = Field(default="", alias="CVR_API_KEY")
+    cvr_contact_email: str = Field(default="di-portal@di.dk", alias="CVR_CONTACT_EMAIL")
     jwt_secret: str = Field(default="change-me-in-production", alias="JWT_SECRET")
 
     smtp_host: str = Field(default="smtp.gmail.com", alias="SMTP_HOST")

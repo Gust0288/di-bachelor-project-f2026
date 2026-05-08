@@ -1,7 +1,9 @@
 import httpx
 
+from app.core.config import get_settings
+
 CVR_BASE_URL = "https://cvrapi.dk/api"
-USER_AGENT = "DI - Indmeldelsesportal - gustavbogh@gmail.com"
+USER_AGENT = f"DI - Indmeldelsesportal - {get_settings().cvr_contact_email}"
 
 
 def lookup_company(search: str, search_type: str = "vat") -> dict:
