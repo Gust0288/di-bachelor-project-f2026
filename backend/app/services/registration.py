@@ -245,11 +245,13 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
                 extra_sets_parts.append("contact_email = %s")
                 extra_params.append(contact_email)
                 if contact_email != row["contact_email"]:
-                    extra_sets_parts.extend([
-                        "email_verified = FALSE",
-                        "email_verification_code = NULL",
-                        "email_verification_expires_at = NULL",
-                    ])
+                    extra_sets_parts.extend(
+                        [
+                            "email_verified = FALSE",
+                            "email_verification_code = NULL",
+                            "email_verification_expires_at = NULL",
+                        ]
+                    )
             if step_payload.get("contact_name"):
                 extra_sets_parts.append("contact_name = %s")
                 extra_params.append(step_payload["contact_name"])
