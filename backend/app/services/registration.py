@@ -146,7 +146,7 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
         # Validate with Pydantic schema
         if schema_cls:
             try:
-                validated = schema_cls(**raw_data)
+                validated = schema_cls.model_validate(raw_data)
                 step_payload = validated.model_dump(exclude_none=False)
             except ValidationError:
                 raise
@@ -161,16 +161,6 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
                 raise ValueError(
                     "En virksomhed med dette CVR-nummer er allerede registreret hos DI"
                 )
-
-        if step_number == 1:
-            contact_job_title = (
-                raw_data.get("contact_job_title")
-                or raw_data.get("contactJobTitle")
-                or raw_data.get("contact_title")
-                or raw_data.get("title")
-            )
-            if contact_job_title is not None:
-                step_payload["contact_job_title"] = contact_job_title
 
         # Check for blocking options BEFORE setting flags
         is_blocked, popup = _check_blocking(step_number, raw_data)
