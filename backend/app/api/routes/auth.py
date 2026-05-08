@@ -19,6 +19,8 @@ async def otp_send():
     try:
         result = await send_login_otp(email)
         return jsonify(result)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
 

@@ -18,11 +18,6 @@ async def send_login_otp(email: str) -> dict:
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
 
     with get_db_cursor(dict_rows=True) as (_, cur):
-        cur.execute("DELETE FROM login_otps WHERE email = %s", (email,))
-        cur.execute(
-            "INSERT INTO login_otps (email, code, expires_at) VALUES (%s, %s, %s)",
-            (email, code, expires_at),
-        )
         cur.execute(
             """
             SELECT id FROM registration_sessions
@@ -35,10 +30,17 @@ async def send_login_otp(email: str) -> dict:
             """,
             (email, email),
         )
-        session_exists = cur.fetchone() is not None
+        if not cur.fetchone():
+            raise ValueError("Ingen aktiv ansøgning fundet for denne e-mail")
+
+        cur.execute("DELETE FROM login_otps WHERE email = %s", (email,))
+        cur.execute(
+            "INSERT INTO login_otps (email, code, expires_at) VALUES (%s, %s, %s)",
+            (email, code, expires_at),
+        )
 
     await send_verification_email(email, code)
-    return {"session_exists": session_exists}
+    return {"session_exists": True}
 
 
 def verify_login_otp(email: str, code: str) -> dict:
@@ -81,15 +83,10 @@ def verify_login_otp(email: str, code: str) -> dict:
         )
         session_row = cur.fetchone()
 
-        if session_row:
-            session_id = str(session_row["id"])
-        else:
-            cur.execute(
-                "INSERT INTO registration_sessions (contact_email) VALUES (%s) RETURNING id",
-                (email,),
-            )
-            new_row = cur.fetchone()
-            session_id = str(new_row["id"])
+        if not session_row:
+            raise ValueError("Ingen aktiv ansøgning fundet for denne e-mail")
+
+        session_id = str(session_row["id"])
 
     return {"session_id": session_id}
 

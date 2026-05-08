@@ -31,8 +31,8 @@ export default function LoginPage() {
       await sendLoginOtp(email.trim().toLowerCase())
       setView('otp')
       setOtpValue('')
-    } catch {
-      setError('Der opstod en fejl. Prøv igen.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Der opstod en fejl. Prøv igen.')
     } finally {
       setIsLoading(false)
     }
