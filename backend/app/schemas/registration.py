@@ -2,7 +2,14 @@ from __future__ import annotations
 
 from typing import Any, Literal, Optional
 
-from pydantic import AliasChoices, BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import (
+    AliasChoices,
+    BaseModel,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 
 class Step1Data(BaseModel):
