@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircle2, Clock3, FileCheck2, Mail } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../../components/Button/Button'
@@ -282,10 +282,61 @@ export default function WizardPage() {
     }
   }, [currentStepIndex, sessionId])
 
-  const canAccessBranchStep = hasCompletedCompanyInformation(formData)
   const isMitIdStep = currentStepIndex === mitIdStepIndex
   const isPostWizard = isMitIdStep || isSubmitted
   const isApprovalStep = currentStepIndex === wizardStepCount - 1
+
+  const completedWizardSteps = useMemo(
+    () => [
+      hasCompletedCompanyInformation(formData) && Boolean(cvrData),
+      cvrConfirmed,
+      selectedServices.length > 0 &&
+        (!selectedServices.includes('andet') || andetBeskrivelse.trim().length > 0),
+      (noEmployees || employeeCount !== '') &&
+        employeeTypes.length > 0 &&
+        totalLoensum !== '',
+      overenskomstStatus.length > 0 &&
+        (overenskomstStatus !== 'ja' || overenskomstType.length > 0) &&
+        (
+          overenskomstStatus !== 'ja' ||
+          overenskomstType !== 'direkte' ||
+          documentId.length > 0
+        ),
+      selectedFaellesskaber.length > 0,
+      acceptMembership,
+      managingDirector.name.trim().length > 0 &&
+        managingDirector.email.trim().length > 0 &&
+        invoiceDelivery.length > 0,
+      acceptTerms && acceptAuthority,
+    ],
+    [
+      acceptAuthority,
+      acceptMembership,
+      acceptTerms,
+      andetBeskrivelse,
+      cvrConfirmed,
+      cvrData,
+      documentId,
+      employeeCount,
+      employeeTypes,
+      formData,
+      invoiceDelivery,
+      managingDirector,
+      noEmployees,
+      overenskomstStatus,
+      overenskomstType,
+      selectedFaellesskaber,
+      selectedServices,
+      totalLoensum,
+    ],
+  )
+
+  const canAccessWizardStep = useCallback((stepIndex: number) => {
+    if (stepIndex <= 0) return true
+    return completedWizardSteps
+      .slice(0, stepIndex)
+      .every(Boolean)
+  }, [completedWizardSteps])
 
   useEffect(() => {
     currentStepIndexRef.current = currentStepIndex
@@ -389,15 +440,15 @@ export default function WizardPage() {
     () =>
       wizardStepLabels.map((label, index) => ({
         label,
-        isDisabled: index === 1 && !canAccessBranchStep,
+        isDisabled: !canAccessWizardStep(index),
         status:
-          index < currentStepIndex
+          index < currentStepIndex && completedWizardSteps[index]
             ? 'complete'
             : index === currentStepIndex
               ? 'current'
               : 'upcoming',
       })),
-    [canAccessBranchStep, currentStepIndex],
+    [canAccessWizardStep, completedWizardSteps, currentStepIndex],
   )
 
   const progressPercentage = useMemo(() => {
@@ -723,6 +774,7 @@ export default function WizardPage() {
 
   function handleStepSelect(stepIndex: number) {
     if (stepIndex === currentStepIndex) return
+    if (!canAccessWizardStep(stepIndex)) return
     setValidationMessage(undefined)
     setCurrentStepIndex(stepIndex)
   }
