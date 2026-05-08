@@ -17,6 +17,7 @@ type WizardSessionState = {
   resumedAt: string | null
   tier: string | null
   flags: Record<string, unknown>
+  emailVerified: boolean
   isLoading: boolean
   error: string | null
 }
@@ -37,6 +38,7 @@ export function useWizardSession(): UseWizardSessionReturn {
     resumedAt: null,
     tier: null,
     flags: {},
+    emailVerified: false,
     isLoading: true,
     error: null,
   })
@@ -63,6 +65,7 @@ export function useWizardSession(): UseWizardSessionReturn {
             resumedAt: sessionData.updated_at,
             tier: sessionData.tier ?? null,
             flags: sessionData.flags ?? {},
+            emailVerified: Boolean(sessionData.email_verified),
             isLoading: false,
             error: null,
           })
@@ -76,6 +79,7 @@ export function useWizardSession(): UseWizardSessionReturn {
             resumedAt: null,
             tier: null,
             flags: {},
+            emailVerified: false,
             isLoading: false,
             error: null,
           })
@@ -114,6 +118,10 @@ export function useWizardSession(): UseWizardSessionReturn {
   async function confirmEmailVerification(code: string): Promise<void> {
     if (!state.sessionId) throw new Error('Ingen aktiv session')
     await apiConfirmEmailVerification(state.sessionId, code)
+    setState((s) => ({
+      ...s,
+      emailVerified: true,
+    }))
   }
 
   async function refetchSession(): Promise<void> {
@@ -124,6 +132,7 @@ export function useWizardSession(): UseWizardSessionReturn {
       stepData: { ...s.stepData, ...session.step_data },
       tier: session.tier,
       flags: session.flags,
+      emailVerified: Boolean(session.email_verified),
     }))
   }
 

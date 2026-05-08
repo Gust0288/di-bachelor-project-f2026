@@ -160,6 +160,7 @@ class SessionStateResponse(BaseModel):
     step_data: dict[str, Any]
     status: str
     expires_at: str
+    email_verified: bool = False
 
 
 class StepSubmitResponse(BaseModel):

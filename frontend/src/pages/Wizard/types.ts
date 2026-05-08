@@ -58,6 +58,7 @@ export type SessionState = {
   status: string
   expires_at: string
   updated_at: string
+  email_verified?: boolean
 }
 
 export type StepSubmitResponse = {
