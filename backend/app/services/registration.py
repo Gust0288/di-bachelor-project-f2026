@@ -225,9 +225,19 @@ def save_step(session_id: str, step_number: int, raw_data: dict) -> dict:
 
         extra_sets = ""
         extra_params: list = []
-        if step_number == 1 and step_payload.get("contact_email"):
-            extra_sets = ", contact_email = %s"
-            extra_params = [step_payload["contact_email"]]
+        if step_number == 1:
+            extra_sets_parts = []
+            if step_payload.get("contact_email"):
+                extra_sets_parts.append("contact_email = %s")
+                extra_params.append(step_payload["contact_email"])
+            if step_payload.get("contact_name"):
+                extra_sets_parts.append("contact_name = %s")
+                extra_params.append(step_payload["contact_name"])
+            if step_payload.get("cvr_number"):
+                extra_sets_parts.append("company_cvr = %s")
+                extra_params.append(step_payload["cvr_number"])
+            if extra_sets_parts:
+                extra_sets = ", " + ", ".join(extra_sets_parts)
 
         cur.execute(
             f"""
