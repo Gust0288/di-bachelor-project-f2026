@@ -16,6 +16,16 @@ const faqItems: AccordionItem[] = [
     content: <p>Ja, du kan gå tilbage i flowet og ændre dine svar.</p>,
   },
   {
+    id: 'resume-flow',
+    title: 'Kan jeg stoppe og fortsætte senere?',
+    content: (
+      <p>
+        Ja, du kan forlade flowet og fortsætte, hvor du slap, når du vender
+        tilbage - også efter fx en uge.
+      </p>
+    ),
+  },
+  {
     id: 'company-data-source',
     title: 'Hvor kommer virksomhedsoplysningerne fra?',
     content: (
