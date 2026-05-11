@@ -25,7 +25,9 @@ def lookup_company(search: str, search_type: str = "vat") -> dict:
             timeout=10.0,
         )
 
-    logger.warning("CVR response status=%s body=%s", response.status_code, response.text[:500])
+    logger.warning(
+        "CVR response status=%s body=%s", response.status_code, response.text[:500]
+    )
     data = response.json()
 
     if "error" in data:
