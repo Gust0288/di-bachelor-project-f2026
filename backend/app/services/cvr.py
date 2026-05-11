@@ -1,6 +1,10 @@
+import logging
+
 import httpx
 
 from app.core.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 CVR_BASE_URL = "https://cvrapi.dk/api"
 USER_AGENT = f"DI - Indmeldelsesportal - {get_settings().cvr_contact_email}"
@@ -8,14 +12,20 @@ USER_AGENT = f"DI - Indmeldelsesportal - {get_settings().cvr_contact_email}"
 
 def lookup_company(search: str, search_type: str = "vat") -> dict:
     """search_type: 'vat' | 'name' | 'produ' | 'phone'"""
+    params = {"country": "dk", search_type: search}
+    api_key = get_settings().cvr_api_key
+    if api_key:
+        params["token"] = api_key
+
     with httpx.Client() as client:
         response = client.get(
             CVR_BASE_URL,
-            params={"country": "dk", search_type: search},
+            params=params,
             headers={"User-Agent": USER_AGENT},
             timeout=10.0,
         )
 
+    logger.warning("CVR response status=%s body=%s", response.status_code, response.text[:500])
     data = response.json()
 
     if "error" in data:
