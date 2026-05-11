@@ -14,7 +14,11 @@ USER_AGENT = f"DI - Indmeldelsesportal - {get_settings().cvr_contact_email}"
 def lookup_company(search: str, search_type: str = "vat") -> dict:
     """search_type: 'vat' | 'name' | 'produ' | 'phone'"""
     if get_settings().cvr_mock:
-        mock_cvr = search if search_type == "vat" else str(int(time.time()) % 90000000 + 10000000)
+        mock_cvr = (
+            search
+            if search_type == "vat"
+            else str(int(time.time()) % 90000000 + 10000000)
+        )
         return {
             "navn": "Test Virksomhed ApS",
             "cvr": mock_cvr,
