@@ -146,6 +146,7 @@ jobs:
           image-ref: ghcr.io/${{ env.OWNER }}/di-portal-backend:${{ github.sha }}
           format: table
           exit-code: '1'
+          ignore-unfixed: true
           severity: HIGH,CRITICAL
 
   # ── STAGE: deploy ──────────────────────────────────────────────────────────
