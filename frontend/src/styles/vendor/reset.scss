@@ -20,6 +20,11 @@ body,
   height: 100%;
 }
 
+html {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -55,6 +60,9 @@ h6 {
 /* stylelint-disable */
 #root,
 #__next {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
   isolation: isolate;
 }
 /* stylelint-enable */

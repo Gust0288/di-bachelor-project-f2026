@@ -24,6 +24,7 @@
   }
 
   &__option {
+    position: relative;
     display: grid;
     grid-template-columns: 1rem minmax(0, 1fr);
     gap: var(--spacing-sm);
@@ -42,6 +43,21 @@
     &[data-focus-visible] {
       outline: 2px solid var(--color-interaction);
       outline-offset: 2px;
+    }
+
+    :global(input[type='radio']) {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      clip: auto !important;
+      clip-path: none !important;
+      overflow: hidden !important;
+      border: 0 !important;
+      opacity: 0;
+      cursor: inherit;
     }
   }
 

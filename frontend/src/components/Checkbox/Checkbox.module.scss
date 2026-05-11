@@ -1,4 +1,5 @@
 .checkbox {
+  position: relative;
   display: inline-grid;
   grid-template-columns: 1.125rem minmax(0, 1fr);
   gap: var(--spacing-sm);
@@ -31,6 +32,21 @@
   &[data-invalid][data-selected] &__indicator,
   &[data-invalid][data-indeterminate] &__indicator {
     background: var(--color-invalid);
+  }
+
+  :global(input[type='checkbox']) {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    clip: auto !important;
+    clip-path: none !important;
+    overflow: hidden !important;
+    border: 0 !important;
+    opacity: 0;
+    cursor: inherit;
   }
 
   &__indicator {
