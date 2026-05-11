@@ -1017,6 +1017,30 @@ export default function WizardPage() {
       case 8:
         return (
           <ApprovalStep
+            formData={formData}
+            selectedCompany={selectedCompany}
+            selectedServices={selectedServices}
+            andetBeskrivelse={andetBeskrivelse}
+            employeeCount={employeeCount}
+            noEmployees={noEmployees}
+            employeeTypes={employeeTypes}
+            totalLoensum={totalLoensum}
+            overenskomstStatus={overenskomstStatus}
+            overenskomstType={overenskomstType}
+            documentId={documentId}
+            selectedFaellesskaber={selectedFaellesskaber}
+            allFaellesskaber={allFaellesskaber}
+            computedMembership={computeMembership(
+              computeTier(noEmployees ? 0 : (employeeCount !== '' ? employeeCount : undefined)),
+              overenskomstStatus === 'ja',
+              selectedFaellesskaber,
+              selectedServices,
+            )}
+            managingDirector={managingDirector}
+            hrContact={hrContact}
+            payrollContact={payrollContact}
+            authorizedSignatory={authorizedSignatory}
+            invoiceDelivery={invoiceDelivery}
             acceptTerms={acceptTerms}
             onAcceptTermsChange={setAcceptTerms}
             acceptAuthority={acceptAuthority}
