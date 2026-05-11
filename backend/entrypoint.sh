@@ -1,8 +1,12 @@
 #!/bin/sh
 set -e
 
+DB_HOST=$(echo "$DATABASE_URL" | sed -E 's|.*@([^:/]+).*|\1|')
+DB_PORT=$(echo "$DATABASE_URL" | sed -E 's|.*:([0-9]+)/[^/]*$|\1|')
+DB_USER=$(echo "$DATABASE_URL" | sed -E 's|.*//([^:]+):.*|\1|')
+
 echo "Venter paa PostgreSQL..."
-until pg_isready -h "${DB_HOST:-db}" -p "${DB_PORT:-5432}" -U "${DB_USER:-user}" 2>/dev/null; do
+until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" 2>/dev/null; do
   sleep 1
 done
 echo "PostgreSQL er klar."
@@ -15,5 +19,5 @@ psql "$DATABASE_URL" -f /app/migrations/001_wizard_additions.sql
 psql "$DATABASE_URL" -f /app/migrations/002_email_verification.sql
 psql "$DATABASE_URL" -f /app/migrations/003_cvr_unique_constraint.sql
 
-echo "Starter Flask..."
-exec flask --app app.main:app run --host 0.0.0.0 --port 8000
+echo "Starter gunicorn..."
+exec gunicorn --workers 2 --bind 0.0.0.0:8000 --timeout 120 "app.main:app"

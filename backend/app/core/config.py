@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     smtp_user: str = Field(default="", alias="SMTP_USER")
     smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
     email_from: str = Field(default="", alias="EMAIL_FROM")
+    frontend_url: str = Field(default="http://localhost:5173", alias="FRONTEND_URL")
 
     model_config = SettingsConfigDict(
         env_file=".env",
