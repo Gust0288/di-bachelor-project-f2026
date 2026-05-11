@@ -11,6 +11,16 @@ export const SERVICE_LABELS: Record<string, string> = {
   andet: 'Andet',
 }
 
+export const EMPLOYEE_TYPE_LABELS: Record<string, string> = {
+  funktionaer: 'Funktionær (funktionærkontrakt)',
+  timeloennet: 'Timelønnet',
+  timeloennet_funktionaer_lignende: 'Timelønnet ansat på funktionærlignende kontrakt',
+  vikar: 'Vikar',
+  byggeri_og_anlaeg: 'Medarbejdere inden for byggeri og anlæg',
+  mandskabsudlejning: 'Mandskabsudlejning',
+  ved_ikke: 'Ved ikke',
+}
+
 export const OVERENSKOMST_STATUS_LABELS: Record<string, string> = {
   nej: 'Nej',
   ved_ikke: 'Ved ikke',

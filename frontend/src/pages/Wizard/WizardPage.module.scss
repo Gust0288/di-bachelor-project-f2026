@@ -689,8 +689,7 @@
 
 .summaryPriceRows {
   display: grid;
-  gap: var(--spacing-sm);
-  margin: 0;
+  gap: var(--spacing-xs);
 
   div {
     display: grid;
@@ -699,14 +698,16 @@
     align-items: start;
   }
 
-  dt,
-  dd {
-    margin: 0;
+  span,
+  strong {
     color: var(--color-dark-500);
+    font-size: 0.875rem;
+    font-weight: 500;
     line-height: 1.45;
   }
 
-  dd {
+  strong {
+    text-align: end;
     white-space: nowrap;
   }
 }
@@ -742,7 +743,9 @@
   flex-wrap: wrap;
   gap: var(--spacing-2xs);
   justify-content: space-between;
+  margin: var(--spacing-sm) 0 0;
   padding-block-start: var(--spacing-md);
+  border-block-start: 1px solid var(--color-border-default);
 
   span {
     flex: 1 1 auto;

@@ -49,6 +49,11 @@ const ARBEJDSGIVER_SERVICES = new Set([
 ])
 const BYGGERI_SERVICES = new Set(['byggegaranti', 'di_byggeri_sektion'])
 
+function normalizeStepIndex(stepIndex: number): number {
+  if (!Number.isFinite(stepIndex)) return 0
+  return Math.max(0, Math.min(stepIndex, mitIdStepIndex))
+}
+
 function computeTier(employeeCount: number | undefined): string | null {
   if (employeeCount === undefined) return null
   if (employeeCount >= 50) return 'erhverv'
@@ -163,11 +168,9 @@ export default function WizardPage() {
   }, [sessionLoading])
 
   useEffect(() => {
-    if (!sessionLoading && currentStep > 1) {
-      setCurrentStepIndex(currentStep - 1)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionLoading])
+    if (sessionLoading || currentStep <= 1) return
+    setCurrentStepIndex(normalizeStepIndex(currentStep - 1))
+  }, [currentStep, sessionLoading])
 
   // Hydrate individual step states from session data when resuming an existing session
   useEffect(() => {
@@ -262,8 +265,7 @@ export default function WizardPage() {
       setAcceptTerms(Boolean(s9.accept_terms))
       setAcceptAuthority(Boolean(s9.accept_authority))
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionLoading])
+  }, [sessionLoading, stepData])
 
   // Keep a stable ref to refetchSession so the effect below doesn't re-run on every render
   const refetchRef = useRef(refetchSession)
@@ -272,13 +274,15 @@ export default function WizardPage() {
   const centerRef = useRef<HTMLElement>(null)
   const summaryRef = useRef<HTMLElement>(null)
   useEffect(() => {
-    centerRef.current?.scrollTo({ top: 0 })
+    if (typeof centerRef.current?.scrollTo === 'function') {
+      centerRef.current.scrollTo({ top: 0 })
+    }
 
     const container = summaryRef.current
     const activeSection = container?.querySelector<HTMLElement>(
       `[data-step-index="${currentStepIndex}"]`,
     )
-    if (container && activeSection) {
+    if (container && activeSection && typeof container.scrollTo === 'function') {
       const containerMid = container.clientHeight / 2
       const targetTop = activeSection.offsetTop - containerMid + activeSection.offsetHeight / 2
       container.scrollTo({ top: targetTop, behavior: 'smooth' })
@@ -344,10 +348,12 @@ export default function WizardPage() {
 
   const canAccessWizardStep = useCallback((stepIndex: number) => {
     if (stepIndex <= 0) return true
+    if (stepIndex < currentStepIndex) return true
+    if (stepIndex <= Math.min(currentStep - 1, wizardStepCount - 1)) return true
     return completedWizardSteps
       .slice(0, stepIndex)
       .every(Boolean)
-  }, [completedWizardSteps])
+  }, [completedWizardSteps, currentStep, currentStepIndex])
 
   useEffect(() => {
     currentStepIndexRef.current = currentStepIndex
@@ -401,7 +407,7 @@ export default function WizardPage() {
       const state = event.state as Record<string, unknown> | null
       const stepIndex = state?.[wizardStepHistoryStateKey]
       if (typeof stepIndex !== 'number' || isSubmittedRef.current) return
-      const boundedStepIndex = Math.max(0, Math.min(stepIndex, mitIdStepIndex))
+      const boundedStepIndex = normalizeStepIndex(stepIndex)
 
       setValidationMessage(undefined)
       setIsSubmitted(false)
@@ -774,7 +780,7 @@ export default function WizardPage() {
   function handleBack() {
     setValidationMessage(undefined)
     setIsSubmitted(false)
-    setCurrentStepIndex((stepIndex) => Math.max(stepIndex - 1, 0))
+    setCurrentStepIndex((stepIndex) => normalizeStepIndex(stepIndex - 1))
   }
 
   function cancelHomeNavigation() {
@@ -791,7 +797,7 @@ export default function WizardPage() {
     if (stepIndex === currentStepIndex) return
     if (!canAccessWizardStep(stepIndex)) return
     setValidationMessage(undefined)
-    setCurrentStepIndex(stepIndex)
+    setCurrentStepIndex(normalizeStepIndex(stepIndex))
   }
 
   async function completeMitIdVerification() {
@@ -1025,7 +1031,12 @@ export default function WizardPage() {
           />
         )
       default:
-        return null
+        return (
+          <InlineAlert tone="danger" title="Trinnet kunne ikke vises">
+            Vi kunne ikke finde indholdet til det aktuelle trin. Gå tilbage i
+            flowet eller genindlæs siden.
+          </InlineAlert>
+        )
     }
   }
 
@@ -1140,6 +1151,8 @@ export default function WizardPage() {
           andetBeskrivelse={andetBeskrivelse}
           employeeCount={employeeCount}
           noEmployees={noEmployees}
+          employeeTypes={employeeTypes}
+          totalLoensum={totalLoensum}
           overenskomstStatus={overenskomstStatus}
           selectedFaellesskaber={selectedFaellesskaber}
           allFaellesskaber={allFaellesskaber}

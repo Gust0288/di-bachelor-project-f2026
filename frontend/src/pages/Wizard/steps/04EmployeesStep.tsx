@@ -1,17 +1,13 @@
 import Checkbox from '../../../components/Checkbox/Checkbox'
 import ContentBox from '../../../components/ContentBox'
 import InputField from '../../../components/InputField/InputField'
+import { EMPLOYEE_TYPE_LABELS } from '../wizard.constants'
 import styles from '../WizardPage.module.scss'
 
-const EMPLOYEE_TYPE_OPTIONS = [
-  { value: 'funktionaer', label: 'Funktionær (funktionærkontrakt)' },
-  { value: 'timeloennet', label: 'Timelønnet' },
-  { value: 'timeloennet_funktionaer_lignende', label: 'Timelønnet ansat på funktionærlignende kontrakt' },
-  { value: 'vikar', label: 'Vikar' },
-  { value: 'byggeri_og_anlaeg', label: 'Medarbejdere inden for byggeri og anlæg' },
-  { value: 'mandskabsudlejning', label: 'Mandskabsudlejning' },
-  { value: 'ved_ikke', label: 'Ved ikke' },
-] as const
+const EMPLOYEE_TYPE_OPTIONS = Object.entries(EMPLOYEE_TYPE_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}))
 
 type EmployeesStepProps = {
   employeeCount: number | ''

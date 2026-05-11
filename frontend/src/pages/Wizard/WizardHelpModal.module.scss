@@ -1,7 +1,7 @@
 .helpButton {
   position: fixed;
   z-index: 20;
-  inset-inline-end: var(--spacing-lg);
+  inset-inline-start: var(--spacing-lg);
   inset-block-end: var(--spacing-lg);
   box-shadow: 0 0.75rem 1.5rem rgb(19 18 20 / 16%);
 

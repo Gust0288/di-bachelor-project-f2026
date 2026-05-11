@@ -105,6 +105,9 @@ export function useWizardSession(): UseWizardSessionReturn {
     setState((s) => ({
       ...s,
       stepData: { ...s.stepData, [String(stepNumber)]: data },
+      currentStep: response.current_step,
+      tier: response.tier,
+      flags: response.flags,
     }))
     return response
   }
@@ -130,6 +133,7 @@ export function useWizardSession(): UseWizardSessionReturn {
     setState((s) => ({
       ...s,
       stepData: { ...s.stepData, ...session.step_data },
+      currentStep: session.current_step,
       tier: session.tier,
       flags: session.flags,
       emailVerified: Boolean(session.email_verified),

@@ -83,6 +83,10 @@ export default function ContactsStep({
     )
   }
 
+  function handleInvoiceDeliveryChange(value: string) {
+    onInvoiceDeliveryChange(value)
+  }
+
   return (
     <>
       <ContentBox
@@ -165,7 +169,7 @@ export default function ContactsStep({
             { value: 'betalingsservice', title: 'Via Betalingsservice (BS)' },
           ]}
           value={invoiceDelivery}
-          onChange={onInvoiceDeliveryChange}
+          onChange={handleInvoiceDeliveryChange}
           isRequired
         />
       </ContentBox>

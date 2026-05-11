@@ -1,4 +1,14 @@
-import { OVERENSKOMST_STATUS_LABELS, SERVICE_LABELS } from './wizard.constants'
+import type { ReactNode } from 'react'
+import {
+  EMPLOYEE_TYPE_LABELS,
+  OVERENSKOMST_STATUS_LABELS,
+  SERVICE_LABELS,
+} from './wizard.constants'
+import {
+  calculateMembershipPriceEstimate,
+  formatDkk,
+  type MembershipPriceEstimate,
+} from './membershipPrice'
 import type { ContactPerson } from './steps/ContactPersonFields'
 import type { CompanyOption, WizardFormData } from './wizard.types'
 import { wizardSteps } from './wizardSteps'
@@ -17,6 +27,8 @@ type WizardSummaryProps = {
   andetBeskrivelse: string
   employeeCount: number | ''
   noEmployees: boolean
+  employeeTypes: string[]
+  totalLoensum: number | ''
   overenskomstStatus: string
   selectedFaellesskaber: string[]
   allFaellesskaber: { id: string; name: string }[]
@@ -30,7 +42,13 @@ type WizardSummaryProps = {
 
 type SummaryItem = {
   label: string
-  value: string
+  value: ReactNode
+}
+
+type MaybeSummaryItem = SummaryItem | false | null | undefined | ''
+
+function summaryItems(items: MaybeSummaryItem[]): SummaryItem[] {
+  return items.filter((item): item is SummaryItem => Boolean(item))
 }
 
 function groupedContactItems(
@@ -53,6 +71,26 @@ function groupedContactItems(
   }))
 }
 
+function PriceEstimateDetails({ estimate }: { estimate: MembershipPriceEstimate }) {
+  return (
+    <>
+      <div className={styles.summaryPriceRows}>
+        {estimate.rows.map((row) => (
+          <div key={row.label}>
+            <span>{row.label}</span>
+            <strong>{formatDkk(row.amount)}</strong>
+          </div>
+        ))}
+      </div>
+      <p className={styles.summaryTotal}>
+        <span>Estimeret pr. år</span>
+        <strong>{formatDkk(estimate.annualTotal)}</strong>
+        <small>Ekskl. moms</small>
+      </p>
+    </>
+  )
+}
+
 export default function WizardSummary({
   currentStepIndex,
   formData,
@@ -61,6 +99,8 @@ export default function WizardSummary({
   andetBeskrivelse,
   employeeCount,
   noEmployees,
+  employeeTypes,
+  totalLoensum,
   overenskomstStatus,
   selectedFaellesskaber,
   allFaellesskaber,
@@ -78,6 +118,13 @@ export default function WizardSummary({
     : employeeCount !== ''
       ? `${employeeCount} ansatte`
       : null
+
+  const employeeTypesValue =
+    employeeTypes.length > 0
+      ? employeeTypes.map((type) => EMPLOYEE_TYPE_LABELS[type] ?? type).join(', ')
+      : null
+
+  const totalLoensumValue = totalLoensum !== '' ? formatDkk(totalLoensum) : null
 
   const servicesValue =
     selectedServices.length > 0
@@ -99,10 +146,20 @@ export default function WizardSummary({
           .join(', ')
       : null
 
+  const priceEstimate = calculateMembershipPriceEstimate({
+    employeeCount,
+    noEmployees,
+    employeeTypes,
+    totalLoensum,
+    computedMembership,
+    selectedFaellesskaber,
+    selectedServices,
+  })
+
   const stepGroups: Array<{ stepIndex: number; items: SummaryItem[] }> = [
     {
       stepIndex: 0,
-      items: [
+      items: summaryItems([
         selectedCompany && {
           label: 'Virksomhedens navn',
           value: `${selectedCompany.label} (CVR: ${selectedCompany.id})`,
@@ -115,61 +172,66 @@ export default function WizardSummary({
           label: 'Kontaktperson',
           value: formData.contactName,
         },
-      ].filter((item): item is SummaryItem => Boolean(item)),
+      ]),
     },
     {
       stepIndex: 2,
-      items: [
+      items: summaryItems([
         servicesValue && { label: 'Valgte services', value: servicesValue },
-      ].filter((item): item is SummaryItem => Boolean(item)),
+      ]),
     },
     {
       stepIndex: 3,
-      items: [
+      items: summaryItems([
         employeeValue && { label: 'Antal ansatte', value: employeeValue },
-      ].filter((item): item is SummaryItem => Boolean(item)),
+        employeeTypesValue && { label: 'Medarbejdertyper', value: employeeTypesValue },
+        totalLoensumValue && { label: 'Samlet lønsum', value: totalLoensumValue },
+      ]),
     },
     {
       stepIndex: 4,
-      items: [
+      items: summaryItems([
         overenskomstValue && { label: 'Overenskomst', value: overenskomstValue },
-      ].filter((item): item is SummaryItem => Boolean(item)),
+      ]),
     },
     {
       stepIndex: 5,
-      items: [
+      items: summaryItems([
         faellesskabValue && {
           label: 'Fællesskaber og foreninger',
           value: faellesskabValue,
         },
-      ].filter((item): item is SummaryItem => Boolean(item)),
+      ]),
     },
     {
       stepIndex: 6,
-      items: [
+      items: summaryItems([
         computedMembership && {
           label: 'Beregnet medlemskab',
           value: computedMembership,
         },
-      ].filter((item): item is SummaryItem => Boolean(item)),
-    },
-    {
-      stepIndex: 7,
-      items: groupedContactItems([
-        { label: 'Administrerende direktør', person: managingDirector },
-        { label: 'HR-kontakt', person: hrContact },
-        { label: 'Lønsumsinberetter', person: payrollContact },
-        { label: 'Anden tegningsberettiget', person: authorizedSignatory },
+        priceEstimate && {
+          label: 'Estimeret årspris',
+          value: <PriceEstimateDetails estimate={priceEstimate} />,
+        },
       ]),
     },
     {
-      stepIndex: 8,
+      stepIndex: 7,
       items: [
+        ...groupedContactItems([
+          { label: 'Administrerende direktør', person: managingDirector },
+          { label: 'HR-kontakt', person: hrContact },
+          { label: 'Lønsumsinberetter', person: payrollContact },
+          { label: 'Anden tegningsberettiget', person: authorizedSignatory },
+        ]),
+        ...summaryItems([
         invoiceDelivery && {
           label: 'Faktura',
           value: INVOICE_LABELS[invoiceDelivery] ?? invoiceDelivery,
         },
-      ].filter((item): item is SummaryItem => Boolean(item)),
+        ]),
+      ],
     },
   ]
 
