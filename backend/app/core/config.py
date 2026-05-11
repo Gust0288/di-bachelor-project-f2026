@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     email_from: str = Field(default="", alias="EMAIL_FROM")
     frontend_url: str = Field(default="http://localhost:5173", alias="FRONTEND_URL")
     resend_api_key: str = Field(default="", alias="RESEND_API_KEY")
+    cvr_mock: bool = Field(default=False, alias="CVR_MOCK")
 
     model_config = SettingsConfigDict(
         env_file=".env",
