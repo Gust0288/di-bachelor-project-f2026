@@ -3,6 +3,7 @@ import ContentBox from '../../../components/ContentBox'
 import FileDropzone from '../../../components/FileDropzone/FileDropzone'
 import RadioCardGroup from '../../../components/RadioCardGroup/RadioCardGroup'
 import { uploadDocument } from '../../../api/registration'
+import styles from '../WizardPage.module.scss'
 
 type AgreementStepProps = {
   sessionId: string
@@ -14,6 +15,8 @@ type AgreementStepProps = {
   onDocumentIdChange: (id: string) => void
   isUploading: boolean
   onUploadingChange: (value: boolean) => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 export default function AgreementStep({
@@ -26,6 +29,8 @@ export default function AgreementStep({
   onDocumentIdChange,
   isUploading,
   onUploadingChange,
+  invalidField,
+  validationMessage,
 }: AgreementStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -50,6 +55,7 @@ export default function AgreementStep({
         description="Screeningen hjælper os med at afklare jeres nuværende overenskomstsituation inden indmeldelse."
       >
         <RadioCardGroup
+          name="overenskomstStatus"
           label="Har virksomheden en overenskomst?"
           alignCards="start"
           options={[
@@ -60,6 +66,8 @@ export default function AgreementStep({
           value={overenskomstStatus}
           onChange={onStatusChange}
           isRequired
+          isInvalid={invalidField === 'overenskomstStatus'}
+          errorMessage={invalidField === 'overenskomstStatus' ? validationMessage : undefined}
         />
       </ContentBox>
 
@@ -69,6 +77,7 @@ export default function AgreementStep({
           description="Vælg hvordan overenskomsten er indgået, så vi kan vurdere næste skridt korrekt."
         >
           <RadioCardGroup
+            name="overenskomstType"
             label="Hvilken type overenskomst?"
             options={[
               { value: 'direkte', title: 'Direkte med et fagforbund' },
@@ -80,6 +89,8 @@ export default function AgreementStep({
               onDocumentIdChange('')
             }}
             isRequired
+            isInvalid={invalidField === 'overenskomstType'}
+            errorMessage={invalidField === 'overenskomstType' ? validationMessage : undefined}
           />
         </ContentBox>
       ) : null}
@@ -89,6 +100,7 @@ export default function AgreementStep({
           title="Upload overenskomst"
           description="Upload jeres overenskomstdokument (PDF eller billede)."
         >
+          <div data-validation-field="documentId" />
           <input
             ref={fileInputRef}
             type="file"
@@ -112,6 +124,9 @@ export default function AgreementStep({
             actionLabel={isUploading ? 'Uploader...' : documentId ? 'Skift fil' : 'Vælg fil'}
             onAction={() => fileInputRef.current?.click()}
           />
+          {invalidField === 'documentId' ? (
+            <p className={styles.fieldError}>{validationMessage}</p>
+          ) : null}
         </ContentBox>
       ) : null}
     </>

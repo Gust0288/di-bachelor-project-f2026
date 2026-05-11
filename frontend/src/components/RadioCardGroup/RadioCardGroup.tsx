@@ -16,6 +16,7 @@ type Option = {
 type Props = Omit<RadioGroupProps, 'children'> & {
   label: ReactNode
   description?: string
+  errorMessage?: ReactNode
   options: Option[]
   alignCards?: 'stretch' | 'start'
 }
@@ -23,6 +24,7 @@ type Props = Omit<RadioGroupProps, 'children'> & {
 function RadioCardGroup({
   label,
   description,
+  errorMessage,
   options,
   alignCards = 'stretch',
   className,
@@ -55,7 +57,7 @@ function RadioCardGroup({
         ))}
       </div>
 
-      <FieldError />
+      <FieldError>{errorMessage}</FieldError>
     </RadioGroup>
   )
 }

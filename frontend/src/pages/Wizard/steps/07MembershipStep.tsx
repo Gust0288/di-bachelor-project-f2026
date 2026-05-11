@@ -42,6 +42,8 @@ type MembershipStepProps = {
   branchefaellesskaber: string[] | undefined
   acceptMembership: boolean
   onAcceptChange: (value: boolean) => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 function deriveReason(
@@ -70,6 +72,8 @@ export default function MembershipStep({
   branchefaellesskaber,
   acceptMembership,
   onAcceptChange,
+  invalidField,
+  validationMessage,
 }: MembershipStepProps) {
   const tierLabel = tier ? TIER_LABELS[tier] ?? tier : null
   const sizeValue = tierLabel
@@ -117,7 +121,14 @@ export default function MembershipStep({
         <p>{reason}</p>
       </div>
 
-      <Checkbox isSelected={acceptMembership} onChange={onAcceptChange} isRequired>
+      <Checkbox
+        name="acceptMembership"
+        isSelected={acceptMembership}
+        onChange={onAcceptChange}
+        isRequired
+        isInvalid={invalidField === 'acceptMembership'}
+        errorMessage={invalidField === 'acceptMembership' ? validationMessage : undefined}
+      >
         Jeg bekræfter den anbefalede medlemskabstype
       </Checkbox>
     </ContentBox>

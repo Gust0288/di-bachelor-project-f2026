@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import {
   TextArea,
   TextField,
@@ -11,12 +12,14 @@ type Props = Omit<TextFieldProps, 'children'> &
   Pick<TextAreaProps, 'placeholder' | 'rows'> & {
     label: string
     description?: string
+    errorMessage?: ReactNode
     className?: string
   }
 
 function TextAreaField({
   label,
   description,
+  errorMessage,
   className,
   placeholder,
   rows = 4,
@@ -34,7 +37,7 @@ function TextAreaField({
         rows={rows}
       />
       {description ? <Description>{description}</Description> : null}
-      <FieldError />
+      <FieldError>{errorMessage}</FieldError>
     </TextField>
   )
 }

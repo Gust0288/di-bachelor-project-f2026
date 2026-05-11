@@ -34,6 +34,8 @@ type ApprovalStepProps = {
   onAcceptTermsChange: (value: boolean) => void
   acceptAuthority: boolean
   onAcceptAuthorityChange: (value: boolean) => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 type ReviewItem = {
@@ -108,6 +110,8 @@ export default function ApprovalStep({
   onAcceptTermsChange,
   acceptAuthority,
   onAcceptAuthorityChange,
+  invalidField,
+  validationMessage,
 }: ApprovalStepProps) {
   const primaryBranch = selectedCompany?.branchCodes[0]
   const services = selectedServices.map((service) =>
@@ -217,11 +221,25 @@ export default function ApprovalStep({
 
       <div className={styles.approvalAcceptances}>
         <h3>Acceptér og bekræft</h3>
-        <Checkbox isSelected={acceptTerms} onChange={onAcceptTermsChange} isRequired>
+        <Checkbox
+          name="acceptTerms"
+          isSelected={acceptTerms}
+          onChange={onAcceptTermsChange}
+          isRequired
+          isInvalid={invalidField === 'acceptTerms'}
+          errorMessage={invalidField === 'acceptTerms' ? validationMessage : undefined}
+        >
           Jeg accepterer DI's medlemsbetingelser og vedtægter
         </Checkbox>
 
-        <Checkbox isSelected={acceptAuthority} onChange={onAcceptAuthorityChange} isRequired>
+        <Checkbox
+          name="acceptAuthority"
+          isSelected={acceptAuthority}
+          onChange={onAcceptAuthorityChange}
+          isRequired
+          isInvalid={invalidField === 'acceptAuthority'}
+          errorMessage={invalidField === 'acceptAuthority' ? validationMessage : undefined}
+        >
           Jeg bekræfter at have bemyndigelse til at indmelde virksomheden
         </Checkbox>
       </div>

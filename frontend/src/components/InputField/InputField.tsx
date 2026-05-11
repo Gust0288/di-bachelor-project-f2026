@@ -12,6 +12,7 @@ type Props = Omit<TextFieldProps, 'children'> &
   Pick<InputProps, 'placeholder' | 'type' | 'inputMode' | 'autoComplete'> & {
     label: ReactNode
     description?: string
+    errorMessage?: ReactNode
     className?: string
     inputClassName?: string
   }
@@ -19,6 +20,7 @@ type Props = Omit<TextFieldProps, 'children'> &
 function InputField({
   label,
   description,
+  errorMessage,
   className,
   inputClassName,
   placeholder,
@@ -45,7 +47,7 @@ function InputField({
       />
 
       {description ? <Description>{description}</Description> : null}
-      <FieldError />
+      <FieldError>{errorMessage}</FieldError>
     </TextField>
   )
 }

@@ -11,6 +11,8 @@ type NeedsStepProps = {
   onServicesChange: (services: string[]) => void
   andetBeskrivelse: string
   onAndetChange: (value: string) => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 export default function NeedsStep({
@@ -18,6 +20,8 @@ export default function NeedsStep({
   onServicesChange,
   andetBeskrivelse,
   onAndetChange,
+  invalidField,
+  validationMessage,
 }: NeedsStepProps) {
   function toggleService(value: string, checked: boolean) {
     if (checked) {
@@ -33,7 +37,10 @@ export default function NeedsStep({
         title="Ønsker og behov"
         description="Vælg hvilke services og ydelser I ønsker som DI-medlem. Jeres valg er med til at bestemme jeres endelige medlemskabstype."
       >
-        <div className={styles.checkboxList}>
+        <div
+          className={`${styles.checkboxList} ${invalidField === 'selectedServices' ? styles.invalidGroup : ''}`}
+          data-validation-field="selectedServices"
+        >
           {SERVICE_OPTIONS.map((option) => (
             <Checkbox
               key={option.value}
@@ -44,6 +51,9 @@ export default function NeedsStep({
             </Checkbox>
           ))}
         </div>
+        {invalidField === 'selectedServices' ? (
+          <p className={styles.fieldError}>{validationMessage}</p>
+        ) : null}
       </ContentBox>
 
       {selectedServices.includes('andet') ? (
@@ -57,6 +67,9 @@ export default function NeedsStep({
             value={andetBeskrivelse}
             onChange={onAndetChange}
             rows={4}
+            name="andetBeskrivelse"
+            isInvalid={invalidField === 'andetBeskrivelse'}
+            errorMessage={invalidField === 'andetBeskrivelse' ? validationMessage : undefined}
           />
         </ContentBox>
       ) : null}

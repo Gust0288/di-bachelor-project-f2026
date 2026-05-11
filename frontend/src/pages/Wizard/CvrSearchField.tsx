@@ -8,6 +8,8 @@ type CvrSearchFieldProps = {
   onCompanySelect: (company: CompanyOption) => void
   onQueryChange?: (query: string) => void
   initialQuery?: string
+  isInvalid?: boolean
+  errorMessage?: string
 }
 
 function mapCvrResultToCompanyOption(company: CvrResult): CompanyOption {
@@ -27,6 +29,8 @@ export default function CvrSearchField({
   onCompanySelect,
   onQueryChange,
   initialQuery = '',
+  isInvalid,
+  errorMessage,
 }: CvrSearchFieldProps) {
   const [query, setQuery] = useState(initialQuery)
   const [isLoading, setIsLoading] = useState(false)
@@ -109,6 +113,8 @@ export default function CvrSearchField({
         value={query}
         onChange={handleQueryChange}
         isRequired
+        isInvalid={isInvalid}
+        errorMessage={errorMessage}
       />
       {isOpen && result ? (
         <ul className={styles.cvrSearchField__dropdown}>

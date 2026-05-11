@@ -10,6 +10,8 @@ type AssociationsStepProps = {
   selectedFaellesskaber: string[]
   onSelectionChange: (ids: string[]) => void
   onAllLoaded: (all: { id: string; name: string }[]) => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 export default function AssociationsStep({
@@ -17,6 +19,8 @@ export default function AssociationsStep({
   selectedFaellesskaber,
   onSelectionChange,
   onAllLoaded,
+  invalidField,
+  validationMessage,
 }: AssociationsStepProps) {
   const [suggestions, setSuggestions] = useState<BranchSuggestionsResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -88,7 +92,10 @@ export default function AssociationsStep({
           title="Foreslåede fællesskaber"
           description="Disse fællesskaber er relevante for jeres branche. I kan fravælge dem."
         >
-          <div className={styles.checkboxList}>
+          <div
+            className={`${styles.checkboxList} ${invalidField === 'selectedFaellesskaber' ? styles.invalidGroup : ''}`}
+            data-validation-field="selectedFaellesskaber"
+          >
             {suggested.map((id) => {
               const community = all.find((c) => c.id === id)
               return (
@@ -102,6 +109,9 @@ export default function AssociationsStep({
               )
             })}
           </div>
+          {invalidField === 'selectedFaellesskaber' ? (
+            <p className={styles.fieldError}>{validationMessage}</p>
+          ) : null}
         </ContentBox>
       ) : null}
 
@@ -110,7 +120,10 @@ export default function AssociationsStep({
           title="Andre fællesskaber"
           description="Tilmeld jer yderligere fællesskaber efter behov."
         >
-          <div className={styles.checkboxList}>
+          <div
+            className={`${styles.checkboxList} ${invalidField === 'selectedFaellesskaber' ? styles.invalidGroup : ''}`}
+            data-validation-field="selectedFaellesskaber"
+          >
             {others.map((community) => (
               <Checkbox
                 key={community.id}
@@ -121,6 +134,9 @@ export default function AssociationsStep({
               </Checkbox>
             ))}
           </div>
+          {invalidField === 'selectedFaellesskaber' ? (
+            <p className={styles.fieldError}>{validationMessage}</p>
+          ) : null}
         </ContentBox>
       ) : null}
     </>

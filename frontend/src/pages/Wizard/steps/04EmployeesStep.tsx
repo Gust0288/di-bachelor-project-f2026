@@ -18,6 +18,8 @@ type EmployeesStepProps = {
   onEmployeeTypesChange: (types: string[]) => void
   totalLoensum: number | ''
   onTotalLoensumChange: (value: number | '') => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 export default function EmployeesStep({
@@ -29,7 +31,13 @@ export default function EmployeesStep({
   onEmployeeTypesChange,
   totalLoensum,
   onTotalLoensumChange,
+  invalidField,
+  validationMessage,
 }: EmployeesStepProps) {
+  function fieldError(field: string) {
+    return invalidField === field ? validationMessage : undefined
+  }
+
   function toggleType(value: string, checked: boolean) {
     if (checked) {
       onEmployeeTypesChange([...employeeTypes, value])
@@ -68,6 +76,8 @@ export default function EmployeesStep({
           onChange={handleCountChange}
           isDisabled={noEmployees}
           isRequired
+          isInvalid={Boolean(fieldError('employeeCount'))}
+          errorMessage={fieldError('employeeCount')}
         />
         <Checkbox isSelected={noEmployees} onChange={handleNoEmployeesChange}>
           Virksomheden har ingen ansatte (0 ansatte)
@@ -75,7 +85,10 @@ export default function EmployeesStep({
       </ContentBox>
 
       <ContentBox title="Medarbejdertyper" description="Hvilke typer medarbejdere har virksomheden?">
-        <div className={styles.checkboxList}>
+        <div
+          className={`${styles.checkboxList} ${invalidField === 'employeeTypes' ? styles.invalidGroup : ''}`}
+          data-validation-field="employeeTypes"
+        >
           {EMPLOYEE_TYPE_OPTIONS.map((option) => (
             <Checkbox
               key={option.value}
@@ -86,6 +99,9 @@ export default function EmployeesStep({
             </Checkbox>
           ))}
         </div>
+        {fieldError('employeeTypes') ? (
+          <p className={styles.fieldError}>{fieldError('employeeTypes')}</p>
+        ) : null}
       </ContentBox>
 
       <ContentBox
@@ -100,6 +116,8 @@ export default function EmployeesStep({
           value={String(totalLoensum)}
           onChange={handleLoensumChange}
           isRequired
+          isInvalid={Boolean(fieldError('totalLoensum'))}
+          errorMessage={fieldError('totalLoensum')}
         />
       </ContentBox>
     </>

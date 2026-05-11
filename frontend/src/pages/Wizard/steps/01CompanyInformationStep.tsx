@@ -16,6 +16,8 @@ type CompanyInformationStepProps = {
   onCvrDataChange: (fields: CvrHiddenFields) => void
   cvrQuery: string
   onCvrQueryChange: (query: string) => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 export default function CompanyInformationStep({
@@ -25,7 +27,13 @@ export default function CompanyInformationStep({
   onCvrDataChange,
   cvrQuery,
   onCvrQueryChange,
+  invalidField,
+  validationMessage,
 }: CompanyInformationStepProps) {
+  function fieldError(field: string) {
+    return invalidField === field ? validationMessage : undefined
+  }
+
   function handleCompanySelect(company: CompanyOption) {
     onFieldChange('companyId', company.id)
     onCompanyFound(company)
@@ -59,6 +67,8 @@ export default function CompanyInformationStep({
             value={formData.contactName}
             onChange={(value) => onFieldChange('contactName', value)}
             isRequired
+            isInvalid={Boolean(fieldError('contactName'))}
+            errorMessage={fieldError('contactName')}
           />
           <InputField
             name="contactJobTitle"
@@ -68,6 +78,8 @@ export default function CompanyInformationStep({
             value={formData.contactJobTitle}
             onChange={(value) => onFieldChange('contactJobTitle', value)}
             isRequired
+            isInvalid={Boolean(fieldError('contactJobTitle'))}
+            errorMessage={fieldError('contactJobTitle')}
           />
           <InputField
             name="contactEmail"
@@ -78,6 +90,8 @@ export default function CompanyInformationStep({
             value={formData.contactEmail}
             onChange={(value) => onFieldChange('contactEmail', value)}
             isRequired
+            isInvalid={Boolean(fieldError('contactEmail'))}
+            errorMessage={fieldError('contactEmail')}
           />
           <InputField
             name="contactPhone"
@@ -89,6 +103,8 @@ export default function CompanyInformationStep({
             value={formData.contactPhone}
             onChange={(value) => onFieldChange('contactPhone', value)}
             isRequired
+            isInvalid={Boolean(fieldError('contactPhone'))}
+            errorMessage={fieldError('contactPhone')}
           />
         </div>
       </ContentBox>
@@ -101,6 +117,8 @@ export default function CompanyInformationStep({
           onCompanySelect={handleCompanySelect}
           initialQuery={cvrQuery}
           onQueryChange={onCvrQueryChange}
+          isInvalid={invalidField === 'company'}
+          errorMessage={fieldError('company')}
         />
       </ContentBox>
 
@@ -117,6 +135,8 @@ export default function CompanyInformationStep({
           placeholder="https://www.eksempel.dk"
           value={formData.website}
           onChange={(value) => onFieldChange('website', value)}
+          isInvalid={Boolean(fieldError('website'))}
+          errorMessage={fieldError('website')}
         />
       </ContentBox>
     </>

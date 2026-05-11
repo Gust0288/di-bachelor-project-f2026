@@ -78,6 +78,65 @@ function computeMembership(
   return 'Associeret'
 }
 
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+}
+
+function isValidPhone(value: string): boolean {
+  const normalized = value.replace(/[\s().-]/g, '')
+  return /^\+?\d{8,15}$/.test(normalized)
+}
+
+function isValidWebsite(value: string): boolean {
+  if (!value.trim()) return true
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+function validateRequiredContact(
+  contact: ContactPerson,
+  label: string,
+): string | null {
+  if (!contact.name.trim() || !contact.email.trim()) {
+    return `Udfyld navn og email for ${label}.`
+  }
+  if (!isValidEmail(contact.email)) {
+    return `Email for ${label} skal være en gyldig emailadresse.`
+  }
+  if (contact.phone.trim() && !isValidPhone(contact.phone)) {
+    return `Telefonnummer for ${label} skal være et gyldigt telefonnummer.`
+  }
+  return null
+}
+
+function validateOptionalContact(
+  contact: ContactPerson | null,
+  label: string,
+): string | null {
+  if (!contact) return null
+  const hasAnyValue = Boolean(
+    contact.name.trim() ||
+      contact.email.trim() ||
+      contact.phone.trim() ||
+      contact.title.trim(),
+  )
+  if (!hasAnyValue) return null
+  if (!contact.name.trim() || !contact.email.trim()) {
+    return `Udfyld både navn og email for ${label}, eller fravælg kontaktpersonen.`
+  }
+  if (!isValidEmail(contact.email)) {
+    return `Email for ${label} skal være en gyldig emailadresse.`
+  }
+  if (contact.phone.trim() && !isValidPhone(contact.phone)) {
+    return `Telefonnummer for ${label} skal være et gyldigt telefonnummer.`
+  }
+  return null
+}
+
 export default function WizardPage() {
   const navigate = useNavigate()
 
@@ -127,6 +186,7 @@ export default function WizardPage() {
   // ── Wizard navigation state ───────────────────────────────────
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [validationMessage, setValidationMessage] = useState<string>()
+  const [validationTarget, setValidationTarget] = useState<string>()
 
   const [mitIdStatus, setMitIdStatus] = useState<MitIdStatus>('idle')
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -274,6 +334,30 @@ export default function WizardPage() {
   const centerRef = useRef<HTMLElement>(null)
   const summaryRef = useRef<HTMLElement>(null)
   useEffect(() => {
+    if (!validationTarget) return
+
+    window.setTimeout(() => {
+      const root = centerRef.current ?? document
+      const escapedTarget =
+        typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+          ? CSS.escape(validationTarget)
+          : validationTarget.replace(/"/g, '\\"')
+      const target = root.querySelector<HTMLElement>(
+        `[name="${escapedTarget}"], [data-validation-field="${escapedTarget}"]`,
+      ) ?? root.querySelector<HTMLElement>('[data-invalid="true"]')
+
+      target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      if (target && typeof target.focus === 'function') {
+        target.focus({ preventScroll: true })
+      } else {
+        target?.querySelector<HTMLElement>('input, textarea, button, [tabindex]')?.focus({
+          preventScroll: true,
+        })
+      }
+    }, 0)
+  }, [currentStepIndex, validationTarget])
+
+  useEffect(() => {
     if (typeof centerRef.current?.scrollTo === 'function') {
       centerRef.current.scrollTo({ top: 0 })
     }
@@ -409,7 +493,7 @@ export default function WizardPage() {
       if (typeof stepIndex !== 'number' || isSubmittedRef.current) return
       const boundedStepIndex = normalizeStepIndex(stepIndex)
 
-      setValidationMessage(undefined)
+      clearValidation()
       setIsSubmitted(false)
       isApplyingBrowserHistoryRef.current = true
       lastHistoryStepIndexRef.current = boundedStepIndex
@@ -514,9 +598,212 @@ export default function WizardPage() {
     totalLoensum,
   ])
 
-  function updateField<Key extends keyof WizardFormData>(key: Key, value: WizardFormData[Key]) {
+  function clearValidation() {
     setValidationMessage(undefined)
+    setValidationTarget(undefined)
+  }
+
+  function setValidation(message: string, target?: string) {
+    setValidationMessage(message)
+    setValidationTarget(target)
+  }
+
+  function updateField<Key extends keyof WizardFormData>(key: Key, value: WizardFormData[Key]) {
+    clearValidation()
     setFormData((current) => ({ ...current, [key]: value }))
+  }
+
+  function getContactValidationError(
+    contact: ContactPerson | null,
+    label: string,
+    prefix: string,
+    required: boolean,
+  ): { message: string; target: string } | null {
+    if (!contact) return null
+    const hasAnyValue = Boolean(
+      contact.name.trim() ||
+        contact.email.trim() ||
+        contact.phone.trim() ||
+        contact.title.trim(),
+    )
+
+    if (!required && !hasAnyValue) return null
+    if (!contact.name.trim()) {
+      return {
+        message: required
+          ? `Udfyld navn for ${label}.`
+          : `Udfyld både navn og email for ${label}, eller fravælg kontaktpersonen.`,
+        target: `${prefix}.name`,
+      }
+    }
+    if (!contact.email.trim()) {
+      return {
+        message: required
+          ? `Udfyld email for ${label}.`
+          : `Udfyld både navn og email for ${label}, eller fravælg kontaktpersonen.`,
+        target: `${prefix}.email`,
+      }
+    }
+    if (!isValidEmail(contact.email)) {
+      return {
+        message: `Email for ${label} skal være en gyldig emailadresse.`,
+        target: `${prefix}.email`,
+      }
+    }
+    if (contact.phone.trim() && !isValidPhone(contact.phone)) {
+      return {
+        message: `Telefonnummer for ${label} skal være et gyldigt telefonnummer.`,
+        target: `${prefix}.phone`,
+      }
+    }
+    return null
+  }
+
+  function getCurrentStepValidationError(): { message: string; target?: string } | null {
+    if (currentStepIndex === 0) {
+      if (!formData.contactName.trim()) {
+        return { message: 'Udfyld kontaktpersonens navn for at fortsætte.', target: 'contactName' }
+      }
+      if (!formData.contactJobTitle.trim()) {
+        return {
+          message: 'Udfyld kontaktpersonens stillingsbetegnelse for at fortsætte.',
+          target: 'contactJobTitle',
+        }
+      }
+      if (!formData.contactEmail.trim()) {
+        return { message: 'Udfyld kontaktpersonens email for at fortsætte.', target: 'contactEmail' }
+      }
+      if (!isValidEmail(formData.contactEmail)) {
+        return {
+          message: 'Kontaktpersonens email skal være en gyldig emailadresse.',
+          target: 'contactEmail',
+        }
+      }
+      if (!formData.contactPhone.trim()) {
+        return {
+          message: 'Udfyld kontaktpersonens telefonnummer for at fortsætte.',
+          target: 'contactPhone',
+        }
+      }
+      if (!isValidPhone(formData.contactPhone)) {
+        return {
+          message: 'Kontaktpersonens telefonnummer skal være et gyldigt telefonnummer.',
+          target: 'contactPhone',
+        }
+      }
+      if (!isValidWebsite(formData.website)) {
+        return {
+          message: 'Virksomhedens hjemmeside skal være en gyldig URL, fx https://www.eksempel.dk.',
+          target: 'website',
+        }
+      }
+      if (!hasCompletedCompanyInformation(formData) || !cvrData) {
+        return {
+          message: 'Vælg en virksomhed fra CVR-søgningen, før du fortsætter.',
+          target: 'company',
+        }
+      }
+    }
+
+    if (currentStepIndex === 1 && !cvrConfirmed) {
+      return { message: 'Bekræft virksomhedsoplysningerne for at fortsætte.' }
+    }
+
+    if (currentStepIndex === 2) {
+      if (selectedServices.length === 0) {
+        return { message: 'Vælg mindst én service for at fortsætte.', target: 'selectedServices' }
+      }
+      if (selectedServices.includes('andet') && andetBeskrivelse.trim().length === 0) {
+        return {
+          message: 'Beskriv kort, hvilken anden service virksomheden har behov for.',
+          target: 'andetBeskrivelse',
+        }
+      }
+    }
+
+    if (currentStepIndex === 3) {
+      if (!noEmployees && employeeCount === '') {
+        return {
+          message: 'Angiv antal ansatte, eller markér at virksomheden ikke har ansatte.',
+          target: 'employeeCount',
+        }
+      }
+      if (!noEmployees && typeof employeeCount === 'number' && employeeCount < 0) {
+        return { message: 'Antal ansatte kan ikke være negativt.', target: 'employeeCount' }
+      }
+      if (employeeTypes.length === 0) {
+        return { message: 'Vælg mindst én medarbejdertype for at fortsætte.', target: 'employeeTypes' }
+      }
+      if (totalLoensum === '') {
+        return { message: 'Angiv den samlede lønsum for at fortsætte.', target: 'totalLoensum' }
+      }
+      if (totalLoensum < 0) {
+        return { message: 'Samlet lønsum kan ikke være negativ.', target: 'totalLoensum' }
+      }
+    }
+
+    if (currentStepIndex === 4) {
+      if (!overenskomstStatus) {
+        return {
+          message: 'Angiv jeres overenskomstsituation for at fortsætte.',
+          target: 'overenskomstStatus',
+        }
+      }
+      if (overenskomstStatus === 'ja' && !overenskomstType) {
+        return {
+          message: 'Angiv hvilken type overenskomst for at fortsætte.',
+          target: 'overenskomstType',
+        }
+      }
+      if (overenskomstStatus === 'ja' && overenskomstType === 'direkte' && !documentId) {
+        return { message: 'Upload overenskomstdokumentet for at fortsætte.', target: 'documentId' }
+      }
+    }
+
+    if (currentStepIndex === 5 && selectedFaellesskaber.length === 0) {
+      return {
+        message: 'Vælg mindst ét branchefællesskab for at fortsætte.',
+        target: 'selectedFaellesskaber',
+      }
+    }
+
+    if (currentStepIndex === 6 && !acceptMembership) {
+      return {
+        message: 'Bekræft den anbefalede medlemskabstype for at fortsætte.',
+        target: 'acceptMembership',
+      }
+    }
+
+    if (currentStepIndex === 7) {
+      return (
+        getContactValidationError(managingDirector, 'administrerende direktør', 'managingDirector', true) ??
+        getContactValidationError(hrContact, 'HR-kontakt', 'hrContact', false) ??
+        getContactValidationError(payrollContact, 'lønsumsinberetter', 'payrollContact', false) ??
+        getContactValidationError(
+          authorizedSignatory,
+          'anden tegningsberettiget',
+          'authorizedSignatory',
+          false,
+        ) ??
+        (!invoiceDelivery
+          ? { message: 'Vælg hvordan I ønsker at modtage faktura.', target: 'invoiceDelivery' }
+          : null)
+      )
+    }
+
+    if (currentStepIndex === 8) {
+      if (!acceptTerms) {
+        return { message: 'Acceptér DI\'s medlemsbetingelser for at fortsætte.', target: 'acceptTerms' }
+      }
+      if (!acceptAuthority) {
+        return {
+          message: 'Bekræft at du har bemyndigelse til at indmelde virksomheden.',
+          target: 'acceptAuthority',
+        }
+      }
+    }
+
+    return null
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -526,7 +813,12 @@ export default function WizardPage() {
       return
     }
 
-    setValidationMessage(undefined)
+    clearValidation()
+    const clientValidationError = getCurrentStepValidationError()
+    if (clientValidationError) {
+      setValidation(clientValidationError.message, clientValidationError.target)
+      return
+    }
 
     // ── Step 1 ──────────────────────────────────────────────────
     if (currentStepIndex === 0) {
@@ -534,6 +826,18 @@ export default function WizardPage() {
         setValidationMessage(
           'Udfyld kontaktoplysningerne og vælg virksomheden fra CVR-søgningen, før du fortsætter.',
         )
+        return
+      }
+      if (!isValidEmail(formData.contactEmail)) {
+        setValidationMessage('Kontaktpersonens email skal være en gyldig emailadresse.')
+        return
+      }
+      if (!isValidPhone(formData.contactPhone)) {
+        setValidationMessage('Kontaktpersonens telefonnummer skal være et gyldigt telefonnummer.')
+        return
+      }
+      if (!isValidWebsite(formData.website)) {
+        setValidationMessage('Virksomhedens hjemmeside skal være en gyldig URL, fx https://www.eksempel.dk.')
         return
       }
       if (!cvrData) {
@@ -597,6 +901,10 @@ export default function WizardPage() {
         setValidationMessage('Vælg mindst én service for at fortsætte.')
         return
       }
+      if (selectedServices.includes('andet') && andetBeskrivelse.trim().length === 0) {
+        setValidationMessage('Beskriv kort, hvilken anden service virksomheden har behov for.')
+        return
+      }
       setIsSaving(true)
       try {
         const response = await saveStep(3, {
@@ -614,12 +922,24 @@ export default function WizardPage() {
 
     // ── Step 4 ──────────────────────────────────────────────────
     if (currentStepIndex === 3) {
+      if (!noEmployees && employeeCount === '') {
+        setValidationMessage('Angiv antal ansatte, eller markér at virksomheden ikke har ansatte.')
+        return
+      }
+      if (!noEmployees && typeof employeeCount === 'number' && employeeCount < 0) {
+        setValidationMessage('Antal ansatte kan ikke være negativt.')
+        return
+      }
       if (employeeTypes.length === 0) {
         setValidationMessage('Vælg mindst én medarbejdertype for at fortsætte.')
         return
       }
       if (totalLoensum === '') {
         setValidationMessage('Angiv den samlede lønsum for at fortsætte.')
+        return
+      }
+      if (totalLoensum < 0) {
+        setValidationMessage('Samlet lønsum kan ikke være negativ.')
         return
       }
       setIsSaving(true)
@@ -724,8 +1044,14 @@ export default function WizardPage() {
 
     // ── Step 8 ──────────────────────────────────────────────────
     if (currentStepIndex === 7) {
-      if (!managingDirector.name || !managingDirector.email) {
-        setValidationMessage('Udfyld navn og email for administrerende direktør.')
+      const contactValidationMessage =
+        validateRequiredContact(managingDirector, 'administrerende direktør') ??
+        validateOptionalContact(hrContact, 'HR-kontakt') ??
+        validateOptionalContact(payrollContact, 'lønsumsinberetter') ??
+        validateOptionalContact(authorizedSignatory, 'anden tegningsberettiget')
+
+      if (contactValidationMessage) {
+        setValidationMessage(contactValidationMessage)
         return
       }
       if (!invoiceDelivery) {
@@ -778,7 +1104,7 @@ export default function WizardPage() {
   }
 
   function handleBack() {
-    setValidationMessage(undefined)
+    clearValidation()
     setIsSubmitted(false)
     setCurrentStepIndex((stepIndex) => normalizeStepIndex(stepIndex - 1))
   }
@@ -796,7 +1122,7 @@ export default function WizardPage() {
   function handleStepSelect(stepIndex: number) {
     if (stepIndex === currentStepIndex) return
     if (!canAccessWizardStep(stepIndex)) return
-    setValidationMessage(undefined)
+    clearValidation()
     setCurrentStepIndex(normalizeStepIndex(stepIndex))
   }
 
@@ -820,7 +1146,7 @@ export default function WizardPage() {
   }
 
   function handleMitIdVerification() {
-    setValidationMessage(undefined)
+    clearValidation()
 
     if (mitIdStatus === 'idle') {
       setMitIdStatus('redirecting')
@@ -910,7 +1236,12 @@ export default function WizardPage() {
             onCompanyFound={setSelectedCompany}
             onCvrDataChange={setCvrData}
             cvrQuery={cvrQuery}
-            onCvrQueryChange={setCvrQuery}
+            onCvrQueryChange={(value) => {
+              clearValidation()
+              setCvrQuery(value)
+            }}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       case 1:
@@ -925,22 +1256,44 @@ export default function WizardPage() {
         return (
           <NeedsStep
             selectedServices={selectedServices}
-            onServicesChange={setSelectedServices}
+            onServicesChange={(services) => {
+              clearValidation()
+              setSelectedServices(services)
+            }}
             andetBeskrivelse={andetBeskrivelse}
-            onAndetChange={setAndetBeskrivelse}
+            onAndetChange={(value) => {
+              clearValidation()
+              setAndetBeskrivelse(value)
+            }}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       case 3:
         return (
           <EmployeesStep
             employeeCount={employeeCount}
-            onEmployeeCountChange={setEmployeeCount}
+            onEmployeeCountChange={(value) => {
+              clearValidation()
+              setEmployeeCount(value)
+            }}
             noEmployees={noEmployees}
-            onNoEmployeesChange={setNoEmployees}
+            onNoEmployeesChange={(value) => {
+              clearValidation()
+              setNoEmployees(value)
+            }}
             employeeTypes={employeeTypes}
-            onEmployeeTypesChange={setEmployeeTypes}
+            onEmployeeTypesChange={(types) => {
+              clearValidation()
+              setEmployeeTypes(types)
+            }}
             totalLoensum={totalLoensum}
-            onTotalLoensumChange={setTotalLoensum}
+            onTotalLoensumChange={(value) => {
+              clearValidation()
+              setTotalLoensum(value)
+            }}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       case 4:
@@ -948,13 +1301,24 @@ export default function WizardPage() {
           <AgreementStep
             sessionId={sessionId ?? ''}
             overenskomstStatus={overenskomstStatus}
-            onStatusChange={setOverenskomstStatus}
+            onStatusChange={(value) => {
+              clearValidation()
+              setOverenskomstStatus(value)
+            }}
             overenskomstType={overenskomstType}
-            onTypeChange={setOverenskomstType}
+            onTypeChange={(value) => {
+              clearValidation()
+              setOverenskomstType(value)
+            }}
             documentId={documentId}
-            onDocumentIdChange={setDocumentId}
+            onDocumentIdChange={(value) => {
+              clearValidation()
+              setDocumentId(value)
+            }}
             isUploading={isUploading}
             onUploadingChange={setIsUploading}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       case 5:
@@ -962,8 +1326,13 @@ export default function WizardPage() {
           <AssociationsStep
             sessionId={sessionId ?? ''}
             selectedFaellesskaber={selectedFaellesskaber}
-            onSelectionChange={setSelectedFaellesskaber}
+            onSelectionChange={(selection) => {
+              clearValidation()
+              setSelectedFaellesskaber(selection)
+            }}
             onAllLoaded={setAllFaellesskaber}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       case 6: {
@@ -989,7 +1358,12 @@ export default function WizardPage() {
             overenskomstType={stepData['5']?.overenskomst_type as string | undefined}
             branchefaellesskaber={stepData['6']?.branchefaellesskaber as string[] | undefined}
             acceptMembership={acceptMembership}
-            onAcceptChange={setAcceptMembership}
+            onAcceptChange={(value) => {
+              clearValidation()
+              setAcceptMembership(value)
+            }}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       }
@@ -1003,15 +1377,32 @@ export default function WizardPage() {
               title: formData.contactJobTitle,
             }}
             managingDirector={managingDirector}
-            onManagingDirectorChange={setManagingDirector}
+            onManagingDirectorChange={(value) => {
+              clearValidation()
+              setManagingDirector(value)
+            }}
             hrContact={hrContact}
-            onHrContactChange={setHrContact}
+            onHrContactChange={(value) => {
+              clearValidation()
+              setHrContact(value)
+            }}
             payrollContact={payrollContact}
-            onPayrollContactChange={setPayrollContact}
+            onPayrollContactChange={(value) => {
+              clearValidation()
+              setPayrollContact(value)
+            }}
             authorizedSignatory={authorizedSignatory}
-            onAuthorizedSignatoryChange={setAuthorizedSignatory}
+            onAuthorizedSignatoryChange={(value) => {
+              clearValidation()
+              setAuthorizedSignatory(value)
+            }}
             invoiceDelivery={invoiceDelivery}
-            onInvoiceDeliveryChange={setInvoiceDelivery}
+            onInvoiceDeliveryChange={(value) => {
+              clearValidation()
+              setInvoiceDelivery(value)
+            }}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       case 8:
@@ -1042,9 +1433,17 @@ export default function WizardPage() {
             authorizedSignatory={authorizedSignatory}
             invoiceDelivery={invoiceDelivery}
             acceptTerms={acceptTerms}
-            onAcceptTermsChange={setAcceptTerms}
+            onAcceptTermsChange={(value) => {
+              clearValidation()
+              setAcceptTerms(value)
+            }}
             acceptAuthority={acceptAuthority}
-            onAcceptAuthorityChange={setAcceptAuthority}
+            onAcceptAuthorityChange={(value) => {
+              clearValidation()
+              setAcceptAuthority(value)
+            }}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       case 9:

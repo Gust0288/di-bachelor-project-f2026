@@ -21,6 +21,8 @@ type ContactsStepProps = {
   onAuthorizedSignatoryChange: (value: ContactPerson | null) => void
   invoiceDelivery: string
   onInvoiceDeliveryChange: (value: string) => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 function useOptionalContact(
@@ -56,6 +58,8 @@ export default function ContactsStep({
   onAuthorizedSignatoryChange,
   invoiceDelivery,
   onInvoiceDeliveryChange,
+  invalidField,
+  validationMessage,
 }: ContactsStepProps) {
   const hr = useOptionalContact(step1Contact, onHrContactChange)
   const payroll = useOptionalContact(step1Contact, onPayrollContactChange)
@@ -98,6 +102,9 @@ export default function ContactsStep({
           value={managingDirector}
           onChange={onManagingDirectorChange}
           isRequired
+          namePrefix="managingDirector"
+          invalidField={invalidField}
+          validationMessage={validationMessage}
         />
       </ContentBox>
 
@@ -116,7 +123,13 @@ export default function ContactsStep({
           onChange={hr.handleModeChange}
         />
         {hr.mode !== 'none' && hrContact ? (
-          <ContactPersonFields value={hrContact} onChange={onHrContactChange} />
+          <ContactPersonFields
+            value={hrContact}
+            onChange={onHrContactChange}
+            namePrefix="hrContact"
+            invalidField={invalidField}
+            validationMessage={validationMessage}
+          />
         ) : null}
       </ContentBox>
 
@@ -135,7 +148,13 @@ export default function ContactsStep({
           onChange={payroll.handleModeChange}
         />
         {payroll.mode !== 'none' && payrollContact ? (
-          <ContactPersonFields value={payrollContact} onChange={onPayrollContactChange} />
+          <ContactPersonFields
+            value={payrollContact}
+            onChange={onPayrollContactChange}
+            namePrefix="payrollContact"
+            invalidField={invalidField}
+            validationMessage={validationMessage}
+          />
         ) : null}
       </ContentBox>
 
@@ -154,7 +173,13 @@ export default function ContactsStep({
           onChange={signatory.handleModeChange}
         />
         {signatory.mode !== 'none' && authorizedSignatory ? (
-          <ContactPersonFields value={authorizedSignatory} onChange={onAuthorizedSignatoryChange} />
+          <ContactPersonFields
+            value={authorizedSignatory}
+            onChange={onAuthorizedSignatoryChange}
+            namePrefix="authorizedSignatory"
+            invalidField={invalidField}
+            validationMessage={validationMessage}
+          />
         ) : null}
       </ContentBox>
 
@@ -171,6 +196,8 @@ export default function ContactsStep({
           value={invoiceDelivery}
           onChange={handleInvoiceDeliveryChange}
           isRequired
+          isInvalid={invalidField === 'invoiceDelivery'}
+          errorMessage={invalidField === 'invoiceDelivery' ? validationMessage : undefined}
         />
       </ContentBox>
     </>

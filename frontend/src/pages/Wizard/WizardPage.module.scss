@@ -79,16 +79,19 @@
 
 .postWizardPage {
   display: grid;
-  min-height: 100dvh;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
   padding: clamp(var(--spacing-md), 3vw, var(--spacing-xl));
   background: var(--color-surfaces-surface-1);
 }
 
 .postWizardForm {
-  align-self: center;
+  align-self: start;
   gap: var(--spacing-lg);
   height: auto;
   max-width: 48rem;
+  padding-block: clamp(var(--spacing-md), 3vw, var(--spacing-xl));
 }
 
 .header {
@@ -175,6 +178,21 @@
   display: grid;
   gap: var(--spacing-sm);
   align-items: start;
+}
+
+.invalidGroup {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-invalid);
+  border-radius: var(--radius-xs);
+  background: color-mix(in srgb, var(--color-invalid) 7%, var(--color-white));
+}
+
+.fieldError {
+  margin: var(--spacing-xs) 0 0;
+  color: var(--color-invalid);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .actions {
