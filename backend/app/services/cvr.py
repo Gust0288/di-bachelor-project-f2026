@@ -1,4 +1,5 @@
 import logging
+import time
 
 import httpx
 
@@ -12,6 +13,19 @@ USER_AGENT = f"DI - Indmeldelsesportal - {get_settings().cvr_contact_email}"
 
 def lookup_company(search: str, search_type: str = "vat") -> dict:
     """search_type: 'vat' | 'name' | 'produ' | 'phone'"""
+    if get_settings().cvr_mock:
+        mock_cvr = search if search_type == "vat" else str(int(time.time()) % 90000000 + 10000000)
+        return {
+            "navn": "Test Virksomhed ApS",
+            "cvr": mock_cvr,
+            "virksomhedsform": "Anpartsselskab",
+            "adresse": "Testvej 1",
+            "postnummer": "1000",
+            "by": "København K",
+            "branchekode": "620100",
+            "branchetekst": "Computerprogrammering",
+        }
+
     params = {"country": "dk", search_type: search}
     api_key = get_settings().cvr_api_key
     if api_key:
