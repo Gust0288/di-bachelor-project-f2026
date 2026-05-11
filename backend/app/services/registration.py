@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import json
+import logging
 import random
 import string
+import threading
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
@@ -11,13 +14,47 @@ from pydantic import ValidationError
 from app.core.database import get_db_cursor
 from app.schemas.registration import STEP_SCHEMAS
 from app.services.branch_mapping import get_suggestions
+from app.services.email_confirmation import send_registration_confirmation
 from app.services.email_verification import send_verification_email
 from app.services.flow_definition import FLOW_DEFINITION
 from app.services.membership import calculate_membership, compute_tier
 
+logger = logging.getLogger(__name__)
+
 # ---------------------------------------------------------------------------
 # Internal helpers
 # ---------------------------------------------------------------------------
+
+
+def _send_confirmation_email_background(
+    to_email: str,
+    contact_name: str,
+    company_name: str,
+    contact_phone: str | None,
+    registration_id: str,
+) -> None:
+    if not to_email:
+        return
+
+    def _run() -> None:
+        try:
+            asyncio.run(
+                send_registration_confirmation(
+                    to_email=to_email,
+                    contact_name=contact_name,
+                    company_name=company_name,
+                    contact_phone=contact_phone,
+                    registration_id=registration_id,
+                )
+            )
+        except Exception:
+            logger.exception(
+                "Bekræftelsesmail kunne ikke sendes til %s (registration_id=%s)",
+                to_email,
+                registration_id,
+            )
+
+    threading.Thread(target=_run, daemon=True).start()
 
 
 def _get_step_def(step_number: int) -> dict:
@@ -458,6 +495,14 @@ def submit_registration(session_id: str) -> dict:
             "UPDATE registration_sessions SET status = 'submitted', submitted_at = NOW() WHERE id = %s",
             (session_id,),
         )
+
+    _send_confirmation_email_background(
+        to_email=step1.get("contact_email", ""),
+        contact_name=step1.get("contact_name", ""),
+        company_name=step1.get("company_name", ""),
+        contact_phone=step1.get("contact_phone"),
+        registration_id=registration_id,
+    )
 
     return {
         "registration_id": registration_id,
