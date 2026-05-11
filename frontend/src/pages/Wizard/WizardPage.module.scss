@@ -159,6 +159,7 @@
 .headerProgress {
   width: 6.75rem;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .fieldGrid {
@@ -200,6 +201,75 @@
   flex-wrap: wrap;
   gap: var(--spacing-sm);
   justify-content: flex-end;
+}
+
+.approvalReview {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.approvalReviewSection {
+  display: grid;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  background: var(--color-light-100);
+
+  h3 {
+    margin: 0;
+    color: var(--color-dark-500);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
+    margin: 0;
+
+    @media (width >= 40em) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  div {
+    display: grid;
+    gap: var(--spacing-3xs);
+    min-width: 0;
+  }
+
+  dt {
+    color: var(--color-dark-100);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-dark-500);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+}
+
+.approvalAcceptances {
+  display: grid;
+  gap: var(--spacing-sm);
+  padding-block-start: var(--spacing-md);
+  border-block-start: 1px solid var(--color-border-default);
+
+  h3 {
+    margin: 0;
+    color: var(--color-dark-500);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
 }
 
 .companyDetails {
