@@ -10,6 +10,9 @@ import type { ContactPerson } from './ContactPersonFields'
 import type { CompanyOption, WizardFormData } from '../wizard.types'
 import styles from '../WizardPage.module.scss'
 
+const DI_TERMS_URL = 'https://www.danskindustri.dk/om-di/almindelige-betingelser/'
+const DI_PRIVACY_URL = 'https://www.danskindustri.dk/om-di/privatlivspolitik/'
+
 type ApprovalStepProps = {
   formData: WizardFormData
   selectedCompany?: CompanyOption
@@ -231,6 +234,17 @@ export default function ApprovalStep({
         >
           Jeg accepterer DI's medlemsbetingelser og vedtægter
         </Checkbox>
+        <p className={styles.termsLinks}>
+          Læs DI's{' '}
+          <a href={DI_TERMS_URL} target="_blank" rel="noreferrer">
+            vilkår
+          </a>{' '}
+          og{' '}
+          <a href={DI_PRIVACY_URL} target="_blank" rel="noreferrer">
+            GDPR og privatlivspolitik
+          </a>
+          .
+        </p>
 
         <Checkbox
           name="acceptAuthority"

@@ -134,7 +134,7 @@ export default function ContactsStep({
       </ContentBox>
 
       <ContentBox
-        title="Lønsumsinberreter"
+        title="Lønsumsindberreter"
         description="Den person der indberetter lønsum til DI."
       >
         <RadioCardGroup
