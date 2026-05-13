@@ -75,6 +75,10 @@
   width: 100%;
   max-width: 50rem;
   margin-inline: auto;
+
+  @media (width < 48em) {
+    gap: var(--spacing-lg);
+  }
 }
 
 .postWizardPage {
@@ -129,11 +133,25 @@
     color: var(--color-dark-100);
     line-height: 1.5;
   }
+
+  @media (width < 48em) {
+    padding-block-end: var(--spacing-md);
+    padding-inline-start: var(--spacing-md);
+
+    &::before {
+      inset-block-end: var(--spacing-md);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      line-height: 1.15;
+    }
+  }
 }
 
 .headerMeta {
-  display: grid;
-  grid-template-columns: max-content 6.75rem;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-sm);
   color: var(--color-primary);
@@ -160,7 +178,7 @@
 }
 
 .headerProgress {
-  width: 6.75rem;
+  min-width: 6.75rem;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -168,10 +186,7 @@
 .fieldGrid {
   display: grid;
   gap: var(--spacing-md);
-
-  @media (width >= 77.8125em) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .checkboxList {
@@ -204,6 +219,14 @@
   justify-content: flex-end;
   padding-block: var(--spacing-md) var(--spacing-2xl);
   border-block-start: 1px solid var(--color-border-default);
+
+  @media (width < 30em) {
+    --button-height: 2.75rem;
+
+    > * {
+      flex: 1 1 10rem;
+    }
+  }
 }
 
 .homeNavigationWarning {

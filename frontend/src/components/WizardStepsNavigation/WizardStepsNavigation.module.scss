@@ -3,7 +3,7 @@
   --icon-label-size: 0.75rem;
   --icon-bg-color: var(--color-surfaces-surface-2);
   --connector-color: var(--color-border-default);
-  --connector-offset: calc(var(--spacing-xs) + 0.875rem);
+  --connector-offset: calc(var(--spacing-xs) + (var(--icon-size) / 2));
   --label-size: 0.875rem;
   --text-color: var(--color-dark-100);
 
@@ -31,6 +31,8 @@
 
   &[data-orientation='vertical'] {
     @media (width < 77.8125em) {
+      --icon-size: 2rem;
+
       flex-direction: row;
       gap: 0;
       overflow-x: auto;
@@ -157,7 +159,7 @@
 
   &__control {
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: row nowrap;
     gap: var(--spacing-sm);
     align-items: center;
     width: auto;
@@ -186,6 +188,9 @@
   }
 
   &__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 
     [data-orientation='horizontal'] & {

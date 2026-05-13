@@ -1,7 +1,7 @@
 .contentBox {
   display: grid;
   gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
+  padding: clamp(var(--spacing-md), 3vw, var(--spacing-lg));
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xs);
   background: var(--color-white);
@@ -29,6 +29,7 @@
 
 .contentBox__headerRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-sm);

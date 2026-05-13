@@ -3,13 +3,14 @@
   justify-content: center;
   align-items: center;
   min-height: 100%;
+  padding: var(--spacing-md);
 }
 
 .center {
   width: min(100%, 500px);
   max-width: 500px;
   padding: var(--spacing-lg);
-  height: 500px;
+  min-height: min(500px, calc(100vh - (2 * var(--spacing-md))));
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-xs);
   background-color: var(--color-white);

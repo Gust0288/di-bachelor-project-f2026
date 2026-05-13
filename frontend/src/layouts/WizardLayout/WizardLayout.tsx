@@ -22,14 +22,16 @@ export default function WizardLayout({
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(false)
   const [isHelpOpen, setIsHelpOpen] = useState(false)
   const canCollapseSummary = useMediaQuery('(max-width: 1244.98px)')
-  const isSummaryHidden = canCollapseSummary && isSummaryCollapsed
+  const isSingleColumn = useMediaQuery('(max-width: 767.98px)')
+  const canToggleSummary = canCollapseSummary && !isSingleColumn
+  const isSummaryHidden = isSingleColumn || (canToggleSummary && isSummaryCollapsed)
   const ToggleIcon = isSummaryCollapsed ? ChevronLeft : ChevronRight
 
   useEffect(() => {
-    if (!canCollapseSummary) {
+    if (!canToggleSummary) {
       setIsSummaryCollapsed(false)
     }
-  }, [canCollapseSummary])
+  }, [canToggleSummary])
 
   return (
     <div
@@ -40,7 +42,7 @@ export default function WizardLayout({
       <main ref={centerRef} className={styles.center}>{children}</main>
       <aside ref={summaryRef} className={styles.right}>
         <div className={styles.summaryShell}>
-          {canCollapseSummary ? (
+          {canToggleSummary ? (
             <button
               type="button"
               className={styles.summaryToggle}
