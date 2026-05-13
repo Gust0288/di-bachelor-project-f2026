@@ -252,9 +252,7 @@ class TestEmailServices:
 
         with patch(
             "app.services.email_verification.get_settings"
-        ) as mock_settings, patch(
-            "httpx.AsyncClient", return_value=mock_ctx
-        ):
+        ) as mock_settings, patch("httpx.AsyncClient", return_value=mock_ctx):
             mock_settings.return_value.resend_api_key = "test-key"
             mock_settings.return_value.email_from = "noreply@di.dk"
             mock_settings.return_value.smtp_user = ""
@@ -269,9 +267,7 @@ class TestEmailServices:
     def test_verification_email_via_smtp(self):
         with patch(
             "app.services.email_verification.get_settings"
-        ) as mock_settings, patch(
-            "aiosmtplib.send", new_callable=AsyncMock
-        ):
+        ) as mock_settings, patch("aiosmtplib.send", new_callable=AsyncMock):
             mock_settings.return_value.resend_api_key = ""
             mock_settings.return_value.smtp_user = "user@di.dk"
             mock_settings.return_value.smtp_password = "hemmeligt"
@@ -283,9 +279,7 @@ class TestEmailServices:
     def test_verification_email_no_config_logs_warning(self, caplog):
         import logging
 
-        with patch(
-            "app.services.email_verification.get_settings"
-        ) as mock_settings:
+        with patch("app.services.email_verification.get_settings") as mock_settings:
             mock_settings.return_value.resend_api_key = ""
             mock_settings.return_value.smtp_user = ""
             mock_settings.return_value.smtp_password = ""
@@ -299,9 +293,7 @@ class TestEmailServices:
 
         with patch(
             "app.services.email_confirmation.get_settings"
-        ) as mock_settings, patch(
-            "httpx.AsyncClient", return_value=mock_ctx
-        ):
+        ) as mock_settings, patch("httpx.AsyncClient", return_value=mock_ctx):
             mock_settings.return_value.resend_api_key = "test-key"
             mock_settings.return_value.email_from = "noreply@di.dk"
             mock_settings.return_value.smtp_user = ""
@@ -317,9 +309,7 @@ class TestEmailServices:
     def test_confirmation_email_no_config_logs_warning(self, caplog):
         import logging
 
-        with patch(
-            "app.services.email_confirmation.get_settings"
-        ) as mock_settings:
+        with patch("app.services.email_confirmation.get_settings") as mock_settings:
             mock_settings.return_value.resend_api_key = ""
             mock_settings.return_value.smtp_user = ""
             mock_settings.return_value.smtp_password = ""
@@ -353,7 +343,9 @@ class TestAuthService:
             )
             return str(cur.fetchone()[0])
 
-    def _insert_otp(self, email: str, code: str, expires_at: datetime, used: bool = False):
+    def _insert_otp(
+        self, email: str, code: str, expires_at: datetime, used: bool = False
+    ):
         with get_db_cursor() as (_, cur):
             cur.execute(
                 "INSERT INTO login_otps (email, code, expires_at, used) VALUES (%s, %s, %s, %s)",
@@ -379,7 +371,9 @@ class TestAuthService:
 
     def test_send_otp_no_session_returns_400(self, client):
         with patch("app.services.auth.send_verification_email", new_callable=AsyncMock):
-            resp = client.post("/auth/otp/send", json={"email": "ingen-session@example.com"})
+            resp = client.post(
+                "/auth/otp/send", json={"email": "ingen-session@example.com"}
+            )
         assert resp.status_code == 400
 
     def test_send_otp_missing_email_returns_400(self, client):
@@ -391,7 +385,9 @@ class TestAuthService:
         expires = datetime.now(timezone.utc) + timedelta(minutes=10)
         self._insert_otp(TEST_EMAIL, "654321", expires)
 
-        resp = client.post("/auth/otp/verify", json={"email": TEST_EMAIL, "code": "654321"})
+        resp = client.post(
+            "/auth/otp/verify", json={"email": TEST_EMAIL, "code": "654321"}
+        )
 
         assert resp.status_code == 200
         assert resp.get_json()["session_id"] == session_id
@@ -401,7 +397,9 @@ class TestAuthService:
         expires = datetime.now(timezone.utc) + timedelta(minutes=10)
         self._insert_otp(TEST_EMAIL, "111111", expires)
 
-        resp = client.post("/auth/otp/verify", json={"email": TEST_EMAIL, "code": "999999"})
+        resp = client.post(
+            "/auth/otp/verify", json={"email": TEST_EMAIL, "code": "999999"}
+        )
         assert resp.status_code == 400
 
     def test_verify_otp_expired_returns_400(self, client):
@@ -409,7 +407,9 @@ class TestAuthService:
         expires = datetime.now(timezone.utc) - timedelta(minutes=1)
         self._insert_otp(TEST_EMAIL, "222222", expires)
 
-        resp = client.post("/auth/otp/verify", json={"email": TEST_EMAIL, "code": "222222"})
+        resp = client.post(
+            "/auth/otp/verify", json={"email": TEST_EMAIL, "code": "222222"}
+        )
         assert resp.status_code == 400
         assert "udløbet" in resp.get_json()["error"].lower()
 
@@ -418,7 +418,9 @@ class TestAuthService:
         expires = datetime.now(timezone.utc) + timedelta(minutes=10)
         self._insert_otp(TEST_EMAIL, "333333", expires, used=True)
 
-        resp = client.post("/auth/otp/verify", json={"email": TEST_EMAIL, "code": "333333"})
+        resp = client.post(
+            "/auth/otp/verify", json={"email": TEST_EMAIL, "code": "333333"}
+        )
         assert resp.status_code == 400
 
     def test_verify_otp_missing_fields_returns_400(self, client):
