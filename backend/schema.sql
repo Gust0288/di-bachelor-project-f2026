@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS registration_sessions (
     email_verified BOOLEAN NOT NULL DEFAULT FALSE,
     email_verification_code VARCHAR(6),
     email_verification_expires_at TIMESTAMPTZ,
+    tier TEXT,
+    flags JSONB NOT NULL DEFAULT '{}'::jsonb,
     status TEXT NOT NULL DEFAULT 'draft',
     expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '14 days',
     submitted_at TIMESTAMPTZ,
@@ -54,7 +56,8 @@ CREATE TABLE IF NOT EXISTS registrations (
 
 CREATE TABLE IF NOT EXISTS uploaded_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    registration_id UUID NOT NULL REFERENCES registrations(id) ON DELETE CASCADE,
+    session_id UUID NOT NULL REFERENCES registration_sessions(id) ON DELETE CASCADE,
+    registration_id UUID REFERENCES registrations(id) ON DELETE CASCADE,
     file_name TEXT NOT NULL,
     content_type TEXT,
     storage_path TEXT NOT NULL,
