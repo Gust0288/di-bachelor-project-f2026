@@ -290,6 +290,23 @@
   }
 }
 
+.termsLinks {
+  margin: calc(-1 * var(--spacing-2xs)) 0 var(--spacing-xs) calc(1.125rem + var(--spacing-sm));
+  color: var(--color-dark-100);
+  font-size: 0.875rem;
+  line-height: 1.45;
+
+  a {
+    color: var(--color-interaction);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .companyDetails {
   display: grid;
   grid-template-columns: 1fr;
