@@ -45,5 +45,26 @@ def ping_database() -> bool:
         return result is not None and result[0] == 1
 
 
+def seed_admin() -> None:
+    from app.core.security import hash_password
+
+    default_admins = [
+        ("admin@admin.com", "Admin"),
+        ("admin2@admin.com", "Admin 2"),
+        ("admin3@admin.com", "Admin 3"),
+    ]
+    hashed = hash_password("password")
+
+    with get_db_cursor(dict_rows=True) as (_, cursor):
+        for email, full_name in default_admins:
+            cursor.execute("SELECT id FROM admins WHERE email = %s", (email,))
+            if cursor.fetchone() is None:
+                cursor.execute(
+                    "INSERT INTO admins (id, email, password_hash, full_name, is_active) "
+                    "VALUES (gen_random_uuid(), %s, %s, %s, TRUE)",
+                    (email, hashed, full_name),
+                )
+
+
 if __name__ == "__main__":
     init_db()

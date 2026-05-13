@@ -14,13 +14,17 @@ until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" 2>/dev/null; do
 done
 echo "PostgreSQL er klar."
 
-echo "Koerer database schema..."
+echo "Kører database schema..."
 psql "$DATABASE_URL" -f /app/schema.sql
 
-echo "Koerer migrationer..."
+echo "Kører migrationer..."
 psql "$DATABASE_URL" -f /app/migrations/001_wizard_additions.sql
 psql "$DATABASE_URL" -f /app/migrations/002_email_verification.sql
 psql "$DATABASE_URL" -f /app/migrations/003_cvr_unique_constraint.sql
+psql "$DATABASE_URL" -f /app/migrations/004_registration_notes.sql
+
+echo "Seeder default admin..."
+python -c "from app.core.database import seed_admin; seed_admin()"
 
 echo "Starter gunicorn..."
 exec gunicorn --workers 2 --bind 0.0.0.0:8000 --timeout 120 "app.main:app"

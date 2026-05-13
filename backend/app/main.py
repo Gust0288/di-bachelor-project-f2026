@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template_string
 from flask_cors import CORS
 
+from app.api.routes.admin import admin_bp
 from app.api.routes.auth import auth_bp
 from app.api.routes.cvr import cvr_bp
 from app.api.routes.documents import documents_bp
@@ -17,6 +18,7 @@ _cors_origins = [o.strip() for o in _settings.frontend_url.split(",") if o.strip
 CORS(app, origins=_cors_origins)
 limiter.init_app(app)
 
+app.register_blueprint(admin_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(cvr_bp)
 app.register_blueprint(registration_bp)

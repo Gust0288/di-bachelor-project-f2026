@@ -1,0 +1,275 @@
+.spinnerWrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+}
+
+.errorWrapper {
+  padding: var(--spacing-md);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// ── Section ───────────────────────────────────────────────────────
+.section {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.section__title {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-dark-100);
+  font-weight: 600;
+  margin: 0;
+}
+
+// ── Firma header ──────────────────────────────────────────────────
+.section__firmaHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.firmaName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-dark-500);
+  margin: 0 0 2px;
+}
+
+.firmaCvr {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-dark-100);
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 2px var(--spacing-xs);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &[data-status='pending'] {
+    background: var(--color-warning-shade);
+    color: #7a5c00;
+  }
+
+  &[data-status='approved'] {
+    background: var(--color-success-shade);
+    color: var(--color-success);
+  }
+
+  &[data-status='rejected'] {
+    background: var(--color-invalid-shade);
+    color: var(--color-invalid);
+  }
+}
+
+// ── Info list ─────────────────────────────────────────────────────
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.infoList__row {
+  display: flex;
+  gap: var(--spacing-sm);
+  font-size: 0.8125rem;
+
+  dt {
+    color: var(--color-dark-100);
+    min-width: 72px;
+    flex-shrink: 0;
+  }
+
+  dd {
+    color: var(--color-dark-500);
+    margin: 0;
+    word-break: break-word;
+  }
+}
+
+// ── Actions ───────────────────────────────────────────────────────
+.actionBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.rejectionNote {
+  font-size: 0.8125rem;
+  color: var(--color-dark-200);
+  background: var(--color-invalid-shade);
+  border-left: 3px solid var(--color-invalid);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+}
+
+// ── Wizard steps ──────────────────────────────────────────────────
+.stepList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.8125rem;
+  color: var(--color-dark-100);
+}
+
+.stepItem__icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surfaces-surface-2);
+  color: var(--color-dark-100);
+  flex-shrink: 0;
+
+  .stepItem[data-done] & {
+    background: var(--color-success-shade);
+    color: var(--color-success);
+  }
+}
+
+.stepItem__label {
+  .stepItem[data-done] & {
+    color: var(--color-dark-500);
+  }
+}
+
+// ── Documents ─────────────────────────────────────────────────────
+.docList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.docItem {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  font-size: 0.8125rem;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--color-border-default);
+
+  &:last-child { border-bottom: none; }
+}
+
+.docItem__name {
+  color: var(--color-dark-500);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docItem__meta {
+  color: var(--color-dark-100);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+// ── Notes ─────────────────────────────────────────────────────────
+.noteList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.noteCard {
+  background: var(--color-surfaces-surface-1);
+  border-radius: var(--radius-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-border-default);
+}
+
+.noteCard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: 4px;
+}
+
+.noteCard__author {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-dark-400);
+}
+
+.noteCard__date {
+  font-size: 0.6875rem;
+  color: var(--color-dark-100);
+}
+
+.noteCard__content {
+  font-size: 0.8125rem;
+  color: var(--color-dark-300);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.noteForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.noteTextarea {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  background: #fff;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+  }
+
+  &::placeholder {
+    color: var(--color-placeholder);
+  }
+}
+
+.rejectLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-dark-400);
+  margin-bottom: var(--spacing-xs);
+}

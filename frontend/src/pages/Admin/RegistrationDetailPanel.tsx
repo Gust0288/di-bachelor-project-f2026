@@ -1,0 +1,375 @@
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Check, X } from 'lucide-react'
+import Button from '../../components/Button/Button'
+import { Spinner } from '../../components/Spinner/Spinner'
+import InlineAlert from '../../components/InlineAlert/InlineAlert'
+import { Confirm, ConfirmContent, ConfirmFooter } from '../../components/Confirm/Confirm'
+import { showToast } from '../../components/Toast/Toast'
+import {
+  getRegistration,
+  getRegistrationDocuments,
+  getNotes,
+  addNote,
+  approveRegistration,
+  rejectRegistration,
+  type RegistrationDetail,
+  type RegistrationDocument,
+  type RegistrationNote,
+} from '../../api/admin'
+import { wizardStepLabels } from '../Wizard/wizardSteps'
+import styles from './RegistrationDetailPanel.module.scss'
+
+const dateFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'medium', timeStyle: 'short' })
+const dayFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'medium' })
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+interface Props {
+  registrationId: string
+  onStatusChange: () => void
+  showWizardSteps?: boolean
+}
+
+export default function RegistrationDetailPanel({
+  registrationId,
+  onStatusChange,
+  showWizardSteps = false,
+}: Props) {
+  const navigate = useNavigate()
+  const [registration, setRegistration] = useState<RegistrationDetail | null>(null)
+  const [documents, setDocuments] = useState<RegistrationDocument[]>([])
+  const [notes, setNotes] = useState<RegistrationNote[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [actionLoading, setActionLoading] = useState(false)
+  const [confirmAction, setConfirmAction] = useState<'approve' | 'reject' | null>(null)
+  const [rejectNotes, setRejectNotes] = useState('')
+  const [noteContent, setNoteContent] = useState('')
+  const [noteLoading, setNoteLoading] = useState(false)
+  const noteTextareaRef = useRef<HTMLTextAreaElement>(null)
+
+  function handleAuthError(err: Error) {
+    if (err.message.includes('401')) {
+      sessionStorage.removeItem('admin_token')
+      navigate('/login')
+      return true
+    }
+    return false
+  }
+
+  useEffect(() => {
+    setIsLoading(true)
+    setError(null)
+    Promise.all([
+      getRegistration(registrationId),
+      getRegistrationDocuments(registrationId),
+      getNotes(registrationId),
+    ])
+      .then(([reg, docs, n]) => {
+        setRegistration(reg)
+        setDocuments(docs)
+        setNotes(n)
+      })
+      .catch((err: Error) => {
+        if (!handleAuthError(err)) setError(err.message)
+      })
+      .finally(() => setIsLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registrationId])
+
+  async function handleApprove() {
+    setActionLoading(true)
+    try {
+      await approveRegistration(registrationId)
+      showToast({ title: 'Ansøgning godkendt', variant: 'success' })
+      onStatusChange()
+    } catch (err) {
+      showToast({ title: (err as Error).message, variant: 'danger' })
+    } finally {
+      setActionLoading(false)
+      setConfirmAction(null)
+    }
+  }
+
+  async function handleReject() {
+    if (!rejectNotes.trim()) return
+    setActionLoading(true)
+    try {
+      await rejectRegistration(registrationId, rejectNotes.trim())
+      showToast({ title: 'Ansøgning afvist', variant: 'warning' })
+      onStatusChange()
+    } catch (err) {
+      showToast({ title: (err as Error).message, variant: 'danger' })
+    } finally {
+      setActionLoading(false)
+      setConfirmAction(null)
+      setRejectNotes('')
+    }
+  }
+
+  async function handleAddNote() {
+    if (!noteContent.trim()) return
+    setNoteLoading(true)
+    try {
+      const newNote = await addNote(registrationId, noteContent.trim())
+      setNotes((prev) => [...prev, newNote])
+      setNoteContent('')
+    } catch (err) {
+      if (!handleAuthError(err as Error)) {
+        showToast({ title: (err as Error).message, variant: 'danger' })
+      }
+    } finally {
+      setNoteLoading(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className={styles.spinnerWrapper}>
+        <Spinner aria-label="Indlæser ansøgning" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className={styles.errorWrapper}>
+        <InlineAlert tone="danger">{error}</InlineAlert>
+      </div>
+    )
+  }
+
+  if (!registration) return null
+
+  const answers = registration.answers as Record<string, unknown>
+  const branchefaellesskaber = answers?.branchefaellesskaber as string[] | undefined
+  const address = registration.address
+  const currentStep = answers?.current_step as number | undefined
+
+  return (
+    <div className={styles.panel}>
+      {/* ── Firma-info ─────────────────────────────── */}
+      <section className={styles.section}>
+        <div className={styles.section__firmaHeader}>
+          <div>
+            <h2 className={styles.firmaName}>{registration.company_name}</h2>
+            <span className={styles.firmaCvr}>{registration.cvr_number}</span>
+          </div>
+          <span className={styles.statusBadge} data-status={registration.status}>
+            {registration.status === 'pending' ? 'Afventer' : registration.status === 'approved' ? 'Godkendt' : 'Afvist'}
+          </span>
+        </div>
+
+        <dl className={styles.infoList}>
+          <div className={styles.infoList__row}>
+            <dt>Kontakt</dt>
+            <dd>{registration.contact_name}</dd>
+          </div>
+          <div className={styles.infoList__row}>
+            <dt>Email</dt>
+            <dd>{registration.contact_email}</dd>
+          </div>
+          {registration.contact_phone && (
+            <div className={styles.infoList__row}>
+              <dt>Telefon</dt>
+              <dd>{registration.contact_phone}</dd>
+            </div>
+          )}
+          {address && (
+            <div className={styles.infoList__row}>
+              <dt>Adresse</dt>
+              <dd>{address.street}, {address.zip} {address.city}</dd>
+            </div>
+          )}
+          {registration.employee_count != null && (
+            <div className={styles.infoList__row}>
+              <dt>Ansatte</dt>
+              <dd>{registration.employee_count}</dd>
+            </div>
+          )}
+          <div className={styles.infoList__row}>
+            <dt>Indsendt</dt>
+            <dd>{dayFormatter.format(new Date(registration.created_at))}</dd>
+          </div>
+          {registration.membership_type && (
+            <div className={styles.infoList__row}>
+              <dt>Pakke</dt>
+              <dd>{registration.membership_type}</dd>
+            </div>
+          )}
+          {branchefaellesskaber && branchefaellesskaber.length > 0 && (
+            <div className={styles.infoList__row}>
+              <dt>Fællesskaber</dt>
+              <dd>{branchefaellesskaber.join(', ')}</dd>
+            </div>
+          )}
+        </dl>
+      </section>
+
+      {/* ── Handlinger ─────────────────────────────── */}
+      {registration.status === 'pending' && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Handlinger</h3>
+          <div className={styles.actionBar}>
+            <Button variant="default" onPress={() => setConfirmAction('approve')} isDisabled={actionLoading}>
+              Godkend ansøgning
+            </Button>
+            <Button variant="danger" onPress={() => setConfirmAction('reject')} isDisabled={actionLoading}>
+              Afvis ansøgning
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {registration.status !== 'pending' && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Afgørelse</h3>
+          <dl className={styles.infoList}>
+            <div className={styles.infoList__row}>
+              <dt>Behandlet af</dt>
+              <dd>{registration.reviewer_name ?? '—'}</dd>
+            </div>
+            {registration.reviewed_at && (
+              <div className={styles.infoList__row}>
+                <dt>Dato</dt>
+                <dd>{dateFormatter.format(new Date(registration.reviewed_at))}</dd>
+              </div>
+            )}
+          </dl>
+          {registration.notes && (
+            <div className={styles.rejectionNote}>{registration.notes}</div>
+          )}
+        </section>
+      )}
+
+      {/* ── Wizard-trin ────────────────────────────── */}
+      {showWizardSteps && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Wizard-trin</h3>
+          <ul className={styles.stepList}>
+            {wizardStepLabels.map((label, idx) => {
+              const stepNum = idx + 1
+              const done = currentStep != null ? stepNum <= currentStep : false
+              return (
+                <li key={label} className={styles.stepItem} data-done={done || undefined}>
+                  <span className={styles.stepItem__icon}>
+                    {done ? <Check size={11} strokeWidth={3} /> : <X size={11} strokeWidth={3} />}
+                  </span>
+                  <span className={styles.stepItem__label}>{label}</span>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/* ── Dokumenter ────────────────────────────── */}
+      {documents.length > 0 && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Dokumenter</h3>
+          <ul className={styles.docList}>
+            {documents.map((doc) => (
+              <li key={doc.id} className={styles.docItem}>
+                <span className={styles.docItem__name}>{doc.file_name}</span>
+                <span className={styles.docItem__meta}>{formatBytes(doc.file_size_bytes)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ── Noter ──────────────────────────────────── */}
+      <section className={styles.section}>
+        <h3 className={styles.section__title}>Noter</h3>
+        {notes.length > 0 && (
+          <div className={styles.noteList}>
+            {notes.map((note) => (
+              <div key={note.id} className={styles.noteCard}>
+                <div className={styles.noteCard__header}>
+                  <span className={styles.noteCard__author}>{note.admin_name}</span>
+                  <span className={styles.noteCard__date}>
+                    {dateFormatter.format(new Date(note.created_at))}
+                  </span>
+                </div>
+                <p className={styles.noteCard__content}>{note.content}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className={styles.noteForm}>
+          <textarea
+            ref={noteTextareaRef}
+            className={styles.noteTextarea}
+            placeholder="Tilføj intern note…"
+            value={noteContent}
+            onChange={(e) => setNoteContent(e.target.value)}
+            rows={3}
+          />
+          <Button
+            variant="light"
+            size="small"
+            onPress={handleAddNote}
+            isDisabled={noteLoading || !noteContent.trim()}
+            isSpinning={noteLoading}
+          >
+            Gem note
+          </Button>
+        </div>
+      </section>
+
+      {/* ── Confirm modaler ────────────────────────── */}
+      <Confirm
+        isOpen={confirmAction === 'approve'}
+        onOpenChange={(open) => !open && setConfirmAction(null)}
+        headline="Bekræft godkendelse"
+      >
+        <ConfirmContent>
+          <p>Er du sikker på, at du vil godkende ansøgningen fra <strong>{registration.company_name}</strong>?</p>
+        </ConfirmContent>
+        <ConfirmFooter>
+          <Button variant="default" onPress={handleApprove} isDisabled={actionLoading} isSpinning={actionLoading}>
+            Bekræft
+          </Button>
+          <Button variant="light" onPress={() => setConfirmAction(null)} isDisabled={actionLoading}>
+            Annuller
+          </Button>
+        </ConfirmFooter>
+      </Confirm>
+
+      <Confirm
+        isOpen={confirmAction === 'reject'}
+        onOpenChange={(open) => { if (!open) { setConfirmAction(null); setRejectNotes('') } }}
+        headline="Afvis ansøgning"
+      >
+        <ConfirmContent>
+          <label className={styles.rejectLabel}>Begrundelse</label>
+          <textarea
+            className={styles.noteTextarea}
+            rows={4}
+            placeholder="Angiv begrundelse for afvisningen..."
+            value={rejectNotes}
+            onChange={(e) => setRejectNotes(e.target.value)}
+          />
+        </ConfirmContent>
+        <ConfirmFooter>
+          <Button
+            variant="danger"
+            onPress={handleReject}
+            isDisabled={actionLoading || !rejectNotes.trim()}
+            isSpinning={actionLoading}
+          >
+            Bekræft afvisning
+          </Button>
+          <Button variant="light" onPress={() => { setConfirmAction(null); setRejectNotes('') }} isDisabled={actionLoading}>
+            Annuller
+          </Button>
+        </ConfirmFooter>
+      </Confirm>
+    </div>
+  )
+}
