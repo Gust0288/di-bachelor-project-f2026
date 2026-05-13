@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS registrations (
 
 CREATE TABLE IF NOT EXISTS uploaded_documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    registration_id UUID NOT NULL REFERENCES registrations(id) ON DELETE CASCADE,
+    session_id UUID NOT NULL REFERENCES registration_sessions(id) ON DELETE CASCADE,
+    registration_id UUID REFERENCES registrations(id) ON DELETE CASCADE,
     file_name TEXT NOT NULL,
     content_type TEXT,
     storage_path TEXT NOT NULL,
