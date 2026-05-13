@@ -200,6 +200,7 @@ export default function WizardPage() {
   const [pendingHomeNavigation, setPendingHomeNavigation] = useState<string | null>(null)
   const currentStepIndexRef = useRef(currentStepIndex)
   const isSubmittedRef = useRef(isSubmitted)
+  const emailVerifiedRef = useRef(false)
   const isApplyingBrowserHistoryRef = useRef(false)
   const lastHistoryStepIndexRef = useRef(currentStepIndex)
 
@@ -229,8 +230,9 @@ export default function WizardPage() {
 
   useEffect(() => {
     if (sessionLoading || currentStep <= 1) return
+    if (!emailVerified && currentStepIndex === 0) return
     setCurrentStepIndex(normalizeStepIndex(currentStep - 1))
-  }, [currentStep, sessionLoading])
+  }, [currentStep, currentStepIndex, emailVerified, sessionLoading])
 
   // Hydrate individual step states from session data when resuming an existing session
   useEffect(() => {
@@ -432,12 +434,13 @@ export default function WizardPage() {
 
   const canAccessWizardStep = useCallback((stepIndex: number) => {
     if (stepIndex <= 0) return true
+    if (!emailVerified) return false
     if (stepIndex < currentStepIndex) return true
     if (stepIndex <= Math.min(currentStep - 1, wizardStepCount - 1)) return true
     return completedWizardSteps
       .slice(0, stepIndex)
       .every(Boolean)
-  }, [completedWizardSteps, currentStep, currentStepIndex])
+  }, [completedWizardSteps, currentStep, currentStepIndex, emailVerified])
 
   useEffect(() => {
     currentStepIndexRef.current = currentStepIndex
@@ -446,6 +449,10 @@ export default function WizardPage() {
   useEffect(() => {
     isSubmittedRef.current = isSubmitted
   }, [isSubmitted])
+
+  useEffect(() => {
+    emailVerifiedRef.current = emailVerified
+  }, [emailVerified])
 
   useEffect(() => {
     const handleHomeClick = (event: MouseEvent) => {
@@ -492,12 +499,15 @@ export default function WizardPage() {
       const stepIndex = state?.[wizardStepHistoryStateKey]
       if (typeof stepIndex !== 'number' || isSubmittedRef.current) return
       const boundedStepIndex = normalizeStepIndex(stepIndex)
+      const safeStepIndex = !emailVerifiedRef.current && boundedStepIndex > 0
+        ? 0
+        : boundedStepIndex
 
       clearValidation()
       setIsSubmitted(false)
       isApplyingBrowserHistoryRef.current = true
-      lastHistoryStepIndexRef.current = boundedStepIndex
-      setCurrentStepIndex(boundedStepIndex)
+      lastHistoryStepIndexRef.current = safeStepIndex
+      setCurrentStepIndex(safeStepIndex)
     }
 
     window.addEventListener('popstate', handlePopState)
