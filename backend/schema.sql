@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS registration_sessions (
     email_verified BOOLEAN NOT NULL DEFAULT FALSE,
     email_verification_code VARCHAR(6),
     email_verification_expires_at TIMESTAMPTZ,
+    tier TEXT,
+    flags JSONB NOT NULL DEFAULT '{}'::jsonb,
     status TEXT NOT NULL DEFAULT 'draft',
     expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '14 days',
     submitted_at TIMESTAMPTZ,
