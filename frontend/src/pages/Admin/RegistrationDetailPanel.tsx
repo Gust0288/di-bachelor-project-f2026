@@ -18,7 +18,26 @@ import {
   type RegistrationNote,
 } from '../../api/admin'
 import { wizardStepLabels } from '../Wizard/wizardSteps'
+import { SERVICE_LABELS, OVERENSKOMST_STATUS_LABELS } from '../Wizard/wizard.constants'
 import styles from './RegistrationDetailPanel.module.scss'
+
+const OVERENSKOMST_TYPE_LABELS: Record<string, string> = {
+  direkte: 'Direkte med et fagforbund',
+}
+
+type ContactInfo = { name?: string; email?: string; phone?: string; title?: string }
+
+function ContactCard({ label, contact }: { label: string; contact: ContactInfo }) {
+  return (
+    <div className={styles.contactCard}>
+      <span className={styles.contactCard__label}>{label}</span>
+      {contact.name && <span className={styles.contactCard__name}>{contact.name}</span>}
+      {contact.title && <span className={styles.contactCard__detail}>{contact.title}</span>}
+      {contact.email && <span className={styles.contactCard__detail}>{contact.email}</span>}
+      {contact.phone && <span className={styles.contactCard__detail}>{contact.phone}</span>}
+    </div>
+  )
+}
 
 const dateFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'medium', timeStyle: 'short' })
 const dayFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'medium' })
@@ -86,6 +105,8 @@ export default function RegistrationDetailPanel({
     setActionLoading(true)
     try {
       await approveRegistration(registrationId)
+      const updated = await getRegistration(registrationId)
+      setRegistration(updated)
       showToast({ title: 'Ansøgning godkendt', variant: 'success' })
       onStatusChange()
     } catch (err) {
@@ -101,6 +122,8 @@ export default function RegistrationDetailPanel({
     setActionLoading(true)
     try {
       await rejectRegistration(registrationId, rejectNotes.trim())
+      const updated = await getRegistration(registrationId)
+      setRegistration(updated)
       showToast({ title: 'Ansøgning afvist', variant: 'warning' })
       onStatusChange()
     } catch (err) {
@@ -147,13 +170,32 @@ export default function RegistrationDetailPanel({
   if (!registration) return null
 
   const answers = registration.answers as Record<string, unknown>
+  const services = answers?.services as string[] | undefined
+  const overenskomst = answers?.overenskomst as Record<string, string> | undefined
   const branchefaellesskaber = answers?.branchefaellesskaber as string[] | undefined
+  const kontaktpersoner = answers?.kontaktpersoner as {
+    managing_director?: ContactInfo
+    hr_contact?: ContactInfo | null
+    payroll_contact?: ContactInfo | null
+    authorized_signatory?: ContactInfo | null
+    invoice_delivery?: string
+  } | undefined
   const address = registration.address
   const currentStep = answers?.current_step as number | undefined
 
+  const hasEmployeeSection = registration.employee_count != null || !!overenskomst?.overenskomst_status
+  const hasTjenesterSection = (services?.length ?? 0) > 0 || (branchefaellesskaber?.length ?? 0) > 0 || !!registration.membership_type
+  const hasKontaktpersonerSection = !!(
+    kontaktpersoner?.managing_director ||
+    kontaktpersoner?.hr_contact ||
+    kontaktpersoner?.payroll_contact ||
+    kontaktpersoner?.authorized_signatory ||
+    kontaktpersoner?.invoice_delivery
+  )
+
   return (
     <div className={styles.panel}>
-      {/* ── Firma-info ─────────────────────────────── */}
+      {/* ── Virksomhed ─────────────────────────────── */}
       <section className={styles.section}>
         <div className={styles.section__firmaHeader}>
           <div>
@@ -164,10 +206,42 @@ export default function RegistrationDetailPanel({
             {registration.status === 'pending' ? 'Afventer' : registration.status === 'approved' ? 'Godkendt' : 'Afvist'}
           </span>
         </div>
+        <dl className={styles.infoList}>
+          {registration.industry_code && (
+            <div className={styles.infoList__row}>
+              <dt>Branche</dt>
+              <dd>{registration.industry_code}</dd>
+            </div>
+          )}
+          {registration.website && (
+            <div className={styles.infoList__row}>
+              <dt>Hjemmeside</dt>
+              <dd>
+                <a className={styles.link} href={registration.website} target="_blank" rel="noopener noreferrer">
+                  {registration.website}
+                </a>
+              </dd>
+            </div>
+          )}
+          {address && (
+            <div className={styles.infoList__row}>
+              <dt>Adresse</dt>
+              <dd>{address.street}, {address.zip} {address.city}</dd>
+            </div>
+          )}
+          <div className={styles.infoList__row}>
+            <dt>Indsendt</dt>
+            <dd>{dayFormatter.format(new Date(registration.created_at))}</dd>
+          </div>
+        </dl>
+      </section>
 
+      {/* ── Primær kontaktperson ───────────────────── */}
+      <section className={styles.section}>
+        <h3 className={styles.section__title}>Primær kontaktperson</h3>
         <dl className={styles.infoList}>
           <div className={styles.infoList__row}>
-            <dt>Kontakt</dt>
+            <dt>Navn</dt>
             <dd>{registration.contact_name}</dd>
           </div>
           <div className={styles.infoList__row}>
@@ -180,36 +254,99 @@ export default function RegistrationDetailPanel({
               <dd>{registration.contact_phone}</dd>
             </div>
           )}
-          {address && (
-            <div className={styles.infoList__row}>
-              <dt>Adresse</dt>
-              <dd>{address.street}, {address.zip} {address.city}</dd>
-            </div>
-          )}
-          {registration.employee_count != null && (
-            <div className={styles.infoList__row}>
-              <dt>Ansatte</dt>
-              <dd>{registration.employee_count}</dd>
-            </div>
-          )}
-          <div className={styles.infoList__row}>
-            <dt>Indsendt</dt>
-            <dd>{dayFormatter.format(new Date(registration.created_at))}</dd>
-          </div>
-          {registration.membership_type && (
-            <div className={styles.infoList__row}>
-              <dt>Pakke</dt>
-              <dd>{registration.membership_type}</dd>
+        </dl>
+      </section>
+
+      {/* ── Medarbejdere & Overenskomst ────────────── */}
+      {hasEmployeeSection && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Medarbejdere & Overenskomst</h3>
+          <dl className={styles.infoList}>
+            {registration.employee_count != null && (
+              <div className={styles.infoList__row}>
+                <dt>Ansatte</dt>
+                <dd>{registration.employee_count === 0 ? 'Ingen ansatte' : registration.employee_count}</dd>
+              </div>
+            )}
+            {overenskomst?.overenskomst_status && (
+              <div className={styles.infoList__row}>
+                <dt>Overenskomst</dt>
+                <dd>{OVERENSKOMST_STATUS_LABELS[overenskomst.overenskomst_status] ?? overenskomst.overenskomst_status}</dd>
+              </div>
+            )}
+            {overenskomst?.overenskomst_type && (
+              <div className={styles.infoList__row}>
+                <dt>Type</dt>
+                <dd>{OVERENSKOMST_TYPE_LABELS[overenskomst.overenskomst_type] ?? overenskomst.overenskomst_type}</dd>
+              </div>
+            )}
+          </dl>
+        </section>
+      )}
+
+      {/* ── Tjenester & Pakke ──────────────────────── */}
+      {hasTjenesterSection && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Tjenester & Pakke</h3>
+          {services && services.length > 0 && (
+            <div>
+              <p className={styles.subLabel}>Valgte tjenester</p>
+              <ul className={styles.tagList}>
+                {services.map((s) => (
+                  <li key={s} className={styles.tag}>{SERVICE_LABELS[s] ?? s}</li>
+                ))}
+              </ul>
             </div>
           )}
           {branchefaellesskaber && branchefaellesskaber.length > 0 && (
-            <div className={styles.infoList__row}>
-              <dt>Fællesskaber</dt>
-              <dd>{branchefaellesskaber.join(', ')}</dd>
+            <div>
+              <p className={styles.subLabel}>Branchefællesskaber</p>
+              <ul className={styles.tagList}>
+                {branchefaellesskaber.map((b) => (
+                  <li key={b} className={styles.tag}>{b}</li>
+                ))}
+              </ul>
             </div>
           )}
-        </dl>
-      </section>
+          {registration.membership_type && (
+            <dl className={styles.infoList}>
+              <div className={styles.infoList__row}>
+                <dt>Medlemskab</dt>
+                <dd>{registration.membership_type}</dd>
+              </div>
+            </dl>
+          )}
+        </section>
+      )}
+
+      {/* ── Yderligere kontakter ───────────────────── */}
+      {hasKontaktpersonerSection && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Yderligere kontakter</h3>
+          <div className={styles.contactList}>
+            {kontaktpersoner?.managing_director && (
+              <ContactCard label="Direktør" contact={kontaktpersoner.managing_director} />
+            )}
+            {kontaktpersoner?.hr_contact && (
+              <ContactCard label="HR-kontakt" contact={kontaktpersoner.hr_contact} />
+            )}
+            {kontaktpersoner?.payroll_contact && (
+              <ContactCard label="Lønansvarlig" contact={kontaktpersoner.payroll_contact} />
+            )}
+            {kontaktpersoner?.authorized_signatory && (
+              <ContactCard label="Tegningsberettiget" contact={kontaktpersoner.authorized_signatory} />
+            )}
+            {kontaktpersoner?.invoice_delivery && (
+              <dl className={styles.infoList}>
+                <div className={styles.infoList__row}>
+                  <dt>Faktura</dt>
+                  <dd>{kontaktpersoner.invoice_delivery}</dd>
+                </div>
+              </dl>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ── Handlinger ─────────────────────────────── */}
       {registration.status === 'pending' && (
