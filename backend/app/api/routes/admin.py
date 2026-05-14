@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from flask import Blueprint, g, jsonify, request
+from flask import Blueprint, g, jsonify, request, send_file
 
 from app.core.security import require_admin
 from app.services import admin as admin_service
@@ -119,3 +119,29 @@ def add_note(registration_id: str):
 def get_activity():
     entries = admin_service.get_activity()
     return jsonify(entries)
+
+
+@admin_bp.get("/documents/<doc_id>")
+@require_admin
+def get_document(doc_id: str):
+    import os
+    if not _valid_uuid(doc_id):
+        return jsonify({"error": "Ugyldigt dokument-id"}), 400
+    from app.core.database import get_db_cursor
+    with get_db_cursor(dict_rows=True) as (_, cur):
+        cur.execute(
+            "SELECT storage_path, content_type, file_name FROM uploaded_documents WHERE id = %s",
+            (doc_id,),
+        )
+        row = cur.fetchone()
+    if not row:
+        return jsonify({"error": "Dokument ikke fundet"}), 404
+    abs_path = os.path.abspath(row["storage_path"])
+    if not os.path.isfile(abs_path):
+        return jsonify({"error": "Filen findes ikke på serveren"}), 404
+    return send_file(
+        abs_path,
+        mimetype=row["content_type"],
+        as_attachment=False,
+        download_name=row["file_name"],
+    )

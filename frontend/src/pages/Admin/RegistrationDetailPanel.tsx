@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, X } from 'lucide-react'
+import { Check, X, FileText, ExternalLink } from 'lucide-react'
 import Button from '../../components/Button/Button'
 import { Spinner } from '../../components/Spinner/Spinner'
 import InlineAlert from '../../components/InlineAlert/InlineAlert'
@@ -13,6 +13,7 @@ import {
   addNote,
   approveRegistration,
   rejectRegistration,
+  fetchDocumentBlob,
   type RegistrationDetail,
   type RegistrationDocument,
   type RegistrationNote,
@@ -71,6 +72,31 @@ export default function RegistrationDetailPanel({
   const [noteContent, setNoteContent] = useState('')
   const [noteLoading, setNoteLoading] = useState(false)
   const noteTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const [previewDoc, setPreviewDoc] = useState<RegistrationDocument | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+
+  useEffect(() => {
+    if (!previewDoc) return
+    setPreviewLoading(true)
+    setPreviewUrl(null)
+    fetchDocumentBlob(previewDoc.id)
+      .then(({ blob }) => {
+        setPreviewUrl(URL.createObjectURL(blob))
+      })
+      .catch(() => showToast({ title: 'Kunne ikke hente dokumentet', variant: 'danger' }))
+      .finally(() => setPreviewLoading(false))
+    return () => {
+      setPreviewUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null })
+    }
+  }, [previewDoc])
+
+  useEffect(() => {
+    if (!previewDoc) return
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setPreviewDoc(null) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [previewDoc])
 
   function handleAuthError(err: Error) {
     if (err.message.includes('401')) {
@@ -412,7 +438,10 @@ export default function RegistrationDetailPanel({
           <ul className={styles.docList}>
             {documents.map((doc) => (
               <li key={doc.id} className={styles.docItem}>
-                <span className={styles.docItem__name}>{doc.file_name}</span>
+                <button className={styles.docItem__btn} onClick={() => setPreviewDoc(doc)}>
+                  <FileText size={14} className={styles.docItem__icon} />
+                  <span className={styles.docItem__name}>{doc.file_name}</span>
+                </button>
                 <span className={styles.docItem__meta}>{formatBytes(doc.file_size_bytes)}</span>
               </li>
             ))}
@@ -507,6 +536,54 @@ export default function RegistrationDetailPanel({
           </Button>
         </ConfirmFooter>
       </Confirm>
+
+      {/* ── Dokument-preview ───────────────────────── */}
+      {previewDoc && (
+        <div className={styles.previewOverlay} onClick={() => setPreviewDoc(null)}>
+          <div className={styles.previewModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.previewModal__header}>
+              <span className={styles.previewModal__title}>{previewDoc.file_name}</span>
+              <div className={styles.previewModal__actions}>
+                {previewUrl && (
+                  <a
+                    className={styles.previewModal__externalLink}
+                    href={previewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Åbn i ny fane"
+                  >
+                    <ExternalLink size={16} />
+                  </a>
+                )}
+                <button className={styles.previewModal__close} onClick={() => setPreviewDoc(null)} aria-label="Luk">
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+            <div className={styles.previewModal__body}>
+              {previewLoading && (
+                <div className={styles.previewModal__spinner}>
+                  <Spinner aria-label="Indlæser dokument" />
+                </div>
+              )}
+              {!previewLoading && previewUrl && previewDoc.content_type === 'application/pdf' && (
+                <iframe
+                  className={styles.previewModal__iframe}
+                  src={previewUrl}
+                  title={previewDoc.file_name}
+                />
+              )}
+              {!previewLoading && previewUrl && previewDoc.content_type.startsWith('image/') && (
+                <img
+                  className={styles.previewModal__img}
+                  src={previewUrl}
+                  alt={previewDoc.file_name}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { apiFetch } from './client'
+import { getApiBaseUrl } from './env'
 
 function adminHeaders(method?: string): HeadersInit {
   const token = sessionStorage.getItem('admin_token') ?? ''
@@ -127,4 +128,14 @@ export function addNote(registrationId: string, content: string): Promise<Regist
 
 export function getActivity(): Promise<ActivityEntry[]> {
   return apiFetch<ActivityEntry[]>('/admin/activity', { headers: adminHeaders() })
+}
+
+export async function fetchDocumentBlob(documentId: string): Promise<{ blob: Blob; contentType: string }> {
+  const res = await fetch(`${getApiBaseUrl()}/admin/documents/${documentId}`, {
+    headers: adminHeaders(),
+  })
+  if (!res.ok) throw new Error(`${res.status}`)
+  const blob = await res.blob()
+  const contentType = res.headers.get('Content-Type') ?? 'application/octet-stream'
+  return { blob, contentType }
 }
