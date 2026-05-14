@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ChevronLeft } from 'lucide-react'
 import { Spinner } from '../../components/Spinner/Spinner'
 import InlineAlert from '../../components/InlineAlert/InlineAlert'
 import { listRegistrations, type AdminStats, type RegistrationListItem } from '../../api/admin'
@@ -85,7 +86,7 @@ export default function OverviewSection({ stats, onStatusChange }: Props) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-has-selection={selectedId ? '' : undefined}>
       {/* ── Left column ─────────────────────────────── */}
       <div className={styles.left}>
         {/* Metrics */}
@@ -180,11 +181,17 @@ export default function OverviewSection({ stats, onStatusChange }: Props) {
       {/* ── Right column (detail panel) ──────────────── */}
       <div className={styles.right} style={{ width: panelWidth, minWidth: panelWidth }}>
         {selectedId ? (
-          <RegistrationDetailPanel
-            key={selectedId}
-            registrationId={selectedId}
-            onStatusChange={handleStatusChange}
-          />
+          <>
+            <button className={styles.mobileBack} onClick={() => setSelectedId(null)}>
+              <ChevronLeft size={16} />
+              Tilbage til listen
+            </button>
+            <RegistrationDetailPanel
+              key={selectedId}
+              registrationId={selectedId}
+              onStatusChange={handleStatusChange}
+            />
+          </>
         ) : (
           <div className={styles.emptyPanel}>
             <p>Vælg en ansøgning for at se detaljer</p>

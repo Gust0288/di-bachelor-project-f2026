@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, ChevronLeft } from 'lucide-react'
 import { Spinner } from '../../components/Spinner/Spinner'
 import InlineAlert from '../../components/InlineAlert/InlineAlert'
 import { listRegistrations, type RegistrationListItem } from '../../api/admin'
@@ -102,7 +102,7 @@ export default function PendingSection({ onStatusChange }: Props) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-has-selection={selectedId ? '' : undefined}>
       {/* ── Left column ─────────────────────────────── */}
       <div className={styles.left}>
         {/* Metrics */}
@@ -159,12 +159,18 @@ export default function PendingSection({ onStatusChange }: Props) {
       {/* ── Right column (detail panel) ──────────────── */}
       <div className={styles.right} style={{ width: panelWidth, minWidth: panelWidth }}>
         {selectedId ? (
-          <RegistrationDetailPanel
-            key={selectedId}
-            registrationId={selectedId}
-            onStatusChange={handleStatusChange}
-            showWizardSteps
-          />
+          <>
+            <button className={styles.mobileBack} onClick={() => setSelectedId(null)}>
+              <ChevronLeft size={16} />
+              Tilbage til listen
+            </button>
+            <RegistrationDetailPanel
+              key={selectedId}
+              registrationId={selectedId}
+              onStatusChange={handleStatusChange}
+              showWizardSteps
+            />
+          </>
         ) : (
           <div className={styles.emptyPanel}>
             <p>Vælg en ansøgning for at se detaljer</p>
