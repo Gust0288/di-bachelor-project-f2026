@@ -4,6 +4,7 @@ import { Spinner } from '../../components/Spinner/Spinner'
 import InlineAlert from '../../components/InlineAlert/InlineAlert'
 import { listRegistrations, type AdminStats, type RegistrationListItem } from '../../api/admin'
 import RegistrationDetailPanel from './RegistrationDetailPanel'
+import { usePanelResize } from './usePanelResize'
 import styles from './OverviewSection.module.scss'
 
 const STATUS_FILTERS = [
@@ -44,6 +45,7 @@ export default function OverviewSection({ stats, onStatusChange }: Props) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [listKey, setListKey] = useState(0)
+  const { width: panelWidth, onMouseDown: handleResizeStart } = usePanelResize(420)
 
   useEffect(() => {
     setIsLoading(true)
@@ -172,8 +174,11 @@ export default function OverviewSection({ stats, onStatusChange }: Props) {
         )}
       </div>
 
+      {/* ── Resize handle ───────────────────────────── */}
+      <div className={styles.resizeHandle} onMouseDown={handleResizeStart} />
+
       {/* ── Right column (detail panel) ──────────────── */}
-      <div className={styles.right}>
+      <div className={styles.right} style={{ width: panelWidth, minWidth: panelWidth }}>
         {selectedId ? (
           <RegistrationDetailPanel
             key={selectedId}

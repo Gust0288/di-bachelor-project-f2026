@@ -6,6 +6,7 @@ import InlineAlert from '../../components/InlineAlert/InlineAlert'
 import { listRegistrations, type RegistrationListItem } from '../../api/admin'
 import RegistrationDetailPanel from './RegistrationDetailPanel'
 import AgeBadge, { getDaysAgo } from './AgeBadge'
+import { usePanelResize } from './usePanelResize'
 import styles from './PendingSection.module.scss'
 
 const dateFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'medium' })
@@ -32,6 +33,7 @@ export default function PendingSection({ onStatusChange }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [listKey, setListKey] = useState(0)
+  const { width: panelWidth, onMouseDown: handleResizeStart } = usePanelResize(420)
 
   useEffect(() => {
     setIsLoading(true)
@@ -151,8 +153,11 @@ export default function PendingSection({ onStatusChange }: Props) {
         )}
       </div>
 
+      {/* ── Resize handle ───────────────────────────── */}
+      <div className={styles.resizeHandle} onMouseDown={handleResizeStart} />
+
       {/* ── Right column (detail panel) ──────────────── */}
-      <div className={styles.right}>
+      <div className={styles.right} style={{ width: panelWidth, minWidth: panelWidth }}>
         {selectedId ? (
           <RegistrationDetailPanel
             key={selectedId}

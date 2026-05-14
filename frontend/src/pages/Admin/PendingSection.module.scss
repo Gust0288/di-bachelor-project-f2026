@@ -207,12 +207,31 @@
   }
 }
 
+// ── Resize handle ─────────────────────────────────────────────────
+.resizeHandle {
+  width: 4px;
+  cursor: col-resize;
+  background: var(--color-border-default);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.15s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 -4px;
+  }
+
+  &:hover {
+    background: var(--color-primary);
+  }
+}
+
 // ── Right panel ───────────────────────────────────────────────────
 .right {
-  width: 320px;
-  min-width: 320px;
   overflow-y: auto;
   background: #fff;
+  flex-shrink: 0;
 }
 
 .emptyPanel {
