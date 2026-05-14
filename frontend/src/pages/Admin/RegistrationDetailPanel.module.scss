@@ -181,6 +181,36 @@
   color: var(--color-dark-200);
 }
 
+// ── Contact action buttons ────────────────────────────────────────
+.contactActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.contactAction {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-surfaces-surface-1);
+  color: var(--color-dark-400);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition: background var(--transition-quick), color var(--transition-quick), border-color var(--transition-quick);
+
+  svg { flex-shrink: 0; opacity: 0.6; }
+
+  &:hover {
+    background: var(--color-surfaces-surface-2);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    svg { opacity: 1; }
+  }
+}
+
 // ── Actions ───────────────────────────────────────────────────────
 .actionBar {
   display: flex;
