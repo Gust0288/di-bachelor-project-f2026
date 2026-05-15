@@ -230,9 +230,9 @@ export default function WizardPage() {
 
   useEffect(() => {
     if (sessionLoading || currentStep <= 1) return
-    if (!emailVerified && currentStepIndex === 0) return
+    if (!emailVerified && currentStep === 2) return
     setCurrentStepIndex(normalizeStepIndex(currentStep - 1))
-  }, [currentStep, currentStepIndex, emailVerified, sessionLoading])
+  }, [currentStep, emailVerified, sessionLoading])
 
   // Hydrate individual step states from session data when resuming an existing session
   useEffect(() => {
@@ -434,8 +434,8 @@ export default function WizardPage() {
 
   const canAccessWizardStep = useCallback((stepIndex: number) => {
     if (stepIndex <= 0) return true
-    if (!emailVerified) return false
     if (stepIndex < currentStepIndex) return true
+    if (!emailVerified) return false
     if (stepIndex <= Math.min(currentStep - 1, wizardStepCount - 1)) return true
     return completedWizardSteps
       .slice(0, stepIndex)
@@ -499,7 +499,7 @@ export default function WizardPage() {
       const stepIndex = state?.[wizardStepHistoryStateKey]
       if (typeof stepIndex !== 'number' || isSubmittedRef.current) return
       const boundedStepIndex = normalizeStepIndex(stepIndex)
-      const safeStepIndex = !emailVerifiedRef.current && boundedStepIndex > 0
+      const safeStepIndex = !emailVerifiedRef.current && currentStepIndexRef.current === 0 && boundedStepIndex > 0
         ? 0
         : boundedStepIndex
 
