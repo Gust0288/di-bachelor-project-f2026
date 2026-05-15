@@ -40,9 +40,7 @@ function getInitials(name: string | null): string {
     .join('')
 }
 
-interface Props {}
-
-export default function ActivitySection(_: Props) {
+export default function ActivitySection() {
   const navigate = useNavigate()
   const [entries, setEntries] = useState<ActivityEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)

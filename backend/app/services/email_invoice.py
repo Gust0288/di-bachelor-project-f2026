@@ -169,7 +169,7 @@ async def send_invoice_email(
     )
 
     branches_section = (
-        f"\nBRANCHEFÆLLESSKABER\n--------------------\n"
+        "\nBRANCHEFÆLLESSKABER\n--------------------\n"
         + "\n".join(f"  - {b}" for b in branchefaellesskaber)
         if branchefaellesskaber
         else ""

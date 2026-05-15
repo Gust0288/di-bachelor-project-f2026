@@ -65,7 +65,7 @@ venv:
 
 lint:
 	cd frontend && npm run lint
-	"$(PYTHON)" -m flake8 backend
+	cd backend && "../$(PYTHON)" -m flake8 .
 
 format:
 	"$(PYTHON)" -m black backend
