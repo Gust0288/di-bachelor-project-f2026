@@ -22,6 +22,7 @@ psql "$DATABASE_URL" -f /app/migrations/001_wizard_additions.sql
 psql "$DATABASE_URL" -f /app/migrations/002_email_verification.sql
 psql "$DATABASE_URL" -f /app/migrations/003_cvr_unique_constraint.sql
 psql "$DATABASE_URL" -f /app/migrations/004_registration_notes.sql
+psql "$DATABASE_URL" -f /app/migrations/005_email_verification_codes.sql
 
 echo "Seeder default admin..."
 python -c "from app.core.database import seed_admin; seed_admin()"

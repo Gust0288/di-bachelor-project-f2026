@@ -854,31 +854,36 @@ export default function WizardPage() {
         setValidationMessage('Vælg en virksomhed fra CVR-søgningen, før du fortsætter.')
         return
       }
+      const step1Data = {
+        cvr_number: cvrData.cvr_number,
+        company_name: cvrData.company_name,
+        company_type: cvrData.company_type,
+        address: cvrData.address,
+        zip_code: cvrData.zip_code,
+        city: cvrData.city,
+        industry_code: cvrData.industry_code,
+        industry_description: cvrData.industry_description,
+        contact_name: formData.contactName,
+        contact_job_title: formData.contactJobTitle,
+        contactJobTitle: formData.contactJobTitle,
+        contact_email: formData.contactEmail,
+        contact_phone: formData.contactPhone || undefined,
+        website: formData.website || undefined,
+      }
       setIsSaving(true)
       try {
-        await saveStep(1, {
-          cvr_number: cvrData.cvr_number,
-          company_name: cvrData.company_name,
-          company_type: cvrData.company_type,
-          address: cvrData.address,
-          zip_code: cvrData.zip_code,
-          city: cvrData.city,
-          industry_code: cvrData.industry_code,
-          industry_description: cvrData.industry_description,
-          contact_name: formData.contactName,
-          contact_job_title: formData.contactJobTitle,
-          contactJobTitle: formData.contactJobTitle,
-          contact_email: formData.contactEmail,
-          contact_phone: formData.contactPhone || undefined,
-          website: formData.website || undefined,
-        })
-        if (emailVerified && stepData['1']?.contact_email === formData.contactEmail) {
-          setCurrentStepIndex(1)
-        } else {
-          const email = await sendEmailVerification()
-          setVerificationEmail(email)
-          setEmailVerificationPending(true)
+        if (sessionId) {
+          // Genoptagelse: session eksisterer allerede – gem step og tjek om email stadig er verified
+          await saveStep(1, step1Data)
+          if (emailVerified && stepData['1']?.contact_email === formData.contactEmail) {
+            setCurrentStepIndex(1)
+            return
+          }
         }
+        // Ny session: send step-data med koden (session oprettes kun efter bekræftelse)
+        const email = await sendEmailVerification(step1Data)
+        setVerificationEmail(email)
+        setEmailVerificationPending(true)
       } catch (err) {
         setValidationMessage(err instanceof Error ? err.message : 'Noget gik galt. Prøv igen.')
       } finally {
@@ -1628,7 +1633,7 @@ export default function WizardPage() {
             isDisabled={
               (isMitIdStep && (mitIdStatus !== 'verified' || isSubmitted)) ||
               isSaving ||
-              !sessionId
+              (currentStepIndex !== 0 && !sessionId)
             }
           >
             {isSaving ? 'Gemmer...' : isApprovalStep ? 'Bekræft' : 'Fortsæt'}

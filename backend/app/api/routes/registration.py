@@ -289,6 +289,35 @@ def get_branch_suggestions(session_id: str):
     return jsonify(suggestions)
 
 
+@registration_bp.post("/email-verification/send")
+async def global_send_email_verification():
+    data = request.get_json(silent=True) or {}
+    email = (data.get("contact_email") or "").strip()
+    if not email:
+        return jsonify({"error": "Email er påkrævet"}), 400
+    try:
+        await reg_service.send_global_email_verification(email, data)
+    except ValidationError as e:
+        return jsonify({"error": "Ugyldig step 1-data", "details": _pydantic_errors(e)}), 422
+    except Exception as e:
+        return jsonify({"error": f"Kunne ikke sende email: {e}"}), 500
+    return jsonify({"email": email})
+
+
+@registration_bp.post("/email-verification/confirm")
+def global_confirm_email_verification():
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip()
+    code = str(data.get("code") or "").strip()
+    if not email or not code:
+        return jsonify({"error": "Email og kode er påkrævet"}), 400
+    try:
+        result = reg_service.confirm_global_email_verification(email, code)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    return jsonify(result)
+
+
 @registration_bp.post("/session/<session_id>/email-verification/send")
 async def send_email_verification(session_id: str):
     if not _valid_uuid(session_id):
