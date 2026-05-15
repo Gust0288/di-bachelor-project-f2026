@@ -189,8 +189,8 @@ describe('WizardPage step content', () => {
     },
     {
       currentStep: 9,
-      title: 'Godkendelse',
-      expectedTexts: ['Virksomhed', 'Kontakt og behov', 'Acceptér og bekræft'],
+      title: 'Opsummering og godkendelse',
+      expectedTexts: ['100% udfyldt', 'Medlemskaber', 'Aftaler', 'Acceptér og bekræft'],
     },
     {
       currentStep: 10,

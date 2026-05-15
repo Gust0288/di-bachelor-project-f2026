@@ -1,12 +1,17 @@
+import type { ReactNode } from 'react'
 import Checkbox from '../../../components/Checkbox/Checkbox'
-import ContentBox from '../../../components/ContentBox'
 import {
   EMPLOYEE_TYPE_LABELS,
   OVERENSKOMST_STATUS_LABELS,
   SERVICE_LABELS,
 } from '../wizard.constants'
-import { calculateMembershipPriceEstimate, formatDkk } from '../membershipPrice'
+import {
+  calculateMembershipPriceEstimate,
+  formatDkk,
+  type MembershipPriceEstimate,
+} from '../membershipPrice'
 import type { ContactPerson } from './ContactPersonFields'
+import type { CvrHiddenFields } from '../types'
 import type { CompanyOption, WizardFormData } from '../wizard.types'
 import styles from '../WizardPage.module.scss'
 
@@ -16,6 +21,7 @@ const DI_PRIVACY_URL = 'https://www.danskindustri.dk/om-di/privatlivspolitik/'
 type ApprovalStepProps = {
   formData: WizardFormData
   selectedCompany?: CompanyOption
+  cvrData: CvrHiddenFields | null
   selectedServices: string[]
   andetBeskrivelse: string
   employeeCount: number | ''
@@ -43,7 +49,9 @@ type ApprovalStepProps = {
 
 type ReviewItem = {
   label: string
-  value: string
+  value: ReactNode
+  isPanel?: boolean
+  isWide?: boolean
 }
 
 const invoiceLabels: Record<string, string> = {
@@ -61,27 +69,103 @@ function formatList(values: string[]): string {
 }
 
 function formatContact(person: ContactPerson | null): string {
-  if (!person?.name && !person?.email) return 'Ikke angivet'
+  if (!person) return 'Ikke angivet'
 
-  const details = [person.title, person.email, person.phone].filter(Boolean)
-  return details.length > 0 ? `${person.name} (${details.join(', ')})` : person.name
+  const name = person.name.trim()
+  const details = [person.title, person.email, person.phone]
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  if (!name && details.length === 0) return 'Ikke angivet'
+  if (!name) return details.join(', ')
+
+  return details.length > 0 ? `${name} (${details.join(', ')})` : name
+}
+
+function formatBranch(
+  selectedCompany: CompanyOption | undefined,
+  cvrData: CvrHiddenFields | null,
+): string {
+  const selectedBranch = selectedCompany?.branchCodes[0]
+  if (selectedBranch) {
+    return selectedBranch.title
+      ? `${selectedBranch.code} ${selectedBranch.title}`
+      : selectedBranch.code
+  }
+  if (!cvrData?.industry_code) return 'Ikke angivet'
+
+  return cvrData.industry_description
+    ? `${cvrData.industry_code} ${cvrData.industry_description}`
+    : cvrData.industry_code
+}
+
+function formatPostalCodeAndCity(
+  selectedCompany: CompanyOption | undefined,
+  cvrData: CvrHiddenFields | null,
+): string {
+  if (selectedCompany?.postalCodeAndCity) return selectedCompany.postalCodeAndCity
+  if (!cvrData?.zip_code && !cvrData?.city) return 'Ikke angivet'
+
+  return `${cvrData.zip_code} ${cvrData.city}`.trim()
+}
+
+function getDocumentValue(
+  overenskomstStatus: string,
+  overenskomstType: string,
+  documentId: string,
+): string {
+  if (overenskomstStatus !== 'ja') return 'Ikke relevant'
+  if (overenskomstType !== 'direkte') return 'Ikke påkrævet'
+  return documentId ? 'Ja' : 'Nej'
+}
+
+function PriceEstimateDetails({ estimate }: { estimate: MembershipPriceEstimate }) {
+  return (
+    <div className={styles.approvalPrice}>
+      <div className={styles.summaryPriceRows}>
+        {estimate.rows.map((row) => (
+          <div key={row.label}>
+            <span>{row.label}</span>
+            <strong>{formatDkk(row.amount)}</strong>
+          </div>
+        ))}
+      </div>
+      <p className={styles.summaryTotal}>
+        <span>Estimeret pr. år</span>
+        <strong>{formatDkk(estimate.annualTotal)}</strong>
+        <small>Ekskl. moms</small>
+      </p>
+    </div>
+  )
 }
 
 function ReviewSection({
   title,
   items,
+  meta,
 }: {
   title: string
   items: ReviewItem[]
+  meta?: string
 }) {
   return (
     <section className={styles.approvalReviewSection}>
-      <h3>{title}</h3>
+      <header className={styles.approvalReviewSectionHeader}>
+        <div>
+          <h3>{title}</h3>
+          {meta ? <span>{meta}</span> : null}
+        </div>
+      </header>
       <dl>
         {items.map((item) => (
-          <div key={item.label}>
+          <div
+            key={item.label}
+            className={item.isWide ? styles.approvalReviewItemWide : undefined}
+          >
             <dt>{item.label}</dt>
-            <dd>{item.value}</dd>
+            <dd className={item.isPanel ? styles.approvalPanelValue : undefined}>
+              {item.value}
+            </dd>
           </div>
         ))}
       </dl>
@@ -92,6 +176,7 @@ function ReviewSection({
 export default function ApprovalStep({
   formData,
   selectedCompany,
+  cvrData,
   selectedServices,
   andetBeskrivelse,
   employeeCount,
@@ -116,7 +201,6 @@ export default function ApprovalStep({
   invalidField,
   validationMessage,
 }: ApprovalStepProps) {
-  const primaryBranch = selectedCompany?.branchCodes[0]
   const services = selectedServices.map((service) =>
     service === 'andet' && andetBeskrivelse
       ? `Andet: ${andetBeskrivelse}`
@@ -126,6 +210,10 @@ export default function ApprovalStep({
   const faellesskaber = selectedFaellesskaber.map(
     (id) => allFaellesskaber.find((item) => item.id === id)?.name ?? id,
   )
+  const companyName = selectedCompany?.label || cvrData?.company_name || formData.companyId
+  const cvrNumber = selectedCompany?.id || cvrData?.cvr_number || formData.companyId
+  const address = selectedCompany?.address || cvrData?.address || 'Ikke angivet'
+  const postalCodeAndCity = formatPostalCodeAndCity(selectedCompany, cvrData)
   const priceEstimate = calculateMembershipPriceEstimate({
     employeeCount,
     noEmployees,
@@ -137,92 +225,145 @@ export default function ApprovalStep({
   })
 
   return (
-    <ContentBox>
-      <div className={styles.approvalReview}>
-        <ReviewSection
-          title="Virksomhed"
-          items={[
-            {
-              label: 'Virksomhedens navn',
-              value: selectedCompany?.label ?? formData.companyId ?? 'Ikke angivet',
-            },
-            { label: 'CVR', value: selectedCompany?.id ?? formData.companyId ?? 'Ikke angivet' },
-            {
-              label: 'Primær branche',
-              value: primaryBranch ? `${primaryBranch.code} ${primaryBranch.title}` : 'Ikke angivet',
-            },
-            { label: 'Website', value: formData.website || 'Ikke angivet' },
-          ]}
-        />
+    <div className={styles.approvalReview}>
+      <ReviewSection
+        title="Medlemskaber"
+        items={[
+          { label: 'Medlemstype', value: computedMembership ?? 'Ikke angivet' },
+          { label: 'Virksomheden bliver indmeldt i', value: 'DI' },
+          {
+            label: 'Totallønsum',
+            value: totalLoensum !== '' ? formatDkk(totalLoensum) : 'Ikke angivet',
+          },
+          {
+            label: 'Antal ansatte',
+            value: noEmployees
+              ? 'Ingen ansatte'
+              : employeeCount !== ''
+                ? `${employeeCount} ansatte`
+                : 'Ikke angivet',
+          },
+          { label: 'Medarbejdertyper', value: formatList(employeeTypeLabels) },
+          { label: 'Branchefællesskaber', value: formatList(faellesskaber) },
+          { label: 'Faktura', value: invoiceLabels[invoiceDelivery] ?? 'Ikke angivet' },
+        ]}
+      />
 
-        <ReviewSection
-          title="Kontakt og behov"
-          items={[
-            { label: 'Kontaktperson', value: formatContact({
+      <ReviewSection
+        title="Aftaler"
+        items={[
+          { label: 'Ønsker og behov', value: formatList(services), isWide: true },
+          {
+            label: 'Aftaler',
+            value: OVERENSKOMST_STATUS_LABELS[overenskomstStatus] ?? 'Ikke angivet',
+          },
+          {
+            label: 'Type af overenskomst',
+            value:
+              overenskomstStatus === 'ja'
+                ? (agreementTypeLabels[overenskomstType] ?? 'Ikke angivet')
+                : 'Ikke relevant',
+          },
+          {
+            label: 'Uploadet dokument',
+            value: getDocumentValue(overenskomstStatus, overenskomstType, documentId),
+          },
+        ]}
+      />
+
+      <ReviewSection
+        title="Virksomhedsinformation"
+        items={[
+          {
+            label: 'Virksomhedens navn',
+            value: `${companyName || 'Ikke angivet'}${cvrNumber ? ` (CVR: ${cvrNumber})` : ''}`,
+            isWide: true,
+          },
+          {
+            label: 'Virksomhedsform',
+            value: selectedCompany?.companyType || cvrData?.company_type || 'Ikke angivet',
+          },
+          {
+            label: 'Primær branche',
+            value: formatBranch(selectedCompany, cvrData),
+          },
+          {
+            label: 'Kontaktperson',
+            value: formatContact({
               name: formData.contactName,
               title: formData.contactJobTitle,
               email: formData.contactEmail,
               phone: formData.contactPhone,
-            }) },
-            { label: 'Valgte services', value: formatList(services) },
-          ]}
-        />
+            }),
+            isPanel: true,
+            isWide: true,
+          },
+        ]}
+      />
 
-        <ReviewSection
-          title="Ansatte og aftaler"
-          items={[
-            {
-              label: 'Antal ansatte',
-              value: noEmployees
-                ? 'Ingen ansatte'
-                : employeeCount !== ''
-                  ? `${employeeCount} ansatte`
-                  : 'Ikke angivet',
-            },
-            { label: 'Medarbejdertyper', value: formatList(employeeTypeLabels) },
-            {
-              label: 'Samlet lønsum',
-              value: totalLoensum !== '' ? formatDkk(totalLoensum) : 'Ikke angivet',
-            },
-            {
-              label: 'Overenskomst',
-              value: OVERENSKOMST_STATUS_LABELS[overenskomstStatus] ?? 'Ikke angivet',
-            },
-            {
-              label: 'Type af overenskomst',
-              value: agreementTypeLabels[overenskomstType] ?? 'Ikke angivet',
-            },
-            { label: 'Uploadet dokument', value: documentId ? 'Ja' : 'Nej' },
-          ]}
-        />
+      <ReviewSection
+        title="Adresser"
+        meta="Data fra CVR-registret"
+        items={[
+          {
+            label: 'Hovedforhold',
+            value: (
+              <span className={styles.approvalValueStack}>
+                <span>{companyName || 'Ikke angivet'}</span>
+                <span>{address}</span>
+                <span>{postalCodeAndCity}</span>
+                <span>Hjemmeside: {formData.website || 'Ikke angivet'}</span>
+              </span>
+            ),
+            isWide: true,
+          },
+        ]}
+      />
 
-        <ReviewSection
-          title="Medlemskab"
-          items={[
-            { label: 'Fællesskaber og foreninger', value: formatList(faellesskaber) },
-            { label: 'Medlemstype', value: computedMembership ?? 'Ikke angivet' },
-            {
-              label: 'Prisberegning',
-              value: priceEstimate
-                ? `${formatDkk(priceEstimate.annualTotal)} pr. år ekskl. moms`
-                : 'Afventer ansatte, lønsum og medarbejdertyper',
-            },
-          ]}
-        />
+      <ReviewSection
+        title="Ledelse"
+        items={[
+          {
+            label: 'Administrerende direktør',
+            value: formatContact(managingDirector),
+            isPanel: true,
+            isWide: true,
+          },
+          {
+            label: 'Primær kontaktperson for personalejura',
+            value: formatContact(hrContact),
+            isPanel: true,
+            isWide: true,
+          },
+          {
+            label: 'Lønsumsindberetter',
+            value: formatContact(payrollContact),
+            isPanel: true,
+            isWide: true,
+          },
+          {
+            label: 'Tegningsberettiget',
+            value: formatContact(authorizedSignatory),
+            isPanel: true,
+            isWide: true,
+          },
+        ]}
+      />
 
-        <ReviewSection
-          title="Kontaktpersoner og faktura"
-          items={[
-            { label: 'Administrerende direktør', value: formatContact(managingDirector) },
-            { label: 'HR-kontakt', value: formatContact(hrContact) },
-            { label: 'Lønsumsinberetter', value: formatContact(payrollContact) },
-            { label: 'Anden tegningsberettiget', value: formatContact(authorizedSignatory) },
-            { label: 'Faktura', value: invoiceLabels[invoiceDelivery] ?? 'Ikke angivet' },
-          ]}
-        />
-      </div>
+      <ReviewSection
+        title="Dit DI medlemskab"
+        items={[
+          {
+            label: 'Prisberegning',
+            value: priceEstimate
+              ? <PriceEstimateDetails estimate={priceEstimate} />
+              : 'Afventer ansatte, lønsum og medarbejdertyper',
+            isWide: true,
+          },
+        ]}
+      />
 
-      <div className={styles.approvalAcceptances}>
+      <section className={styles.approvalAcceptances}>
         <h3>Acceptér og bekræft</h3>
         <Checkbox
           name="acceptTerms"
@@ -256,7 +397,7 @@ export default function ApprovalStep({
         >
           Jeg bekræfter at have bemyndigelse til at indmelde virksomheden
         </Checkbox>
-      </div>
-    </ContentBox>
+      </section>
+    </div>
   )
 }

@@ -49,9 +49,9 @@ export const wizardSteps = [
   },
   {
     label: 'Godkendelse',
-    title: 'Godkendelse',
+    title: 'Opsummering og godkendelse',
     description:
-      'Gennemgå de sidste betingelser og bekræft, at du har bemyndigelse til at sende indmeldelsen.',
+      'Her er en opsummering af de oplysninger, du har indtastet. Tjek at alt ser rigtigt ud, og afslut med at godkende indmeldelsen.',
   },
 ] as const
 

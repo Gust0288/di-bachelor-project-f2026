@@ -563,6 +563,8 @@ export default function WizardPage() {
   )
 
   const progressPercentage = useMemo(() => {
+    if (currentStepIndex >= wizardStepCount - 1) return 100
+
     const hasEmployeeCount = noEmployees || employeeCount !== ''
     const hasManagingDirector = managingDirector.name.trim().length > 0 && managingDirector.email.trim().length > 0
 
@@ -594,6 +596,7 @@ export default function WizardPage() {
     acceptTerms,
     andetBeskrivelse,
     cvrConfirmed,
+    currentStepIndex,
     documentId,
     employeeCount,
     employeeTypes,
@@ -1425,6 +1428,7 @@ export default function WizardPage() {
           <ApprovalStep
             formData={formData}
             selectedCompany={selectedCompany}
+            cvrData={cvrData}
             selectedServices={selectedServices}
             andetBeskrivelse={andetBeskrivelse}
             employeeCount={employeeCount}
@@ -1585,6 +1589,7 @@ export default function WizardPage() {
           currentStepIndex={currentStepIndex}
           formData={formData}
           selectedCompany={selectedCompany}
+          cvrData={cvrData}
           selectedServices={selectedServices}
           andetBeskrivelse={andetBeskrivelse}
           employeeCount={employeeCount}
@@ -1592,6 +1597,8 @@ export default function WizardPage() {
           employeeTypes={employeeTypes}
           totalLoensum={totalLoensum}
           overenskomstStatus={overenskomstStatus}
+          overenskomstType={overenskomstType}
+          documentId={documentId}
           selectedFaellesskaber={selectedFaellesskaber}
           allFaellesskaber={allFaellesskaber}
           managingDirector={managingDirector}
