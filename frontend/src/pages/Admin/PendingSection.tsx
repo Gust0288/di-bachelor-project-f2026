@@ -168,7 +168,6 @@ export default function PendingSection({ onStatusChange }: Props) {
               key={selectedId}
               registrationId={selectedId}
               onStatusChange={handleStatusChange}
-              showWizardSteps
             />
           </>
         ) : (

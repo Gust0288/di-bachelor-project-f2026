@@ -153,10 +153,13 @@ def approve_registration(registration_id: str, admin_id: str) -> dict:
 
 
 def reject_registration(registration_id: str, admin_id: str, notes: str) -> dict:
+    from app.services.email_rejection import send_rejection_email_background
+
     notes = notes.strip()
     if not notes:
         raise ValueError("Afvisningsbegrundelse er påkrævet")
 
+    email_data = None
     with get_db_cursor(dict_rows=True) as (_, cursor):
         cursor.execute(
             "SELECT status, session_id FROM registrations WHERE id = %s",
@@ -184,6 +187,20 @@ def reject_registration(registration_id: str, admin_id: str, notes: str) -> dict
                 "UPDATE registration_sessions SET status = 'rejected' WHERE id = %s",
                 (row["session_id"],),
             )
+
+        cursor.execute(
+            "SELECT company_name, contact_name, contact_email FROM registrations WHERE id = %s",
+            (registration_id,),
+        )
+        email_data = cursor.fetchone()
+
+    if email_data:
+        send_rejection_email_background(
+            to_email=email_data["contact_email"],
+            contact_name=email_data["contact_name"],
+            company_name=email_data["company_name"],
+            rejection_reason=notes,
+        )
 
     return _serialize_row(dict(updated))
 
