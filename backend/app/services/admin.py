@@ -283,7 +283,7 @@ def list_sessions() -> list[dict]:
             updated_at,
             expires_at
         FROM registration_sessions
-        WHERE status = 'draft' AND expires_at > NOW()
+        WHERE status = 'draft' AND expires_at > NOW() AND email_verified = TRUE
         ORDER BY updated_at DESC
     """
     with get_db_cursor(dict_rows=True) as (_, cursor):

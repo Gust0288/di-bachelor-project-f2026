@@ -207,6 +207,41 @@
   margin: 0;
 }
 
+// ── Tag list (services, branches) ────────────────────────────────
+.tagList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.tag {
+  font-size: 0.75rem;
+  padding: 2px var(--spacing-xs);
+  background: var(--color-surfaces-surface-2);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  color: var(--color-dark-500);
+}
+
+// ── Contact person row ────────────────────────────────────────────
+.contactRow {
+  display: contents;
+
+  dd {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+.contactTitle {
+  font-weight: 400;
+  color: var(--color-dark-100);
+}
+
 // ── Expiry date ───────────────────────────────────────────────────
 .expiryDate {
   &[data-tier='critical'] {

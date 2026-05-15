@@ -5,9 +5,10 @@ import { Spinner } from '../../components/Spinner/Spinner'
 import InlineAlert from '../../components/InlineAlert/InlineAlert'
 import { getSessionDetail, type SessionDetail } from '../../api/admin'
 import { wizardStepLabels } from '../Wizard/wizardSteps'
+import { SERVICE_LABELS, EMPLOYEE_TYPE_LABELS, OVERENSKOMST_STATUS_LABELS as OVERENSKOMST_LABELS } from '../Wizard/wizard.constants'
 import styles from './SessionDetailPanel.module.scss'
 
-const TOTAL_STEPS = 10
+const TOTAL_STEPS = 9
 
 const dateFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'medium', timeStyle: 'short' })
 const dayFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'long' })
@@ -16,6 +17,18 @@ const TIER_LABELS: Record<string, string> = {
   mikro: 'Mikrovirksomhed',
   smv: 'SMV',
   erhverv: 'Erhvervsvirksomhed',
+}
+
+const OVERENSKOMST_TYPE_LABELS: Record<string, string> = {
+  direkte: 'Direkte overenskomst',
+  vikaar: 'Vikåroverenskomst',
+  anden: 'Anden overenskomst',
+}
+
+const INVOICE_LABELS: Record<string, string> = {
+  email: 'Email',
+  ean: 'EAN',
+  post: 'Post',
 }
 
 function getDaysUntilExpiry(expiresAt: string): number {
@@ -33,6 +46,51 @@ function getPhoneFromStepData(stepData: Record<string, unknown>): string | null 
     }
   }
   return null
+}
+
+function asRecord(v: unknown): Record<string, unknown> | null {
+  return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null
+}
+
+function asString(v: unknown): string | null {
+  return typeof v === 'string' && v ? v : null
+}
+
+function asNumber(v: unknown): number | null {
+  return typeof v === 'number' ? v : null
+}
+
+function asStringArray(v: unknown): string[] | null {
+  return Array.isArray(v) && v.every((x) => typeof x === 'string') ? (v as string[]) : null
+}
+
+function ContactRow({ contact, label }: { contact: Record<string, unknown>; label: string }) {
+  const name = asString(contact.name)
+  const email = asString(contact.email)
+  const phone = asString(contact.phone)
+  const title = asString(contact.title)
+  if (!name && !email) return null
+  return (
+    <div className={styles.contactRow}>
+      <dt>
+        {label}
+        {title ? <span className={styles.contactTitle}> ({title})</span> : null}
+      </dt>
+      <dd>
+        {name && <span>{name}</span>}
+        {email && (
+          <a href={`mailto:${email}`} className={styles.link}>
+            {email}
+          </a>
+        )}
+        {phone && (
+          <a href={`tel:${phone}`} className={styles.link}>
+            {phone}
+          </a>
+        )}
+      </dd>
+    </div>
+  )
 }
 
 interface Props {
@@ -77,10 +135,21 @@ export default function SessionDetailPanel({ sessionId }: Props) {
     )
   }
 
-  const phone = getPhoneFromStepData(session.step_data)
+  const sd = session.step_data as Record<string, unknown>
+  const s1 = asRecord(sd['1'])
+  const s3 = asRecord(sd['3'])
+  const s4 = asRecord(sd['4'])
+  const s5 = asRecord(sd['5'])
+  const s6 = asRecord(sd['6'])
+  const s7 = asRecord(sd['7'])
+  const s8 = asRecord(sd['8'])
+
+  const phone = getPhoneFromStepData(sd)
   const daysLeft = getDaysUntilExpiry(session.expires_at)
-  const stepPct = Math.round((session.current_step / TOTAL_STEPS) * 100)
+  const stepPct = Math.round(((session.current_step - 1) / TOTAL_STEPS) * 100)
   const expiryTier = daysLeft <= 3 ? 'critical' : daysLeft <= 7 ? 'warning' : 'ok'
+
+  const companyName = s1 ? asString(s1.company_name) : null
 
   const emailSubject = encodeURIComponent('Vi savner dig hos Dansk Industri')
   const emailBody = encodeURIComponent(
@@ -141,12 +210,13 @@ export default function SessionDetailPanel({ sessionId }: Props) {
             const done = stepNum < session.current_step
             const current = stepNum === session.current_step
             return (
-              <div key={stepNum} className={styles.stepDot} data-done={done || undefined} data-current={current || undefined}>
-                {done ? (
-                  <CheckCircle2 size={14} />
-                ) : (
-                  <Circle size={14} />
-                )}
+              <div
+                key={stepNum}
+                className={styles.stepDot}
+                data-done={done || undefined}
+                data-current={current || undefined}
+              >
+                {done ? <CheckCircle2 size={14} /> : <Circle size={14} />}
                 <span className={styles.stepDot__label}>{label}</span>
               </div>
             )
@@ -157,28 +227,35 @@ export default function SessionDetailPanel({ sessionId }: Props) {
       {/* ── Virksomhed ───────────────────────────────── */}
       <section className={styles.section}>
         <h3 className={styles.section__title}>Virksomhed</h3>
-        <dl className={styles.dl}>
-          {session.company_cvr && (
-            <>
-              <dt>CVR-nummer</dt>
-              <dd className={styles.mono}>{session.company_cvr}</dd>
-            </>
-          )}
-          {session.tier && (
-            <>
-              <dt>Størrelse</dt>
-              <dd>{TIER_LABELS[session.tier] ?? session.tier}</dd>
-            </>
-          )}
-        </dl>
-        {!session.company_cvr && !session.tier && (
-          <p className={styles.noData}>Ingen virksomhedsdata endnu — brugeren er ikke nået til trin 1</p>
+        {session.company_cvr || companyName || session.tier ? (
+          <dl className={styles.dl}>
+            {companyName && (
+              <>
+                <dt>Virksomhedsnavn</dt>
+                <dd>{companyName}</dd>
+              </>
+            )}
+            {session.company_cvr && (
+              <>
+                <dt>CVR-nummer</dt>
+                <dd className={styles.mono}>{session.company_cvr}</dd>
+              </>
+            )}
+            {session.tier && (
+              <>
+                <dt>Størrelse</dt>
+                <dd>{TIER_LABELS[session.tier] ?? session.tier}</dd>
+              </>
+            )}
+          </dl>
+        ) : (
+          <p className={styles.noData}>Ingen virksomhedsdata endnu</p>
         )}
       </section>
 
-      {/* ── Kontakt ──────────────────────────────────── */}
+      {/* ── Kontaktperson ────────────────────────────── */}
       <section className={styles.section}>
-        <h3 className={styles.section__title}>Kontaktperson</h3>
+        <h3 className={styles.section__title}>Primær kontaktperson</h3>
         {session.contact_name || session.contact_email || phone ? (
           <dl className={styles.dl}>
             {session.contact_name && (
@@ -212,6 +289,179 @@ export default function SessionDetailPanel({ sessionId }: Props) {
           <p className={styles.noData}>Ingen kontaktoplysninger endnu</p>
         )}
       </section>
+
+      {/* ── Valgte services (step 3) ─────────────────── */}
+      {s3 && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Ønsker og behov</h3>
+          <dl className={styles.dl}>
+            {(() => {
+              const services = asStringArray(s3.selected_services)
+              return services && services.length > 0 ? (
+                <>
+                  <dt>Valgte services</dt>
+                  <dd>
+                    <ul className={styles.tagList}>
+                      {services.map((s) => (
+                        <li key={s} className={styles.tag}>
+                          {SERVICE_LABELS[s] ?? s}
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </>
+              ) : null
+            })()}
+            {asString(s3.andet_beskrivelse) && (
+              <>
+                <dt>Beskrivelse (andet)</dt>
+                <dd>{asString(s3.andet_beskrivelse)}</dd>
+              </>
+            )}
+          </dl>
+        </section>
+      )}
+
+      {/* ── Ansatte (step 4) ─────────────────────────── */}
+      {s4 && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Virksomhedens ansatte</h3>
+          <dl className={styles.dl}>
+            {s4.no_employees === true ? (
+              <>
+                <dt>Ansatte</dt>
+                <dd>Ingen ansatte</dd>
+              </>
+            ) : (
+              asNumber(s4.employee_count) !== null && (
+                <>
+                  <dt>Antal ansatte</dt>
+                  <dd>{asNumber(s4.employee_count)}</dd>
+                </>
+              )
+            )}
+            {(() => {
+              const types = asStringArray(s4.employee_types)
+              return types && types.length > 0 ? (
+                <>
+                  <dt>Medarbejdertyper</dt>
+                  <dd>
+                    <ul className={styles.tagList}>
+                      {types.map((t) => (
+                        <li key={t} className={styles.tag}>
+                          {EMPLOYEE_TYPE_LABELS[t] ?? t}
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </>
+              ) : null
+            })()}
+            {asNumber(s4.total_loensum) !== null && (
+              <>
+                <dt>Samlet lønsum</dt>
+                <dd>
+                  {new Intl.NumberFormat('da-DK', { style: 'currency', currency: 'DKK', maximumFractionDigits: 0 }).format(
+                    asNumber(s4.total_loensum)!,
+                  )}
+                </dd>
+              </>
+            )}
+          </dl>
+        </section>
+      )}
+
+      {/* ── Overenskomst (step 5) ────────────────────── */}
+      {s5 && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Overenskomst</h3>
+          <dl className={styles.dl}>
+            {asString(s5.overenskomst_status) && (
+              <>
+                <dt>Status</dt>
+                <dd>{OVERENSKOMST_LABELS[asString(s5.overenskomst_status)!] ?? asString(s5.overenskomst_status)}</dd>
+              </>
+            )}
+            {asString(s5.overenskomst_type) && (
+              <>
+                <dt>Type</dt>
+                <dd>{OVERENSKOMST_TYPE_LABELS[asString(s5.overenskomst_type)!] ?? asString(s5.overenskomst_type)}</dd>
+              </>
+            )}
+          </dl>
+        </section>
+      )}
+
+      {/* ── Branchefællesskaber (step 6) ─────────────── */}
+      {s6 && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Fællesskaber og foreninger</h3>
+          {(() => {
+            const faellesskaber = asStringArray(s6.branchefaellesskaber)
+            return faellesskaber && faellesskaber.length > 0 ? (
+              <ul className={styles.tagList}>
+                {faellesskaber.map((f) => (
+                  <li key={f} className={styles.tag}>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.noData}>Ingen fællesskaber valgt</p>
+            )
+          })()}
+        </section>
+      )}
+
+      {/* ── Medlemskab (step 7) ──────────────────────── */}
+      {s7 && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Medlemskab</h3>
+          <dl className={styles.dl}>
+            {asString(s7.membership_type) && (
+              <>
+                <dt>Medlemskabstype</dt>
+                <dd>{asString(s7.membership_type)}</dd>
+              </>
+            )}
+            {typeof s7.accept_membership === 'boolean' && (
+              <>
+                <dt>Accepteret</dt>
+                <dd>{s7.accept_membership ? 'Ja' : 'Nej'}</dd>
+              </>
+            )}
+          </dl>
+        </section>
+      )}
+
+      {/* ── Kontaktpersoner (step 8) ─────────────────── */}
+      {s8 && (
+        <section className={styles.section}>
+          <h3 className={styles.section__title}>Kontaktpersoner</h3>
+          <dl className={styles.dl}>
+            {asRecord(s8.managing_director) && (
+              <ContactRow contact={asRecord(s8.managing_director)!} label="Administrerende direktør" />
+            )}
+            {asRecord(s8.hr_contact) && (
+              <ContactRow contact={asRecord(s8.hr_contact)!} label="HR-kontakt" />
+            )}
+            {asRecord(s8.payroll_contact) && (
+              <ContactRow contact={asRecord(s8.payroll_contact)!} label="Lønsumsinberetter" />
+            )}
+            {asRecord(s8.authorized_signatory) && (
+              <ContactRow contact={asRecord(s8.authorized_signatory)!} label="Tegningsberettiget" />
+            )}
+            {asString(s8.invoice_delivery) && (
+              <>
+                <dt>Fakturalevering</dt>
+                <dd>{INVOICE_LABELS[asString(s8.invoice_delivery)!] ?? asString(s8.invoice_delivery)}</dd>
+              </>
+            )}
+          </dl>
+        </section>
+      )}
+
+
 
       {/* ── Aktivitet ────────────────────────────────── */}
       <section className={styles.section}>
