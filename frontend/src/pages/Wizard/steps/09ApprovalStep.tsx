@@ -50,7 +50,6 @@ type ApprovalStepProps = {
 type ReviewItem = {
   label: string
   value: ReactNode
-  isPanel?: boolean
   isWide?: boolean
 }
 
@@ -163,9 +162,7 @@ function ReviewSection({
             className={item.isWide ? styles.approvalReviewItemWide : undefined}
           >
             <dt>{item.label}</dt>
-            <dd className={item.isPanel ? styles.approvalPanelValue : undefined}>
-              {item.value}
-            </dd>
+            <dd>{item.value}</dd>
           </div>
         ))}
       </dl>
@@ -295,7 +292,6 @@ export default function ApprovalStep({
               email: formData.contactEmail,
               phone: formData.contactPhone,
             }),
-            isPanel: true,
             isWide: true,
           },
         ]}
@@ -326,25 +322,21 @@ export default function ApprovalStep({
           {
             label: 'Administrerende direktør',
             value: formatContact(managingDirector),
-            isPanel: true,
             isWide: true,
           },
           {
             label: 'Primær kontaktperson for personalejura',
             value: formatContact(hrContact),
-            isPanel: true,
             isWide: true,
           },
           {
             label: 'Lønsumsindberetter',
             value: formatContact(payrollContact),
-            isPanel: true,
             isWide: true,
           },
           {
             label: 'Tegningsberettiget',
             value: formatContact(authorizedSignatory),
-            isPanel: true,
             isWide: true,
           },
         ]}

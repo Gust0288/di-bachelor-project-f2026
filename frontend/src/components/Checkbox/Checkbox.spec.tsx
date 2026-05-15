@@ -21,6 +21,7 @@ describe('Checkbox', () => {
       'extra',
     )
     expect(screen.getByText('Du accepterer betingelserne')).toBeInTheDocument()
+    expect(screen.getByText('Skal accepteres')).toHaveClass('checkbox__error')
     await user.click(checkbox)
 
     expect(checkbox).toBeChecked()

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import {
   Checkbox as AriaCheckbox,
-  FieldError,
   Text,
   type CheckboxProps as AriaCheckboxProps,
 } from 'react-aria-components'
@@ -46,9 +45,9 @@ export function Checkbox({
               </Text>
             ) : null}
             {errorMessage ? (
-              <FieldError className={styles.checkbox__error}>
+              <span className={styles.checkbox__error}>
                 {errorMessage}
-              </FieldError>
+              </span>
             ) : null}
           </span>
         </>

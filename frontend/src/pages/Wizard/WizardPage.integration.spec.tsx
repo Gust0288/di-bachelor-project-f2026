@@ -143,7 +143,10 @@ function renderNewWizard() {
   )
 }
 
-function renderResumedWizard(currentStep = 8) {
+function renderResumedWizard(
+  currentStep = 8,
+  stepData: Record<string, Record<string, unknown>> = sessionStepData,
+) {
   window.history.pushState({}, '', `/wizard?session=session-${currentStep}`)
 
   mockedGetSession.mockResolvedValue({
@@ -155,7 +158,7 @@ function renderResumedWizard(currentStep = 8) {
     expires_at: '2026-05-18T10:00:00Z',
     updated_at: '',
     email_verified: true,
-    step_data: sessionStepData,
+    step_data: stepData,
   })
 
   return render(
@@ -266,6 +269,36 @@ describe('WizardPage integration', () => {
     expect(mockedSaveStep).not.toHaveBeenCalled()
   })
 
+  it('viser trin 2-validering ved checkboxen og scroller dertil ved gentagne forsøg', async () => {
+    const user = userEvent.setup()
+    const scrollIntoView = jest.fn()
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoView
+
+    renderResumedWizard(2, {
+      ...sessionStepData,
+      '2': { cvr_confirmed: false },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Hvad laver din virksomhed?' })).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Fortsæt' }))
+
+    const message = 'Bekræft virksomhedsoplysningerne for at fortsætte.'
+    await waitFor(() => {
+      expect(screen.getAllByText(message).length).toBeGreaterThan(1)
+      expect(scrollIntoView).toHaveBeenCalled()
+    })
+
+    const firstCallCount = scrollIntoView.mock.calls.length
+    await user.click(screen.getByRole('button', { name: 'Fortsæt' }))
+
+    await waitFor(() => {
+      expect(scrollIntoView).toHaveBeenCalledTimes(firstCallCount + 1)
+    })
+  })
+
   it('springer irrelevante steps over når backend returnerer et senere next_step', async () => {
     const user = userEvent.setup()
     mockedSaveStep.mockResolvedValueOnce({
@@ -310,5 +343,26 @@ describe('WizardPage integration', () => {
     expect(screen.getByRole('textbox', { name: 'Fulde navn' })).toHaveValue('Direktør Test')
     expect(screen.getByRole('textbox', { name: 'Email' })).toHaveValue('ceo@example.com')
     expect(mockedGetSession).toHaveBeenCalled()
+  })
+
+  it('viser korrekt medlemstype på godkendelse ved anden arbejdsgiverorganisation', async () => {
+    renderResumedWizard(9, {
+      ...sessionStepData,
+      '3': { selected_services: [] },
+      '5': { overenskomst_status: 'ja', overenskomst_type: 'anden' },
+      '6': { branchefaellesskaber: [] },
+      '7': {
+        computed_membership: 'Associeret',
+        membership_type: 'Associeret',
+        accept_membership: true,
+      },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Opsummering og godkendelse' })).toBeInTheDocument()
+    })
+
+    expect(screen.getAllByText('Associeret').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Arbejdsgiver')).not.toBeInTheDocument()
   })
 })

@@ -327,13 +327,6 @@
   }
 }
 
-.approvalPanelValue {
-  display: block;
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-2xs);
-  background: var(--color-light-100);
-}
-
 .approvalValueStack {
   display: grid;
   gap: var(--spacing-3xs);

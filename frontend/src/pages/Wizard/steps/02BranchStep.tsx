@@ -8,12 +8,16 @@ type BranchStepProps = {
   cvrData: CvrHiddenFields | null
   cvrConfirmed: boolean
   onCvrConfirmedChange: (value: boolean) => void
+  invalidField?: string
+  validationMessage?: string
 }
 
 export default function BranchStep({
   cvrData,
   cvrConfirmed,
   onCvrConfirmedChange,
+  invalidField,
+  validationMessage,
 }: BranchStepProps) {
   const postalCodeAndCity =
     cvrData && cvrData.zip_code
@@ -59,9 +63,12 @@ export default function BranchStep({
         </dl>
 
         <Checkbox
+          name="cvrConfirmed"
           isSelected={cvrConfirmed}
           onChange={onCvrConfirmedChange}
           isRequired
+          isInvalid={invalidField === 'cvrConfirmed'}
+          errorMessage={invalidField === 'cvrConfirmed' ? validationMessage : undefined}
         >
           Jeg bekræfter at ovenstående virksomhedsoplysninger er korrekte
         </Checkbox>
