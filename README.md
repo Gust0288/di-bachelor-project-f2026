@@ -43,12 +43,3 @@ npm install
 npm run dev
 ```
 
-## Miljøvariabler
-
-Opret en `.env` fil i `/backend`:
-
-```
-DATABASE_URL=postgresql://user:password@db/di_portal
-CVR_API_KEY=din_nøgle
-JWT_SECRET=din_secret
-```

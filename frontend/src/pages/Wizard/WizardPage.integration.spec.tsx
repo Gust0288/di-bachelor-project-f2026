@@ -4,12 +4,14 @@ import { MemoryRouter } from 'react-router-dom'
 import WizardPage from './WizardPage'
 import {
   confirmEmailVerification,
+  confirmEmailVerificationGlobal,
   createSession,
   getBranchSuggestions,
   getFlow,
   getSession,
   saveStep,
   sendEmailVerification,
+  sendEmailVerificationGlobal,
   submitRegistration,
 } from '../../api/registration'
 import { lookupByVat } from '../../api/cvr'
@@ -20,7 +22,9 @@ jest.mock('../../api/registration', () => ({
   createSession: jest.fn(),
   saveStep: jest.fn(),
   sendEmailVerification: jest.fn(),
+  sendEmailVerificationGlobal: jest.fn(),
   confirmEmailVerification: jest.fn(),
+  confirmEmailVerificationGlobal: jest.fn(),
   submitRegistration: jest.fn(),
   uploadDocument: jest.fn(),
   getBranchSuggestions: jest.fn(),
@@ -36,7 +40,9 @@ const mockedGetFlow = jest.mocked(getFlow)
 const mockedGetSession = jest.mocked(getSession)
 const mockedSaveStep = jest.mocked(saveStep)
 const mockedSendEmailVerification = jest.mocked(sendEmailVerification)
+const mockedSendEmailVerificationGlobal = jest.mocked(sendEmailVerificationGlobal)
 const mockedConfirmEmailVerification = jest.mocked(confirmEmailVerification)
+const mockedConfirmEmailVerificationGlobal = jest.mocked(confirmEmailVerificationGlobal)
 const mockedSubmitRegistration = jest.mocked(submitRegistration)
 const mockedGetBranchSuggestions = jest.mocked(getBranchSuggestions)
 const mockedLookupByVat = jest.mocked(lookupByVat)
@@ -108,7 +114,9 @@ function setupDefaultMocks() {
     next_step: 2,
   })
   mockedSendEmailVerification.mockResolvedValue({ email: 'test@example.com' })
+  mockedSendEmailVerificationGlobal.mockResolvedValue({ email: 'test@example.com' })
   mockedConfirmEmailVerification.mockResolvedValue({ verified: true })
+  mockedConfirmEmailVerificationGlobal.mockResolvedValue({ session_id: 'new-session', current_step: 1 })
   mockedSubmitRegistration.mockResolvedValue({
     registration_id: 'registration-1',
     session_id: 'new-session',
@@ -204,9 +212,7 @@ describe('WizardPage integration', () => {
 
     await waitFor(() => {
       expect(mockedLookupByVat).toHaveBeenCalledWith('12345678')
-      expect(mockedSaveStep).toHaveBeenCalledWith(
-        'new-session',
-        1,
+      expect(mockedSendEmailVerificationGlobal).toHaveBeenCalledWith(
         expect.objectContaining({
           cvr_number: '12345678',
           contact_email: 'test@example.com',
@@ -220,7 +226,7 @@ describe('WizardPage integration', () => {
     await user.click(screen.getByRole('button', { name: 'Bekræft e-mail' }))
 
     await waitFor(() => {
-      expect(mockedConfirmEmailVerification).toHaveBeenCalledWith('new-session', '123456')
+      expect(mockedConfirmEmailVerificationGlobal).toHaveBeenCalledWith('test@example.com', '123456')
     })
 
     expect(await screen.findByText('E-mail bekræftet')).toBeInTheDocument()

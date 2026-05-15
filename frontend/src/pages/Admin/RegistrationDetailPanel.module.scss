@@ -1,0 +1,520 @@
+.spinnerWrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+}
+
+.errorWrapper {
+  padding: var(--spacing-md);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// ── Section ───────────────────────────────────────────────────────
+.section {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.section__title {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-dark-100);
+  font-weight: 600;
+  margin: 0;
+}
+
+// ── Firma header ──────────────────────────────────────────────────
+.section__firmaHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.firmaName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-dark-500);
+  margin: 0 0 2px;
+}
+
+.firmaCvr {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-dark-100);
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 2px var(--spacing-xs);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &[data-status='pending'] {
+    background: var(--color-warning-shade);
+    color: #7a5c00;
+  }
+
+  &[data-status='approved'] {
+    background: var(--color-success-shade);
+    color: var(--color-success);
+  }
+
+  &[data-status='rejected'] {
+    background: var(--color-invalid-shade);
+    color: var(--color-invalid);
+  }
+}
+
+// ── Info list ─────────────────────────────────────────────────────
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.infoList__row {
+  display: flex;
+  gap: var(--spacing-sm);
+  font-size: 0.8125rem;
+
+  dt {
+    color: var(--color-dark-100);
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  dd {
+    color: var(--color-dark-500);
+    margin: 0;
+    word-break: break-word;
+  }
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: none;
+  word-break: break-all;
+
+  &:hover { text-decoration: underline; }
+}
+
+// ── Sub-label ─────────────────────────────────────────────────────
+.subLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-dark-100);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--spacing-2xs);
+}
+
+// ── Tag list ──────────────────────────────────────────────────────
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2xs);
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--spacing-xs);
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px var(--spacing-xs);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: var(--color-surfaces-surface-2);
+  color: var(--color-dark-400);
+  border: 1px solid var(--color-border-default);
+}
+
+// ── Contact cards ─────────────────────────────────────────────────
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.contactCard {
+  background: var(--color-surfaces-surface-1);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.contactCard__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-dark-100);
+  margin-bottom: 3px;
+}
+
+.contactCard__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-dark-500);
+}
+
+.contactCard__detail {
+  font-size: 0.75rem;
+  color: var(--color-dark-200);
+}
+
+// ── Contact action buttons ────────────────────────────────────────
+.contactActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.contactAction {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-surfaces-surface-1);
+  color: var(--color-dark-400);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition: background var(--transition-quick), color var(--transition-quick), border-color var(--transition-quick);
+
+  svg { flex-shrink: 0; opacity: 0.6; }
+
+  &:hover {
+    background: var(--color-surfaces-surface-2);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    svg { opacity: 1; }
+  }
+}
+
+// ── Actions ───────────────────────────────────────────────────────
+.actionBar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.rejectionNote {
+  font-size: 0.8125rem;
+  color: var(--color-dark-200);
+  background: var(--color-invalid-shade);
+  border-left: 3px solid var(--color-invalid);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+}
+
+// ── Wizard steps ──────────────────────────────────────────────────
+.stepList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.8125rem;
+  color: var(--color-dark-100);
+}
+
+.stepItem__icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surfaces-surface-2);
+  color: var(--color-dark-100);
+  flex-shrink: 0;
+
+  .stepItem[data-done] & {
+    background: var(--color-success-shade);
+    color: var(--color-success);
+  }
+}
+
+.stepItem__label {
+  .stepItem[data-done] & {
+    color: var(--color-dark-500);
+  }
+}
+
+// ── Documents ─────────────────────────────────────────────────────
+.docList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.docItem {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  font-size: 0.8125rem;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--color-border-default);
+
+  &:last-child { border-bottom: none; }
+}
+
+.docItem__btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-primary);
+  font-size: inherit;
+  font-family: inherit;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+
+  &:hover .docItem__name { text-decoration: underline; }
+}
+
+.docItem__icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.docItem__name {
+  color: var(--color-primary);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docItem__meta {
+  color: var(--color-dark-100);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+// ── Document preview overlay ──────────────────────────────────────
+.previewOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+}
+
+.previewModal {
+  background: #fff;
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  width: min(900px, 100%);
+  height: min(90vh, 800px);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.previewModal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border-default);
+  background: var(--color-surfaces-surface-1);
+  flex-shrink: 0;
+}
+
+.previewModal__title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-dark-500);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previewModal__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.previewModal__externalLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  color: var(--color-dark-200);
+  text-decoration: none;
+  transition: background var(--transition-quick), color var(--transition-quick);
+
+  &:hover {
+    background: var(--color-surfaces-surface-2);
+    color: var(--color-primary);
+  }
+}
+
+.previewModal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  color: var(--color-dark-200);
+  transition: background var(--transition-quick), color var(--transition-quick);
+
+  &:hover {
+    background: var(--color-surfaces-surface-2);
+    color: var(--color-dark-500);
+  }
+}
+
+.previewModal__body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surfaces-surface-1);
+}
+
+.previewModal__spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+}
+
+.previewModal__iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.previewModal__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+// ── Notes ─────────────────────────────────────────────────────────
+.noteList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.noteCard {
+  background: var(--color-surfaces-surface-1);
+  border-radius: var(--radius-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-border-default);
+}
+
+.noteCard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: 4px;
+}
+
+.noteCard__author {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-dark-400);
+}
+
+.noteCard__date {
+  font-size: 0.6875rem;
+  color: var(--color-dark-100);
+}
+
+.noteCard__content {
+  font-size: 0.8125rem;
+  color: var(--color-dark-300);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.noteForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.noteTextarea {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+  background: #fff;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+  }
+
+  &::placeholder {
+    color: var(--color-placeholder);
+  }
+}
+
+.rejectLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-dark-400);
+  margin-bottom: var(--spacing-xs);
+}

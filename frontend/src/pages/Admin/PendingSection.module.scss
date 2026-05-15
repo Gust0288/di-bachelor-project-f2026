@@ -1,0 +1,323 @@
+.container {
+  display: flex;
+  height: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+// ── Left ─────────────────────────────────────────────────────────
+.left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--color-border-default);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surfaces-surface-1);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border-default);
+
+  &[data-accent='danger'] .metricCard__value {
+    color: var(--color-invalid);
+  }
+}
+
+.metricCard__label {
+  font-size: 0.6875rem;
+  color: var(--color-dark-100);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.metricCard__value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-dark-500);
+  line-height: 1;
+}
+
+.spinnerWrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+  flex: 1;
+}
+
+.empty {
+  text-align: center;
+  color: var(--color-dark-100);
+  padding: var(--spacing-2xl);
+}
+
+// ── Card list ─────────────────────────────────────────────────────
+.cardList {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.section__urgentHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-invalid-shade);
+  color: var(--color-invalid);
+  border-radius: var(--radius-xs);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.section__header {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-dark-100);
+  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-xs) 0;
+}
+
+// ── Card ──────────────────────────────────────────────────────────
+.card {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-xs);
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  transition: border-color var(--transition-quick), background var(--transition-quick);
+
+  &:hover {
+    background: var(--color-surfaces-surface-1);
+  }
+
+  &[data-selected] {
+    border-color: #185fa5;
+    border-width: 2px;
+    background: #eef5ff;
+  }
+
+  &[data-urgent] {
+    border-color: var(--color-invalid);
+  }
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+}
+
+.card__name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-dark-500);
+}
+
+.card__cvr {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--color-dark-100);
+}
+
+.card__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.card__email {
+  font-size: 0.75rem;
+  color: var(--color-dark-100);
+}
+
+.card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card__date {
+  font-size: 0.75rem;
+  color: var(--color-dark-100);
+}
+
+// ── Age bar ───────────────────────────────────────────────────────
+.ageBarTrack {
+  height: 3px;
+  border-radius: 999px;
+  margin-top: var(--spacing-2xs);
+
+  &[data-tier='low'] {
+    background: var(--color-surfaces-surface-2);
+  }
+
+  &[data-tier='medium'] {
+    background: var(--color-warning-shade);
+  }
+
+  &[data-tier='high'] {
+    background: var(--color-invalid-shade);
+  }
+}
+
+.ageBarFill {
+  height: 100%;
+  border-radius: 999px;
+  background: currentColor;
+  transition: width 0.3s ease;
+
+  .ageBarTrack[data-tier='low'] & {
+    background: var(--color-dark-100);
+  }
+
+  .ageBarTrack[data-tier='medium'] & {
+    background: var(--color-warning);
+  }
+
+  .ageBarTrack[data-tier='high'] & {
+    background: var(--color-invalid);
+  }
+}
+
+// ── Mobile back button ────────────────────────────────────────────
+.mobileBack {
+  display: none;
+}
+
+// ── Resize handle ─────────────────────────────────────────────────
+.resizeHandle {
+  width: 4px;
+  cursor: col-resize;
+  background: var(--color-border-default);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.15s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 -4px;
+  }
+
+  &:hover {
+    background: var(--color-primary);
+  }
+}
+
+// ── Right panel ───────────────────────────────────────────────────
+.right {
+  overflow-y: auto;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.emptyPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
+  color: var(--color-dark-100);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+// ── Tablet — stack layout ─────────────────────────────────────────
+@media (width < 77.8125em) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .left {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-default);
+    overflow: visible;
+    flex: none;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cardList {
+    flex: none;
+    overflow: visible;
+    max-height: none;
+  }
+
+  .resizeHandle {
+    display: none;
+  }
+
+  .right {
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible;
+  }
+
+  .mobileBack {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-bottom: 1px solid var(--color-border-default);
+    background: var(--color-surfaces-surface-1);
+    color: var(--color-primary);
+    font-size: 0.875rem;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+
+    &:hover {
+      background: var(--color-surfaces-surface-2);
+    }
+  }
+
+  .container[data-has-selection] .left {
+    display: none;
+  }
+
+  .container:not([data-has-selection]) .right {
+    display: none;
+  }
+}
+
+// ── Mobile — narrow adjustments ───────────────────────────────────
+@media (width < 48em) {
+  .metrics {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

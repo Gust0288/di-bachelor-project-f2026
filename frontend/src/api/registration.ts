@@ -81,6 +81,30 @@ export function confirmEmailVerification(
   )
 }
 
+export function sendEmailVerificationGlobal(
+  stepData: Record<string, unknown>,
+): Promise<{ email: string }> {
+  return apiFetch<{ email: string }>('/registration/email-verification/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(stepData),
+  })
+}
+
+export function confirmEmailVerificationGlobal(
+  email: string,
+  code: string,
+): Promise<{ session_id: string; current_step: number }> {
+  return apiFetch<{ session_id: string; current_step: number }>(
+    '/registration/email-verification/confirm',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code }),
+    },
+  )
+}
+
 export function uploadDocument(sessionId: string, file: File): Promise<{ document_id: string }> {
   const formData = new FormData()
   formData.append('session_id', sessionId)

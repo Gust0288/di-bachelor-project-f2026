@@ -12,7 +12,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from app.core.database import get_db_cursor
-from app.schemas.registration import STEP_SCHEMAS
+from app.schemas.registration import STEP_SCHEMAS, Step1Data
 from app.services.branch_mapping import get_suggestions
 from app.services.email_confirmation import send_registration_confirmation
 from app.services.email_verification import send_verification_email
@@ -414,6 +414,83 @@ def confirm_email_verification(session_id: str, code: str) -> None:
             """,
             (session_id,),
         )
+
+
+async def send_global_email_verification(email: str, step_data_dict: dict) -> str:
+    Step1Data(**step_data_dict)
+
+    code = "".join(random.choices(string.digits, k=6))
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+
+    with get_db_cursor() as (_, cur):
+        cur.execute(
+            """
+            INSERT INTO email_verification_codes (email, code, step_data, expires_at)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (email) DO UPDATE
+              SET code       = EXCLUDED.code,
+                  step_data  = EXCLUDED.step_data,
+                  expires_at = EXCLUDED.expires_at,
+                  created_at = NOW()
+            """,
+            (email, code, json.dumps(step_data_dict), expires_at),
+        )
+
+    await send_verification_email(email, code)
+    return email
+
+
+def confirm_global_email_verification(email: str, code: str) -> dict:
+    with get_db_cursor(dict_rows=True) as (_, cur):
+        cur.execute(
+            """
+            SELECT code, step_data, expires_at
+            FROM email_verification_codes
+            WHERE email = %s
+            FOR UPDATE
+            """,
+            (email,),
+        )
+        row = cur.fetchone()
+        if not row:
+            raise ValueError("Ingen bekræftelseskode sendt til denne email")
+        if row["expires_at"] < datetime.now(timezone.utc):
+            raise ValueError("Bekræftelseskoden er udløbet")
+        if row["code"] != code:
+            raise ValueError("Forkert bekræftelseskode")
+
+        step_data = row["step_data"] or {}
+
+        cur.execute("INSERT INTO registration_sessions DEFAULT VALUES RETURNING id")
+        session_id = str(cur.fetchone()["id"])
+
+        cur.execute(
+            """
+            UPDATE registration_sessions
+            SET step_data      = %s,
+                contact_email  = %s,
+                contact_name   = %s,
+                company_cvr    = %s,
+                email_verified = TRUE,
+                current_step   = 2,
+                updated_at     = NOW()
+            WHERE id = %s
+            """,
+            (
+                json.dumps({"1": step_data}),
+                email,
+                step_data.get("contact_name"),
+                step_data.get("cvr_number"),
+                session_id,
+            ),
+        )
+
+        cur.execute(
+            "DELETE FROM email_verification_codes WHERE email = %s",
+            (email,),
+        )
+
+    return {"session_id": session_id, "current_step": 2}
 
 
 def submit_registration(session_id: str) -> dict:

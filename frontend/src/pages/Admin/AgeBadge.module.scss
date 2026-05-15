@@ -1,0 +1,24 @@
+.badge {
+  display: inline-block;
+  padding: 2px var(--spacing-xs);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+
+  &[data-tier='low'] {
+    background: var(--color-surfaces-surface-2);
+    color: var(--color-dark-200);
+  }
+
+  &[data-tier='medium'] {
+    background: var(--color-warning-shade);
+    color: #7a5c00;
+  }
+
+  &[data-tier='high'] {
+    background: var(--color-invalid-shade);
+    color: var(--color-invalid);
+  }
+}

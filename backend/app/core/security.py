@@ -35,3 +35,25 @@ def verify_token(token: str) -> dict:
         raise ValueError("Token udløbet")
     except jwt.InvalidTokenError:
         raise ValueError("Ugyldigt token")
+
+
+def require_admin(f):
+    from functools import wraps
+    from flask import request, jsonify, g
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Ikke autoriseret"}), 401
+        token = auth_header[7:]
+        try:
+            payload = verify_token(token)
+        except ValueError as exc:
+            return jsonify({"error": str(exc)}), 401
+        if payload.get("role") != "admin":
+            return jsonify({"error": "Adgang nægtet"}), 403
+        g.admin_id = payload["sub"]
+        return f(*args, **kwargs)
+
+    return decorated
