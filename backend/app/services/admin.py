@@ -100,7 +100,9 @@ def approve_registration(registration_id: str, admin_id: str) -> dict:
         if row is None:
             raise LookupError(f"Registrering ikke fundet: {registration_id}")
         if row["status"] != "pending":
-            raise ValueError(f"Kan ikke godkende en ansøgning med status '{row['status']}'")
+            raise ValueError(
+                f"Kan ikke godkende en ansøgning med status '{row['status']}'"
+            )
 
         cursor.execute(
             """
@@ -144,7 +146,8 @@ def approve_registration(registration_id: str, admin_id: str) -> dict:
             company_name=email_data["company_name"],
             cvr_number=email_data["cvr_number"],
             address_str=address_str,
-            membership_type=email_data["membership_type"] or answers.get("membership_type", ""),
+            membership_type=email_data["membership_type"]
+            or answers.get("membership_type", ""),
             services=answers.get("services", []),
             branchefaellesskaber=answers.get("branchefaellesskaber", []),
         )
@@ -169,7 +172,9 @@ def reject_registration(registration_id: str, admin_id: str, notes: str) -> dict
         if row is None:
             raise LookupError(f"Registrering ikke fundet: {registration_id}")
         if row["status"] != "pending":
-            raise ValueError(f"Kan ikke afvise en ansøgning med status '{row['status']}'")
+            raise ValueError(
+                f"Kan ikke afvise en ansøgning med status '{row['status']}'"
+            )
 
         cursor.execute(
             """
@@ -217,8 +222,8 @@ def get_stats() -> dict:
         """)
         row = cursor.fetchone()
     return {
-        "total":    int(row["total"]),
-        "pending":  int(row["pending"]),
+        "total": int(row["total"]),
+        "pending": int(row["pending"]),
         "approved": int(row["approved"]),
         "rejected": int(row["rejected"]),
     }

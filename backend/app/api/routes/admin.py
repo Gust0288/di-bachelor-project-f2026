@@ -144,9 +144,11 @@ def get_activity():
 @require_admin
 def get_document(doc_id: str):
     import os
+
     if not _valid_uuid(doc_id):
         return jsonify({"error": "Ugyldigt dokument-id"}), 400
     from app.core.database import get_db_cursor
+
     with get_db_cursor(dict_rows=True) as (_, cur):
         cur.execute(
             "SELECT storage_path, content_type, file_name FROM uploaded_documents WHERE id = %s",

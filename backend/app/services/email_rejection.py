@@ -78,7 +78,8 @@ async def send_rejection_email(
                 "https://api.resend.com/emails",
                 headers={"Authorization": f"Bearer {settings.resend_api_key}"},
                 json={
-                    "from": settings.email_from or "DI Indmeldelses Portal <onboarding@resend.dev>",
+                    "from": settings.email_from
+                    or "DI Indmeldelses Portal <onboarding@resend.dev>",
                     "to": [to_email],
                     "subject": subject,
                     "text": text,
@@ -118,13 +119,17 @@ def send_rejection_email_background(
 ) -> None:
     def _run() -> None:
         try:
-            asyncio.run(send_rejection_email(
-                to_email=to_email,
-                contact_name=contact_name,
-                company_name=company_name,
-                rejection_reason=rejection_reason,
-            ))
+            asyncio.run(
+                send_rejection_email(
+                    to_email=to_email,
+                    contact_name=contact_name,
+                    company_name=company_name,
+                    rejection_reason=rejection_reason,
+                )
+            )
         except Exception:
-            logger.exception("Afvisningsmail ikke sendt til %s (%s)", to_email, company_name)
+            logger.exception(
+                "Afvisningsmail ikke sendt til %s (%s)", to_email, company_name
+            )
 
     threading.Thread(target=_run, daemon=True).start()

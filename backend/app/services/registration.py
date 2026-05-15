@@ -461,9 +461,7 @@ def confirm_global_email_verification(email: str, code: str) -> dict:
 
         step_data = row["step_data"] or {}
 
-        cur.execute(
-            "INSERT INTO registration_sessions DEFAULT VALUES RETURNING id"
-        )
+        cur.execute("INSERT INTO registration_sessions DEFAULT VALUES RETURNING id")
         session_id = str(cur.fetchone()["id"])
 
         cur.execute(

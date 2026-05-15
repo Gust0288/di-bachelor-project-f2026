@@ -34,8 +34,7 @@ def _format_services_html(services: list[str]) -> str:
     if not services:
         return "<em>Ingen valgte tjenester</em>"
     items = "".join(
-        f'<li style="margin: 4px 0;">{_SERVICE_LABELS.get(s, s)}</li>'
-        for s in services
+        f'<li style="margin: 4px 0;">{_SERVICE_LABELS.get(s, s)}</li>' for s in services
     )
     return f'<ul style="margin: 4px 0 0; padding-left: 20px;">{items}</ul>'
 
@@ -152,13 +151,22 @@ async def send_invoice_email(
     branchefaellesskaber: list[str],
 ) -> None:
     settings = get_settings()
-    approval_date = date.today().strftime("%-d. %B %Y").replace(
-        "January", "januar").replace("February", "februar").replace(
-        "March", "marts").replace("April", "april").replace(
-        "May", "maj").replace("June", "juni").replace(
-        "July", "juli").replace("August", "august").replace(
-        "September", "september").replace("October", "oktober").replace(
-        "November", "november").replace("December", "december")
+    approval_date = (
+        date.today()
+        .strftime("%-d. %B %Y")
+        .replace("January", "januar")
+        .replace("February", "februar")
+        .replace("March", "marts")
+        .replace("April", "april")
+        .replace("May", "maj")
+        .replace("June", "juni")
+        .replace("July", "juli")
+        .replace("August", "august")
+        .replace("September", "september")
+        .replace("October", "oktober")
+        .replace("November", "november")
+        .replace("December", "december")
+    )
 
     branches_section = (
         f"\nBRANCHEFÆLLESSKABER\n--------------------\n"
@@ -195,7 +203,8 @@ async def send_invoice_email(
                 "https://api.resend.com/emails",
                 headers={"Authorization": f"Bearer {settings.resend_api_key}"},
                 json={
-                    "from": settings.email_from or "DI Indmeldelses Portal <onboarding@resend.dev>",
+                    "from": settings.email_from
+                    or "DI Indmeldelses Portal <onboarding@resend.dev>",
                     "to": [to_email],
                     "subject": subject,
                     "text": text,
@@ -239,17 +248,21 @@ def send_invoice_email_background(
 ) -> None:
     def _run() -> None:
         try:
-            asyncio.run(send_invoice_email(
-                to_email=to_email,
-                contact_name=contact_name,
-                company_name=company_name,
-                cvr_number=cvr_number,
-                address_str=address_str,
-                membership_type=membership_type,
-                services=services,
-                branchefaellesskaber=branchefaellesskaber,
-            ))
+            asyncio.run(
+                send_invoice_email(
+                    to_email=to_email,
+                    contact_name=contact_name,
+                    company_name=company_name,
+                    cvr_number=cvr_number,
+                    address_str=address_str,
+                    membership_type=membership_type,
+                    services=services,
+                    branchefaellesskaber=branchefaellesskaber,
+                )
+            )
         except Exception:
-            logger.exception("Fakturamail ikke sendt til %s (%s)", to_email, company_name)
+            logger.exception(
+                "Fakturamail ikke sendt til %s (%s)", to_email, company_name
+            )
 
     threading.Thread(target=_run, daemon=True).start()

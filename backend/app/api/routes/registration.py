@@ -298,7 +298,10 @@ async def global_send_email_verification():
     try:
         await reg_service.send_global_email_verification(email, data)
     except ValidationError as e:
-        return jsonify({"error": "Ugyldig step 1-data", "details": _pydantic_errors(e)}), 422
+        return (
+            jsonify({"error": "Ugyldig step 1-data", "details": _pydantic_errors(e)}),
+            422,
+        )
     except Exception as e:
         return jsonify({"error": f"Kunne ikke sende email: {e}"}), 500
     return jsonify({"email": email})
