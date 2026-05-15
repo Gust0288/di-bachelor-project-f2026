@@ -88,6 +88,9 @@ def get_registration_documents(registration_id: str) -> list[dict]:
 
 
 def approve_registration(registration_id: str, admin_id: str) -> dict:
+    from app.services.email_invoice import send_invoice_email_background
+
+    email_data = None
     with get_db_cursor(dict_rows=True) as (_, cursor):
         cursor.execute(
             "SELECT status, session_id FROM registrations WHERE id = %s",
@@ -115,6 +118,36 @@ def approve_registration(registration_id: str, admin_id: str) -> dict:
                 "UPDATE registration_sessions SET status = 'approved' WHERE id = %s",
                 (row["session_id"],),
             )
+
+        cursor.execute(
+            """
+            SELECT company_name, cvr_number, contact_name, contact_email,
+                   address, answers,
+                   answers->>'membership_type' AS membership_type
+            FROM registrations WHERE id = %s
+            """,
+            (registration_id,),
+        )
+        email_data = cursor.fetchone()
+
+    if email_data:
+        answers = email_data["answers"] or {}
+        addr = email_data["address"] or {}
+        address_parts = [
+            addr.get("street", ""),
+            f"{addr.get('zip', '')} {addr.get('city', '')}".strip(),
+        ]
+        address_str = ", ".join(p for p in address_parts if p)
+        send_invoice_email_background(
+            to_email=email_data["contact_email"],
+            contact_name=email_data["contact_name"],
+            company_name=email_data["company_name"],
+            cvr_number=email_data["cvr_number"],
+            address_str=address_str,
+            membership_type=email_data["membership_type"] or answers.get("membership_type", ""),
+            services=answers.get("services", []),
+            branchefaellesskaber=answers.get("branchefaellesskaber", []),
+        )
 
     return _serialize_row(dict(updated))
 
