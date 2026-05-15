@@ -5,6 +5,7 @@ import {
   type MembershipPriceEstimate,
 } from './membershipPrice'
 import type { ContactPerson } from './steps/ContactPersonFields'
+import type { CvrHiddenFields } from './types'
 import type { CompanyOption, WizardFormData } from './wizard.types'
 import styles from './WizardPage.module.scss'
 
@@ -12,6 +13,7 @@ type WizardSummaryProps = {
   currentStepIndex: number
   formData: WizardFormData
   selectedCompany?: CompanyOption
+  cvrData: CvrHiddenFields | null
   selectedServices: string[]
   andetBeskrivelse: string
   employeeCount: number | ''
@@ -19,6 +21,8 @@ type WizardSummaryProps = {
   employeeTypes: string[]
   totalLoensum: number | ''
   overenskomstStatus: string
+  overenskomstType: string
+  documentId: string
   selectedFaellesskaber: string[]
   allFaellesskaber: { id: string; name: string }[]
   computedMembership: string | undefined
@@ -38,6 +42,34 @@ type MaybeSummaryItem = SummaryItem | false | null | undefined | ''
 
 function summaryItems(items: MaybeSummaryItem[]): SummaryItem[] {
   return items.filter((item): item is SummaryItem => Boolean(item))
+}
+
+function formatContact(person: ContactPerson | null | undefined): string | null {
+  if (!person) return null
+
+  const name = person.name.trim()
+  const details = [person.title, person.email, person.phone]
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  if (!name && details.length === 0) return null
+  if (!name) return details.join(', ')
+
+  return details.length > 0 ? `${name} (${details.join(', ')})` : name
+}
+
+function getPrimaryBranch(
+  selectedCompany: CompanyOption | undefined,
+  cvrData: CvrHiddenFields | null,
+) {
+  const selectedBranch = selectedCompany?.branchCodes[0]
+  if (selectedBranch) return selectedBranch
+  if (!cvrData?.industry_code) return null
+
+  return {
+    code: cvrData.industry_code,
+    title: cvrData.industry_description,
+  }
 }
 
 function PriceEstimateDetails({ estimate }: { estimate: MembershipPriceEstimate }) {
@@ -63,6 +95,7 @@ function PriceEstimateDetails({ estimate }: { estimate: MembershipPriceEstimate 
 export default function WizardSummary({
   formData,
   selectedCompany,
+  cvrData,
   selectedServices,
   employeeCount,
   noEmployees,
@@ -70,24 +103,35 @@ export default function WizardSummary({
   totalLoensum,
   selectedFaellesskaber,
   computedMembership,
-  managingDirector,
 }: WizardSummaryProps) {
-  const primaryBranch = selectedCompany?.branchCodes[0]
+  const primaryBranch = getPrimaryBranch(selectedCompany, cvrData)
 
   const employeeValue = noEmployees
     ? 'Ingen ansatte'
     : employeeCount !== ''
       ? `${employeeCount} ansatte`
       : null
-
   const totalLoensumValue = totalLoensum !== '' ? formatDkk(totalLoensum) : null
-  const contactName = formData.contactName || managingDirector.name
-  const contactEmail = formData.contactEmail || managingDirector.email
-  const contactValue = contactName
-    ? contactEmail
-      ? `${contactName} (${contactEmail})`
-      : contactName
+  const employeeSummaryValue = employeeValue
+    ? (
+        <span className={styles.summaryValueStack}>
+          <span>{employeeValue}</span>
+          {totalLoensumValue ? (
+            <span className={styles.summarySubValue}>
+              Samlet lønsum: {totalLoensumValue}
+            </span>
+          ) : null}
+        </span>
+      )
     : null
+
+  const contactValue = formatContact({
+    name: formData.contactName,
+    title: formData.contactJobTitle,
+    email: formData.contactEmail,
+    phone: formData.contactPhone,
+  })
+  const companyName = selectedCompany?.label || cvrData?.company_name
 
   const priceEstimate = calculateMembershipPriceEstimate({
     employeeCount,
@@ -100,13 +144,15 @@ export default function WizardSummary({
   })
 
   const summary = summaryItems([
-    selectedCompany && {
+    companyName && {
       label: 'Virksomhedens navn',
-      value: `${selectedCompany.label} (CVR: ${selectedCompany.id})`,
+      value: companyName,
     },
     primaryBranch && {
       label: 'Primær branche',
-      value: `${primaryBranch.code} ${primaryBranch.title}`,
+      value: primaryBranch.title
+        ? `${primaryBranch.code} ${primaryBranch.title}`
+        : primaryBranch.code,
     },
     contactValue && {
       label: 'Kontaktperson',
@@ -116,16 +162,12 @@ export default function WizardSummary({
       label: 'Medlemstype',
       value: computedMembership,
     },
-    employeeValue && {
+    employeeSummaryValue && {
       label: 'Antal ansatte',
-      value: employeeValue,
-    },
-    totalLoensumValue && {
-      label: 'Samlet lønsum',
-      value: totalLoensumValue,
+      value: employeeSummaryValue,
     },
     priceEstimate && {
-      label: 'Prisberegning',
+      label: 'Estimeret pris',
       value: <PriceEstimateDetails estimate={priceEstimate} />,
     },
   ])
