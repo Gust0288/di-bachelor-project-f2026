@@ -265,6 +265,54 @@ def add_note(registration_id: str, admin_id: str, content: str) -> dict:
     return _serialize_row(dict(row))
 
 
+def list_sessions() -> list[dict]:
+    query = """
+        SELECT
+            id,
+            company_cvr,
+            current_step,
+            contact_name,
+            contact_email,
+            tier,
+            created_at,
+            updated_at,
+            expires_at
+        FROM registration_sessions
+        WHERE status = 'draft' AND expires_at > NOW()
+        ORDER BY updated_at DESC
+    """
+    with get_db_cursor(dict_rows=True) as (_, cursor):
+        cursor.execute(query)
+        rows = cursor.fetchall()
+    return [_serialize_row(dict(row)) for row in rows]
+
+
+def get_session_detail(session_id: str) -> dict:
+    query = """
+        SELECT
+            id,
+            company_cvr,
+            current_step,
+            contact_name,
+            contact_email,
+            tier,
+            flags,
+            step_data,
+            created_at,
+            updated_at,
+            expires_at,
+            email_verified
+        FROM registration_sessions
+        WHERE id = %s AND status = 'draft'
+    """
+    with get_db_cursor(dict_rows=True) as (_, cursor):
+        cursor.execute(query, (session_id,))
+        row = cursor.fetchone()
+    if row is None:
+        raise LookupError(f"Session ikke fundet: {session_id}")
+    return _serialize_row(dict(row))
+
+
 def get_activity(limit: int = 100) -> list[dict]:
     query = """
         SELECT

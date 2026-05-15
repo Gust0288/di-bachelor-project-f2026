@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
-import { LayoutGrid, Clock, List, LogOut } from 'lucide-react'
+import { LayoutGrid, Clock, List, LogOut, Timer } from 'lucide-react'
 import Logo from '../../components/Logo/Logo'
 import styles from './AdminLayout.module.scss'
 
-export type AdminSection = 'overview' | 'pending' | 'activity'
+export type AdminSection = 'overview' | 'pending' | 'activity' | 'sessions'
 
 interface NavItem {
   id: AdminSection
@@ -14,6 +14,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: 'overview', label: 'Oversigt', icon: <LayoutGrid size={16} /> },
   { id: 'pending', label: 'Afventer', icon: <Clock size={16} /> },
+  { id: 'sessions', label: 'Igangværende', icon: <Timer size={16} /> },
   { id: 'activity', label: 'Aktivitetslog', icon: <List size={16} /> },
 ]
 

@@ -1,0 +1,221 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+}
+
+.loadingWrapper,
+.errorWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl);
+}
+
+// ── Expiry alert ──────────────────────────────────────────────────
+.expiryAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+
+  &[data-tier='critical'] {
+    background: var(--color-invalid-shade);
+    color: var(--color-invalid);
+  }
+
+  &[data-tier='warning'] {
+    background: var(--color-warning-shade);
+    color: var(--color-warning);
+  }
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+// ── Contact action buttons ─────────────────────────────────────────
+.contactActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border-default);
+  flex-wrap: wrap;
+}
+
+.contactBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-xs);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--transition-quick), color var(--transition-quick);
+
+  &[data-variant='email'] {
+    background: var(--color-primary);
+    color: #fff;
+
+    &:hover {
+      background: var(--color-primary-dark, #2a0145);
+    }
+  }
+
+  &[data-variant='phone'] {
+    background: var(--color-surfaces-surface-2);
+    color: var(--color-dark-500);
+    border: 1px solid var(--color-border-default);
+
+    &:hover {
+      background: var(--color-surfaces-surface-3, #e0e0e0);
+    }
+  }
+}
+
+// ── Sections ──────────────────────────────────────────────────────
+.section {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border-default);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.section__title {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--color-dark-100);
+  margin: 0 0 var(--spacing-sm);
+}
+
+// ── Progress ──────────────────────────────────────────────────────
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--spacing-xs);
+}
+
+.progressLabel {
+  font-size: 0.875rem;
+  color: var(--color-dark-500);
+  font-weight: 500;
+}
+
+.progressPct {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.progressTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-surfaces-surface-2);
+  overflow: hidden;
+  margin-bottom: var(--spacing-md);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-primary);
+  transition: width 0.4s ease;
+}
+
+// ── Step dots ─────────────────────────────────────────────────────
+.stepDots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.stepDot {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-dark-100);
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &[data-done] {
+    color: var(--color-primary);
+  }
+
+  &[data-current] {
+    color: var(--color-dark-500);
+    font-weight: 500;
+  }
+}
+
+.stepDot__label {
+  font-size: 0.8125rem;
+}
+
+// ── Definition list ───────────────────────────────────────────────
+.dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--spacing-xs) var(--spacing-md);
+  margin: 0;
+
+  dt {
+    font-size: 0.75rem;
+    color: var(--color-dark-100);
+    font-weight: 500;
+    align-self: start;
+    padding-top: 1px;
+  }
+
+  dd {
+    font-size: 0.875rem;
+    color: var(--color-dark-500);
+    margin: 0;
+  }
+}
+
+.mono {
+  font-family: monospace;
+  letter-spacing: 0.04em;
+}
+
+.link {
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.noData {
+  font-size: 0.8125rem;
+  color: var(--color-dark-100);
+  margin: 0;
+}
+
+// ── Expiry date ───────────────────────────────────────────────────
+.expiryDate {
+  &[data-tier='critical'] {
+    color: var(--color-invalid);
+    font-weight: 600;
+  }
+
+  &[data-tier='warning'] {
+    color: var(--color-warning);
+    font-weight: 500;
+  }
+}

@@ -4,6 +4,7 @@ import AdminLayout, { type AdminSection } from '../../layouts/AdminLayout/AdminL
 import OverviewSection from './OverviewSection'
 import PendingSection from './PendingSection'
 import ActivitySection from './ActivitySection'
+import SessionsSection from './SessionsSection'
 import { getStats, type AdminStats } from '../../api/admin'
 
 export default function AdminPage() {
@@ -51,6 +52,7 @@ export default function AdminPage() {
       {activeSection === 'pending' && (
         <PendingSection onStatusChange={handleStatusChange} />
       )}
+      {activeSection === 'sessions' && <SessionsSection />}
       {activeSection === 'activity' && <ActivitySection />}
     </AdminLayout>
   )

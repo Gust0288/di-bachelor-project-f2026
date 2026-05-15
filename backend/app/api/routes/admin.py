@@ -114,6 +114,25 @@ def add_note(registration_id: str):
     return jsonify(result), 201
 
 
+@admin_bp.get("/sessions")
+@require_admin
+def list_sessions():
+    rows = admin_service.list_sessions()
+    return jsonify(rows)
+
+
+@admin_bp.get("/sessions/<session_id>")
+@require_admin
+def get_session(session_id: str):
+    if not _valid_uuid(session_id):
+        return jsonify({"error": "Ugyldig session_id"}), 404
+    try:
+        row = admin_service.get_session_detail(session_id)
+    except LookupError as exc:
+        return jsonify({"error": str(exc)}), 404
+    return jsonify(row)
+
+
 @admin_bp.get("/activity")
 @require_admin
 def get_activity():

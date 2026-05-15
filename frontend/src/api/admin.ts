@@ -130,6 +130,32 @@ export function getActivity(): Promise<ActivityEntry[]> {
   return apiFetch<ActivityEntry[]>('/admin/activity', { headers: adminHeaders() })
 }
 
+export type SessionListItem = {
+  id: string
+  company_cvr: string | null
+  current_step: number
+  contact_name: string | null
+  contact_email: string | null
+  tier: string | null
+  created_at: string
+  updated_at: string
+  expires_at: string
+}
+
+export type SessionDetail = SessionListItem & {
+  step_data: Record<string, unknown>
+  flags: Record<string, unknown>
+  email_verified: boolean
+}
+
+export function listSessions(): Promise<SessionListItem[]> {
+  return apiFetch<SessionListItem[]>('/admin/sessions', { headers: adminHeaders() })
+}
+
+export function getSessionDetail(id: string): Promise<SessionDetail> {
+  return apiFetch<SessionDetail>(`/admin/sessions/${id}`, { headers: adminHeaders() })
+}
+
 export async function fetchDocumentBlob(documentId: string): Promise<{ blob: Blob; contentType: string }> {
   const res = await fetch(`${getApiBaseUrl()}/admin/documents/${documentId}`, {
     headers: adminHeaders(),
