@@ -20,7 +20,6 @@ ALLOWED_CONTENT_TYPES = {
 
 @documents_bp.post("/upload")
 def upload_document():
-    """Upload et dokument tilknyttet en wizard-session (f.eks. overenskomst)."""
     session_id = request.form.get("session_id")
     file = request.files.get("file")
 

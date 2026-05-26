@@ -1,3 +1,4 @@
+-- Migration 005: Email verification codes (2026-05-15)
 CREATE TABLE IF NOT EXISTS email_verification_codes (
     email       TEXT        PRIMARY KEY,
     code        VARCHAR(6)  NOT NULL,

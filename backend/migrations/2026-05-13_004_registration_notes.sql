@@ -1,3 +1,4 @@
+-- Migration 004: Registration notes (2026-05-13)
 CREATE TABLE IF NOT EXISTS registration_notes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   registration_id UUID NOT NULL REFERENCES registrations(id) ON DELETE CASCADE,

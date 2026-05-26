@@ -1,4 +1,4 @@
--- Migration 001: Wizard flow additions
+-- Migration 001: Wizard flow additions (2026-05-04)
 -- Adds flags and tier columns to registration_sessions,
 -- and updates uploaded_documents to support session-based uploads.
 

@@ -1,3 +1,4 @@
+-- Migration 003: CVR unique constraint (2026-05-08)
 -- Slet duplikerede CVR-registreringer, behold den nyeste per CVR
 DELETE FROM registrations
 WHERE id NOT IN (
