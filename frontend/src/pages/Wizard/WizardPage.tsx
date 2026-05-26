@@ -78,6 +78,10 @@ function computeMembership(
   return 'Associeret'
 }
 
+function hasDirectAgreement(overenskomstStatus: unknown, overenskomstType: unknown): boolean {
+  return overenskomstStatus === 'ja' && overenskomstType === 'direkte'
+}
+
 function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }
@@ -187,6 +191,7 @@ export default function WizardPage() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [validationMessage, setValidationMessage] = useState<string>()
   const [validationTarget, setValidationTarget] = useState<string>()
+  const [validationRequestId, setValidationRequestId] = useState(0)
 
   const [mitIdStatus, setMitIdStatus] = useState<MitIdStatus>('idle')
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -357,7 +362,7 @@ export default function WizardPage() {
         })
       }
     }, 0)
-  }, [currentStepIndex, validationTarget])
+  }, [currentStepIndex, validationRequestId, validationTarget])
 
   useEffect(() => {
     if (typeof centerRef.current?.scrollTo === 'function') {
@@ -619,6 +624,7 @@ export default function WizardPage() {
   function setValidation(message: string, target?: string) {
     setValidationMessage(message)
     setValidationTarget(target)
+    setValidationRequestId((requestId) => requestId + 1)
   }
 
   function updateField<Key extends keyof WizardFormData>(key: Key, value: WizardFormData[Key]) {
@@ -719,7 +725,10 @@ export default function WizardPage() {
     }
 
     if (currentStepIndex === 1 && !cvrConfirmed) {
-      return { message: 'Bekræft virksomhedsoplysningerne for at fortsætte.' }
+      return {
+        message: 'Bekræft virksomhedsoplysningerne for at fortsætte.',
+        target: 'cvrConfirmed',
+      }
     }
 
     if (currentStepIndex === 2) {
@@ -1037,8 +1046,10 @@ export default function WizardPage() {
         return
       }
       const step5 = stepData['5'] ?? {}
-      const established_ag =
-        step5.overenskomst_status === 'ja' && step5.overenskomst_type === 'direkte'
+      const established_ag = hasDirectAgreement(
+        step5.overenskomst_status,
+        step5.overenskomst_type,
+      )
       const localMembership = computeMembership(
         computeTier(stepData['4']?.employee_count as number | undefined),
         Boolean(established_ag),
@@ -1267,7 +1278,12 @@ export default function WizardPage() {
           <BranchStep
             cvrData={cvrData}
             cvrConfirmed={cvrConfirmed}
-            onCvrConfirmedChange={setCvrConfirmed}
+            onCvrConfirmedChange={(value) => {
+              clearValidation()
+              setCvrConfirmed(value)
+            }}
+            invalidField={validationTarget}
+            validationMessage={validationMessage}
           />
         )
       case 2:
@@ -1357,8 +1373,10 @@ export default function WizardPage() {
         const employeeCount = stepData['4']?.employee_count as number | undefined
         const localTier = computeTier(employeeCount)
         const step5 = stepData['5'] ?? {}
-        const established_ag =
-          step5.overenskomst_status === 'ja' && step5.overenskomst_type === 'direkte'
+        const established_ag = hasDirectAgreement(
+          step5.overenskomst_status,
+          step5.overenskomst_type,
+        )
         const localMembership = computeMembership(
           localTier,
           Boolean(established_ag),
@@ -1442,7 +1460,7 @@ export default function WizardPage() {
             allFaellesskaber={allFaellesskaber}
             computedMembership={computeMembership(
               computeTier(noEmployees ? 0 : (employeeCount !== '' ? employeeCount : undefined)),
-              overenskomstStatus === 'ja',
+              hasDirectAgreement(overenskomstStatus, overenskomstType),
               selectedFaellesskaber,
               selectedServices,
             )}
@@ -1608,7 +1626,7 @@ export default function WizardPage() {
           invoiceDelivery={invoiceDelivery}
           computedMembership={computeMembership(
             computeTier(noEmployees ? 0 : (employeeCount !== '' ? employeeCount : undefined)),
-            overenskomstStatus === 'ja',
+            hasDirectAgreement(overenskomstStatus, overenskomstType),
             selectedFaellesskaber,
             selectedServices,
           )}

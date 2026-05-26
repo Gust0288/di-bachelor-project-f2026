@@ -100,7 +100,6 @@ export default function AgreementStep({
           title="Upload overenskomst"
           description="Upload jeres overenskomstdokument (PDF eller billede)."
         >
-          <div data-validation-field="documentId" />
           <input
             ref={fileInputRef}
             type="file"
@@ -108,25 +107,27 @@ export default function AgreementStep({
             style={{ display: 'none' }}
             onChange={handleFileChange}
           />
-          <FileDropzone
-            title={
-              isUploading
-                ? 'Uploader...'
-                : documentId
-                  ? 'Dokument uploadet'
-                  : 'Vælg overenskomstdokument'
-            }
-            description={
-              documentId
-                ? 'Dokumentet er klar. Du kan vælge et andet, hvis det var forkert.'
-                : 'PDF eller billede (JPG, PNG)'
-            }
-            actionLabel={isUploading ? 'Uploader...' : documentId ? 'Skift fil' : 'Vælg fil'}
-            onAction={() => fileInputRef.current?.click()}
-          />
-          {invalidField === 'documentId' ? (
-            <p className={styles.fieldError}>{validationMessage}</p>
-          ) : null}
+          <div data-validation-field="documentId">
+            <FileDropzone
+              title={
+                isUploading
+                  ? 'Uploader...'
+                  : documentId
+                    ? 'Dokument uploadet'
+                    : 'Vælg overenskomstdokument'
+              }
+              description={
+                documentId
+                  ? 'Dokumentet er klar. Du kan vælge et andet, hvis det var forkert.'
+                  : 'PDF eller billede (JPG, PNG)'
+              }
+              actionLabel={isUploading ? 'Uploader...' : documentId ? 'Skift fil' : 'Vælg fil'}
+              onAction={() => fileInputRef.current?.click()}
+            />
+            {invalidField === 'documentId' ? (
+              <p className={styles.fieldError}>{validationMessage}</p>
+            ) : null}
+          </div>
         </ContentBox>
       ) : null}
     </>
