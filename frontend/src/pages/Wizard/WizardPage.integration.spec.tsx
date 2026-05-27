@@ -223,7 +223,6 @@ describe('WizardPage integration', () => {
     expect(await screen.findByRole('heading', { name: 'Bekræft din e-mail' })).toBeInTheDocument()
 
     await user.type(screen.getByLabelText('Tal 1 af 6'), '123456')
-    await user.click(screen.getByRole('button', { name: 'Bekræft e-mail' }))
 
     await waitFor(() => {
       expect(mockedConfirmEmailVerificationGlobal).toHaveBeenCalledWith('test@example.com', '123456')
