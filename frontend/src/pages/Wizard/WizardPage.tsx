@@ -1166,9 +1166,9 @@ export default function WizardPage() {
       setSubmittedAt(new Date())
       setMitIdStatus('verified')
       setIsSubmitted(true)
-    } catch {
+    } catch (err) {
       setMitIdStatus('login')
-      setValidationMessage('Noget gik galt ved afslutningen. Prøv igen.')
+      setValidationMessage(err instanceof Error ? err.message : 'Noget gik galt ved afslutningen. Prøv igen.')
     } finally {
       setIsSaving(false)
     }

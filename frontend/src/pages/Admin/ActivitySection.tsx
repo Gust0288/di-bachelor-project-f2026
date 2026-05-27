@@ -5,8 +5,21 @@ import InlineAlert from '../../components/InlineAlert/InlineAlert'
 import { getActivity, type ActivityEntry } from '../../api/admin'
 import styles from './ActivitySection.module.scss'
 
-const TYPE_FILTERS = [
+const CATEGORY_FILTERS = [
   { value: '', label: 'Alle' },
+  { value: 'user', label: 'Bruger aktivitet' },
+  { value: 'admin', label: 'Medarbejder aktivitet' },
+] as const
+
+const USER_TYPES = ['application_started', 'application_submitted'] as const
+const ADMIN_TYPES = ['approval', 'rejection', 'note'] as const
+
+const TYPE_FILTERS_USER = [
+  { value: 'application_started', label: 'Startet ansøgning' },
+  { value: 'application_submitted', label: 'Indsendt ansøgning' },
+] as const
+
+const TYPE_FILTERS_ADMIN = [
   { value: 'approval', label: 'Godkendelser' },
   { value: 'rejection', label: 'Afvisninger' },
   { value: 'note', label: 'Noter' },
@@ -45,7 +58,8 @@ export default function ActivitySection() {
   const [entries, setEntries] = useState<ActivityEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [typeFilter, setTypeFilter] = useState<'' | 'approval' | 'rejection' | 'note'>('')
+  const [categoryFilter, setCategoryFilter] = useState<'' | 'user' | 'admin'>('')
+  const [typeFilter, setTypeFilter] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
@@ -66,22 +80,31 @@ export default function ActivitySection() {
 
   const filtered = useMemo(() => {
     let result = entries
+    if (categoryFilter === 'user') result = result.filter((e) => (USER_TYPES as readonly string[]).includes(e.type))
+    else if (categoryFilter === 'admin') result = result.filter((e) => (ADMIN_TYPES as readonly string[]).includes(e.type))
     if (typeFilter) result = result.filter((e) => e.type === typeFilter)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
       result = result.filter(
         (e) =>
           e.company_name.toLowerCase().includes(q) ||
-          (e.admin_name ?? '').toLowerCase().includes(q),
+          (e.admin_name ?? '').toLowerCase().includes(q) ||
+          (e.content ?? '').toLowerCase().includes(q),
       )
     }
     return result
-  }, [entries, typeFilter, searchQuery])
+  }, [entries, categoryFilter, typeFilter, searchQuery])
 
   const todayCount = useMemo(() => entries.filter((e) => isToday(e.created_at)).length, [entries])
   const approvalCount = useMemo(() => entries.filter((e) => e.type === 'approval').length, [entries])
   const rejectionCount = useMemo(() => entries.filter((e) => e.type === 'rejection').length, [entries])
-  const noteCount = useMemo(() => entries.filter((e) => e.type === 'note').length, [entries])
+  const submittedCount = useMemo(() => entries.filter((e) => e.type === 'application_submitted').length, [entries])
+  const startedCount = useMemo(() => entries.filter((e) => e.type === 'application_started').length, [entries])
+
+  function handleCategoryChange(value: '' | 'user' | 'admin') {
+    setCategoryFilter(value)
+    setTypeFilter('')
+  }
 
   const grouped = useMemo(() => groupByDate(filtered), [filtered])
 
@@ -97,9 +120,10 @@ export default function ActivitySection() {
       <div className={styles.metrics}>
         {[
           { label: 'Handlinger i dag', value: todayCount },
+          { label: 'Ansøgninger startet', value: startedCount },
+          { label: 'Ansøgninger indsendt', value: submittedCount },
           { label: 'Godkendelser', value: approvalCount },
           { label: 'Afvisninger', value: rejectionCount },
-          { label: 'Noter tilføjet', value: noteCount },
         ].map((m) => (
           <div key={m.label} className={styles.metricCard}>
             <span className={styles.metricCard__label}>{m.label}</span>
@@ -110,22 +134,45 @@ export default function ActivitySection() {
 
       {/* Toolbar */}
       <div className={styles.toolbar}>
-        <div className={styles.filterPills}>
-          {TYPE_FILTERS.map((f) => (
-            <button
-              key={f.value}
-              className={styles.filterPill}
-              data-active={typeFilter === f.value || undefined}
-              onClick={() => setTypeFilter(f.value)}
-            >
-              {f.label}
-            </button>
-          ))}
+        <div className={styles.filterGroup}>
+          <div className={styles.filterPills}>
+            {CATEGORY_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                className={styles.filterPill}
+                data-active={categoryFilter === f.value || undefined}
+                onClick={() => handleCategoryChange(f.value as '' | 'user' | 'admin')}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          {categoryFilter !== '' && (
+            <div className={styles.filterPills} data-secondary>
+              <button
+                className={styles.filterPill}
+                data-active={typeFilter === '' || undefined}
+                onClick={() => setTypeFilter('')}
+              >
+                Alle typer
+              </button>
+              {(categoryFilter === 'user' ? TYPE_FILTERS_USER : TYPE_FILTERS_ADMIN).map((f) => (
+                <button
+                  key={f.value}
+                  className={styles.filterPill}
+                  data-active={typeFilter === f.value || undefined}
+                  onClick={() => setTypeFilter(f.value)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <input
           className={styles.search}
           type="text"
-          placeholder="Søg firma eller admin…"
+          placeholder="Søg firma, navn eller email…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -155,7 +202,7 @@ export default function ActivitySection() {
                   </div>
                   <div className={styles.entry__body}>
                     <div className={styles.entry__text}>
-                      <strong>{entry.admin_name ?? 'Admin'}</strong>
+                      <strong>{entry.admin_name ?? 'Bruger'}</strong>
                       {entry.type === 'approval' && (
                         <> godkendte <strong>{entry.company_name}</strong></>
                       )}
@@ -165,7 +212,17 @@ export default function ActivitySection() {
                       {entry.type === 'note' && (
                         <> tilføjede en note til <strong>{entry.company_name}</strong></>
                       )}
-                      {entry.type !== 'note' && (
+                      {entry.type === 'application_started' && (
+                        <> startede en ansøgning
+                          {entry.company_name !== 'Ukendt virksomhed' && (
+                            <> (CVR: <strong>{entry.company_name}</strong>)</>
+                          )}
+                        </>
+                      )}
+                      {entry.type === 'application_submitted' && (
+                        <> indsendte ansøgning for <strong>{entry.company_name}</strong></>
+                      )}
+                      {(entry.type === 'approval' || entry.type === 'rejection') && (
                         <span
                           className={styles.entry__badge}
                           data-type={entry.type}
@@ -173,12 +230,22 @@ export default function ActivitySection() {
                           {entry.type === 'approval' ? 'Godkendt' : 'Afvist'}
                         </span>
                       )}
+                      {(entry.type === 'application_started' || entry.type === 'application_submitted') && (
+                        <span className={styles.entry__badge} data-type={entry.type}>
+                          {entry.type === 'application_started' ? 'Startet' : 'Indsendt'}
+                        </span>
+                      )}
                     </div>
-                    {entry.content && (
+                    {entry.content && (entry.type === 'note' || entry.type === 'rejection') && (
                       <div
                         className={styles.entry__note}
                         data-type={entry.type}
                       >
+                        {entry.content}
+                      </div>
+                    )}
+                    {entry.content && (entry.type === 'application_started' || entry.type === 'application_submitted') && (
+                      <div className={styles.entry__note} data-type="user">
                         {entry.content}
                       </div>
                     )}

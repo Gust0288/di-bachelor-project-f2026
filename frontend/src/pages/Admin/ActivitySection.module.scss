@@ -11,7 +11,7 @@
 // ── Metrics ───────────────────────────────────────────────────────
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: var(--spacing-sm);
 }
 
@@ -43,15 +43,34 @@
 // ── Toolbar ───────────────────────────────────────────────────────
 .toolbar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-md);
   flex-wrap: wrap;
 }
 
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
 .filterPills {
   display: flex;
   gap: var(--spacing-xs);
+  flex-wrap: wrap;
+
+  &[data-secondary] .filterPill {
+    font-size: 0.75rem;
+    padding: 2px var(--spacing-xs);
+    color: var(--color-dark-100);
+    border-color: var(--color-border-default);
+
+    &[data-active] {
+      background: var(--color-dark-300);
+      border-color: var(--color-dark-300);
+    }
+  }
 }
 
 .filterPill {
@@ -149,6 +168,8 @@
   &[data-type='approval'] { background: var(--color-success); }
   &[data-type='rejection'] { background: var(--color-invalid); }
   &[data-type='note'] { background: var(--color-primary); }
+  &[data-type='application_started'] { background: var(--color-dark-100); }
+  &[data-type='application_submitted'] { background: #185fa5; }
 }
 
 .entry__avatar {
@@ -198,6 +219,16 @@
     background: var(--color-invalid-shade);
     color: var(--color-invalid);
   }
+
+  &[data-type='application_started'] {
+    background: var(--color-surfaces-surface-2);
+    color: var(--color-dark-300);
+  }
+
+  &[data-type='application_submitted'] {
+    background: #dbeafe;
+    color: #185fa5;
+  }
 }
 
 .entry__note {
@@ -213,6 +244,11 @@
 
   &[data-type='rejection'] {
     border-left: 2px solid var(--color-invalid);
+    color: var(--color-dark-200);
+  }
+
+  &[data-type='user'] {
+    border-left: 2px solid #185fa5;
     color: var(--color-dark-200);
   }
 }

@@ -318,7 +318,7 @@ def get_session_detail(session_id: str) -> dict:
     return _serialize_row(dict(row))
 
 
-def get_activity(limit: int = 100) -> list[dict]:
+def get_activity(limit: int = 200) -> list[dict]:
     query = """
         SELECT
             CASE WHEN r.status = 'approved' THEN 'approval' ELSE 'rejection' END AS type,
@@ -343,6 +343,30 @@ def get_activity(limit: int = 100) -> list[dict]:
             n.created_at
         FROM registration_notes n
         JOIN registrations r ON n.registration_id = r.id
+
+        UNION ALL
+
+        SELECT
+            'application_started'                                          AS type,
+            rs.id                                                          AS registration_id,
+            COALESCE(rs.company_cvr, 'Ukendt virksomhed')                 AS company_name,
+            COALESCE(rs.contact_name, rs.contact_email, 'Bruger')         AS admin_name,
+            rs.contact_email                                               AS content,
+            rs.created_at
+        FROM registration_sessions rs
+        WHERE rs.created_at >= NOW() - INTERVAL '14 days'
+
+        UNION ALL
+
+        SELECT
+            'application_submitted'                                        AS type,
+            r.id                                                           AS registration_id,
+            r.company_name,
+            COALESCE(r.contact_name, r.contact_email)                     AS admin_name,
+            r.contact_email                                                AS content,
+            r.created_at
+        FROM registrations r
+        WHERE r.created_at >= NOW() - INTERVAL '14 days'
 
         ORDER BY created_at DESC
         LIMIT %s

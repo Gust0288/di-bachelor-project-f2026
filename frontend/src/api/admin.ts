@@ -100,7 +100,7 @@ export type RegistrationNote = {
 }
 
 export type ActivityEntry = {
-  type: 'approval' | 'rejection' | 'note'
+  type: 'approval' | 'rejection' | 'note' | 'application_started' | 'application_submitted'
   registration_id: string
   company_name: string
   admin_name: string | null
