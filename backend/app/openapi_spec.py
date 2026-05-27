@@ -16,7 +16,10 @@ def build_spec() -> dict:
             {"name": "Steps", "description": "Gem step-data og hent forslag"},
             {"name": "Dokumenter", "description": "Fil-upload"},
             {"name": "Auth", "description": "OTP-login og admin-login"},
-            {"name": "Email", "description": "Email-verificering (global og session-bundet)"},
+            {
+                "name": "Email",
+                "description": "Email-verificering (global og session-bundet)",
+            },
             {"name": "Admin", "description": "Sagsbehandling – kræver admin JWT"},
         ],
         "components": {
@@ -486,9 +489,7 @@ def build_spec() -> dict:
                         "200": {
                             "description": "Serveren kører",
                             "content": {
-                                "application/json": {
-                                    "example": {"status": "ok"}
-                                }
+                                "application/json": {"example": {"status": "ok"}}
                             },
                         }
                     },
@@ -504,7 +505,9 @@ def build_spec() -> dict:
                             "application/json": {
                                 "schema": {
                                     "type": "object",
-                                    "properties": {"email": {"type": "string", "format": "email"}},
+                                    "properties": {
+                                        "email": {"type": "string", "format": "email"}
+                                    },
                                     "required": ["email"],
                                 },
                                 "example": {"email": "bruger@virksomhed.dk"},
@@ -533,7 +536,10 @@ def build_spec() -> dict:
                                     },
                                     "required": ["email", "code"],
                                 },
-                                "example": {"email": "bruger@virksomhed.dk", "code": "123456"},
+                                "example": {
+                                    "email": "bruger@virksomhed.dk",
+                                    "code": "123456",
+                                },
                             }
                         },
                     },
@@ -541,9 +547,7 @@ def build_spec() -> dict:
                         "200": {
                             "description": "Login godkendt – returnerer JWT-token",
                             "content": {
-                                "application/json": {
-                                    "example": {"token": "eyJ..."}
-                                }
+                                "application/json": {"example": {"token": "eyJ..."}}
                             },
                         },
                         "400": {"description": "Ugyldig eller udløbet kode"},
@@ -566,7 +570,10 @@ def build_spec() -> dict:
                                     },
                                     "required": ["email", "password"],
                                 },
-                                "example": {"email": "admin@admin.com", "password": "password"},
+                                "example": {
+                                    "email": "admin@admin.com",
+                                    "password": "password",
+                                },
                             }
                         },
                     },
@@ -574,9 +581,7 @@ def build_spec() -> dict:
                         "200": {
                             "description": "Login godkendt – returnerer JWT-token",
                             "content": {
-                                "application/json": {
-                                    "example": {"token": "eyJ..."}
-                                }
+                                "application/json": {"example": {"token": "eyJ..."}}
                             },
                         },
                         "400": {"description": "Forkert email eller adgangskode"},
@@ -698,9 +703,7 @@ def build_spec() -> dict:
                         "200": {
                             "description": "Email bekræftet",
                             "content": {
-                                "application/json": {
-                                    "example": {"verified": True}
-                                }
+                                "application/json": {"example": {"verified": True}}
                             },
                         },
                         "400": {"description": "Ugyldig eller udløbet kode"},
@@ -717,7 +720,10 @@ def build_spec() -> dict:
                         {
                             "name": "status",
                             "in": "query",
-                            "schema": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+                            "schema": {
+                                "type": "string",
+                                "enum": ["pending", "approved", "rejected"],
+                            },
                             "description": "Filtrer på status",
                         }
                     ],
@@ -810,13 +816,17 @@ def build_spec() -> dict:
                                     "properties": {"notes": {"type": "string"}},
                                     "required": ["notes"],
                                 },
-                                "example": {"notes": "CVR-nummeret kunne ikke verificeres."},
+                                "example": {
+                                    "notes": "CVR-nummeret kunne ikke verificeres."
+                                },
                             }
                         },
                     },
                     "responses": {
                         "200": {"description": "Registrering afvist"},
-                        "400": {"description": "Begrundelse mangler eller registrering allerede behandlet"},
+                        "400": {
+                            "description": "Begrundelse mangler eller registrering allerede behandlet"
+                        },
                         "401": {"description": "Ikke autoriseret"},
                         "404": {"description": "Registrering ikke fundet"},
                     },
@@ -885,7 +895,9 @@ def build_spec() -> dict:
                                     "properties": {"content": {"type": "string"}},
                                     "required": ["content"],
                                 },
-                                "example": {"content": "Kontaktet virksomheden pr. telefon."},
+                                "example": {
+                                    "content": "Kontaktet virksomheden pr. telefon."
+                                },
                             }
                         },
                     },
