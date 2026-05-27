@@ -1,4 +1,4 @@
-.PHONY: help install up up-build down dev test test-frontend test-wizard test-backend test-db venv lint format typecheck db-init
+.PHONY: help install up up-build down down-v dev build test test-frontend test-wizard test-backend test-db test-coverage test-all venv lint format typecheck db-init db-migrate db-reset logs
 
 ifeq ($(OS),Windows_NT)
 PYTHON := backend/.venv/Scripts/python.exe
@@ -25,6 +25,13 @@ help:
 	@echo   make format        Formater backend-kode
 	@echo   make typecheck     Koer TypeScript type-check
 	@echo   make db-init       Initialiser databaseskema
+	@echo   make db-migrate    Koer migrationer manuelt (kraver kørende Docker)
+	@echo   make db-reset      Nulstil database (slet volumes + gendan skema)
+	@echo   make build         Byg frontend til produktion
+	@echo   make test-coverage Koer frontend-tests med coverage-rapport
+	@echo   make test-all      Koer alle tests (frontend + backend)
+	@echo   make logs          Følg Docker-logs
+	@echo   make down-v        Stop Docker-stack og slet volumes
 
 install:
 	cd frontend && npm ci
@@ -40,8 +47,17 @@ up-build:
 down:
 	docker compose down
 
+down-v:
+	docker compose down -v
+
+logs:
+	docker compose logs -f
+
 dev:
 	cd frontend && npm run dev
+
+build:
+	cd frontend && npm run build
 
 test: test-frontend
 
@@ -50,6 +66,11 @@ test-frontend:
 
 test-wizard:
 	cd frontend && npm run test:wizard
+
+test-coverage:
+	cd frontend && npm run test:coverage
+
+test-all: test-frontend test-backend
 
 test-backend:
 	"$(PYTHON)" -m pytest backend/tests/test_wizard_flow.py -v
@@ -75,3 +96,11 @@ typecheck:
 
 db-init:
 	cd backend && "../$(PYTHON)" -m app.core.database
+
+db-migrate:
+	docker compose exec backend python -m app.core.database
+
+db-reset: down-v
+	docker compose up -d db
+	sleep 3
+	$(MAKE) db-init
