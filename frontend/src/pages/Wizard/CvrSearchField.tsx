@@ -112,6 +112,7 @@ export default function CvrSearchField({
         placeholder="Fx 16077593 eller Novo Nordisk"
         value={query}
         onChange={handleQueryChange}
+        onKeyDown={(e) => { if (e.key === 'Enter' && isOpen && result) handleSelect(result) }}
         isRequired
         isInvalid={isInvalid}
         errorMessage={errorMessage}

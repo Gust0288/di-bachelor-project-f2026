@@ -36,12 +36,12 @@ export default function EmailVerificationOverlay({
     return () => clearTimeout(timer)
   }, [showSuccess])
 
-  async function handleConfirm() {
-    if (code.length !== 6) return
+  async function handleConfirm(codeToConfirm: string = code) {
+    if (codeToConfirm.length !== 6) return
     setError(null)
     setIsConfirming(true)
     try {
-      await onConfirm(code)
+      await onConfirm(codeToConfirm)
       setShowSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Forkert kode. Prøv igen.')
@@ -107,6 +107,7 @@ export default function EmailVerificationOverlay({
             onChange={setCode}
             onComplete={(val) => {
               setCode(val)
+              handleConfirm(val)
             }}
           />
         </div>
@@ -128,7 +129,7 @@ export default function EmailVerificationOverlay({
         <Button
           type="button"
           isDisabled={code.length !== 6 || isConfirming}
-          onPress={handleConfirm}
+          onPress={() => handleConfirm()}
         >
           {isConfirming ? 'Bekræfter…' : 'Bekræft e-mail'}
         </Button>

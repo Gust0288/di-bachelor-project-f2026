@@ -78,6 +78,7 @@ export default function MitIdVerificationStep({
                   placeholder="Indtast bruger-ID"
                   value={userId}
                   onChange={(event) => setUserId(event.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && userId.trim().length >= 4) onVerify() }}
                 />
               </label>
 

@@ -112,7 +112,10 @@ export default function LoginPage() {
       <LoginLayout>
         <div className={styles.card}>
           <h1 className={styles.title}>Administrator login</h1>
-          <div className={styles.form}>
+          <form
+            className={styles.form}
+            onSubmit={(e) => { e.preventDefault(); handleAdminLogin() }}
+          >
             <InputField
               label="E-mail"
               type="email"
@@ -130,14 +133,14 @@ export default function LoginPage() {
             {error && <InlineAlert tone="danger">{error}</InlineAlert>}
             <div className={styles.actions}>
               <Button
-                onPress={handleAdminLogin}
+                type="submit"
                 isDisabled={!email || !adminPassword || isLoading}
                 isSpinning={isLoading}
               >
                 Log ind
               </Button>
             </div>
-          </div>
+          </form>
           <button
             type="button"
             className={styles.backLink}
@@ -158,7 +161,10 @@ export default function LoginPage() {
     <LoginLayout>
       <div className={styles.card}>
         <h1 className={styles.title}>Bliv medlem af DI</h1>
-        <div className={styles.form}>
+        <form
+          className={styles.form}
+          onSubmit={(e) => { e.preventDefault(); handleSendOtp() }}
+        >
           <InputField
             label="E-mail"
             type="email"
@@ -169,7 +175,7 @@ export default function LoginPage() {
           {error && <InlineAlert tone="danger">{error}</InlineAlert>}
           <div className={styles.actions}>
             <Button
-              onPress={handleSendOtp}
+              type="submit"
               isDisabled={!email || isLoading}
               isSpinning={isLoading}
             >
@@ -177,13 +183,14 @@ export default function LoginPage() {
             </Button>
             <span className={styles.divider}>eller</span>
             <Button
+              type="button"
               variant="outline"
               onPress={() => navigate('/wizard')}
             >
               Start ny ansøgning
             </Button>
           </div>
-        </div>
+        </form>
         <button
           type="button"
           className={styles.adminLink}
