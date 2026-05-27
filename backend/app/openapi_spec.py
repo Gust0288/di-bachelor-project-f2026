@@ -15,7 +15,19 @@ def build_spec() -> dict:
             {"name": "Session", "description": "Opret og hent session"},
             {"name": "Steps", "description": "Gem step-data og hent forslag"},
             {"name": "Dokumenter", "description": "Fil-upload"},
+            {"name": "Auth", "description": "OTP-login og admin-login"},
+            {"name": "Email", "description": "Email-verificering (global og session-bundet)"},
+            {"name": "Admin", "description": "Sagsbehandling – kræver admin JWT"},
         ],
+        "components": {
+            "securitySchemes": {
+                "BearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT",
+                }
+            }
+        },
         "paths": {
             "/registration/flow": {
                 "get": {
@@ -463,6 +475,488 @@ def build_spec() -> dict:
                     "responses": {
                         "200": {"description": "Virksomhedsoplysninger"},
                         "404": {"description": "Virksomhed ikke fundet"},
+                    },
+                }
+            },
+            "/health": {
+                "get": {
+                    "tags": ["Flow"],
+                    "summary": "Sundhedstjek",
+                    "responses": {
+                        "200": {
+                            "description": "Serveren kører",
+                            "content": {
+                                "application/json": {
+                                    "example": {"status": "ok"}
+                                }
+                            },
+                        }
+                    },
+                }
+            },
+            "/auth/otp/send": {
+                "post": {
+                    "tags": ["Auth"],
+                    "summary": "Send OTP-kode til brugerens email (rate limit: 3/min)",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {"email": {"type": "string", "format": "email"}},
+                                    "required": ["email"],
+                                },
+                                "example": {"email": "bruger@virksomhed.dk"},
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {"description": "OTP sendt"},
+                        "400": {"description": "Email mangler eller ugyldig"},
+                    },
+                }
+            },
+            "/auth/otp/verify": {
+                "post": {
+                    "tags": ["Auth"],
+                    "summary": "Bekræft OTP og modtag JWT-token (rate limit: 5/min)",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "email": {"type": "string", "format": "email"},
+                                        "code": {"type": "string"},
+                                    },
+                                    "required": ["email", "code"],
+                                },
+                                "example": {"email": "bruger@virksomhed.dk", "code": "123456"},
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Login godkendt – returnerer JWT-token",
+                            "content": {
+                                "application/json": {
+                                    "example": {"token": "eyJ..."}
+                                }
+                            },
+                        },
+                        "400": {"description": "Ugyldig eller udløbet kode"},
+                    },
+                }
+            },
+            "/auth/admin/login": {
+                "post": {
+                    "tags": ["Auth"],
+                    "summary": "Admin-login med email og adgangskode (rate limit: 5/min)",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "email": {"type": "string", "format": "email"},
+                                        "password": {"type": "string"},
+                                    },
+                                    "required": ["email", "password"],
+                                },
+                                "example": {"email": "admin@admin.com", "password": "password"},
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Login godkendt – returnerer JWT-token",
+                            "content": {
+                                "application/json": {
+                                    "example": {"token": "eyJ..."}
+                                }
+                            },
+                        },
+                        "400": {"description": "Forkert email eller adgangskode"},
+                    },
+                }
+            },
+            "/registration/email-verification/send": {
+                "post": {
+                    "tags": ["Email"],
+                    "summary": "Send global email-verificeringskode (inden session oprettes)",
+                    "description": "Kræver samme body som step 1. `contact_email` bruges som modtager.",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {"type": "object"},
+                                "example": {
+                                    "cvr_number": "12345678",
+                                    "company_name": "Test A/S",
+                                    "contact_name": "Jane Doe",
+                                    "contact_email": "jane@test.dk",
+                                    "contact_phone": "12345678",
+                                },
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Kode sendt",
+                            "content": {
+                                "application/json": {
+                                    "example": {"email": "jane@test.dk"}
+                                }
+                            },
+                        },
+                        "400": {"description": "Email mangler"},
+                        "422": {"description": "Valideringsfejl i step 1-data"},
+                    },
+                }
+            },
+            "/registration/email-verification/confirm": {
+                "post": {
+                    "tags": ["Email"],
+                    "summary": "Bekræft global email-verificeringskode",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "email": {"type": "string", "format": "email"},
+                                        "code": {"type": "string"},
+                                    },
+                                    "required": ["email", "code"],
+                                },
+                                "example": {"email": "jane@test.dk", "code": "123456"},
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {"description": "Email bekræftet"},
+                        "400": {"description": "Ugyldig eller udløbet kode"},
+                    },
+                }
+            },
+            "/registration/session/{session_id}/email-verification/send": {
+                "post": {
+                    "tags": ["Email"],
+                    "summary": "Send email-verificeringskode til kontaktemail i sessionen",
+                    "parameters": [
+                        {
+                            "name": "session_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Kode sendt",
+                            "content": {
+                                "application/json": {
+                                    "example": {"email": "jane@test.dk"}
+                                }
+                            },
+                        },
+                        "400": {"description": "Step 1-data mangler i sessionen"},
+                        "404": {"description": "Session ikke fundet"},
+                    },
+                }
+            },
+            "/registration/session/{session_id}/email-verification/confirm": {
+                "post": {
+                    "tags": ["Email"],
+                    "summary": "Bekræft email-verificeringskode for session",
+                    "parameters": [
+                        {
+                            "name": "session_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {"code": {"type": "string"}},
+                                    "required": ["code"],
+                                },
+                                "example": {"code": "123456"},
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Email bekræftet",
+                            "content": {
+                                "application/json": {
+                                    "example": {"verified": True}
+                                }
+                            },
+                        },
+                        "400": {"description": "Ugyldig eller udløbet kode"},
+                        "404": {"description": "Session ikke fundet"},
+                    },
+                }
+            },
+            "/admin/registrations": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Hent alle registreringer",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "status",
+                            "in": "query",
+                            "schema": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+                            "description": "Filtrer på status",
+                        }
+                    ],
+                    "responses": {
+                        "200": {"description": "Liste af registreringer"},
+                        "401": {"description": "Ikke autoriseret"},
+                    },
+                }
+            },
+            "/admin/registrations/{registration_id}": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Hent enkelt registrering med al step-data",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "registration_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {"description": "Registreringsdetaljer"},
+                        "401": {"description": "Ikke autoriseret"},
+                        "404": {"description": "Registrering ikke fundet"},
+                    },
+                }
+            },
+            "/admin/registrations/{registration_id}/documents": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Hent dokumenter tilknyttet en registrering",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "registration_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {"description": "Liste af dokumenter"},
+                        "401": {"description": "Ikke autoriseret"},
+                        "404": {"description": "Registrering ikke fundet"},
+                    },
+                }
+            },
+            "/admin/registrations/{registration_id}/approve": {
+                "post": {
+                    "tags": ["Admin"],
+                    "summary": "Godkend registrering",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "registration_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {"description": "Registrering godkendt"},
+                        "400": {"description": "Registrering er allerede behandlet"},
+                        "401": {"description": "Ikke autoriseret"},
+                        "404": {"description": "Registrering ikke fundet"},
+                    },
+                }
+            },
+            "/admin/registrations/{registration_id}/reject": {
+                "post": {
+                    "tags": ["Admin"],
+                    "summary": "Afvis registrering med begrundelse",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "registration_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {"notes": {"type": "string"}},
+                                    "required": ["notes"],
+                                },
+                                "example": {"notes": "CVR-nummeret kunne ikke verificeres."},
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {"description": "Registrering afvist"},
+                        "400": {"description": "Begrundelse mangler eller registrering allerede behandlet"},
+                        "401": {"description": "Ikke autoriseret"},
+                        "404": {"description": "Registrering ikke fundet"},
+                    },
+                }
+            },
+            "/admin/stats": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Hent dashboard-statistik",
+                    "security": [{"BearerAuth": []}],
+                    "responses": {
+                        "200": {
+                            "description": "Statistik",
+                            "content": {
+                                "application/json": {
+                                    "example": {
+                                        "pending": 5,
+                                        "approved": 42,
+                                        "rejected": 3,
+                                        "total": 50,
+                                    }
+                                }
+                            },
+                        },
+                        "401": {"description": "Ikke autoriseret"},
+                    },
+                }
+            },
+            "/admin/registrations/{registration_id}/notes": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Hent noter for en registrering",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "registration_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {"description": "Liste af noter"},
+                        "401": {"description": "Ikke autoriseret"},
+                        "404": {"description": "Registrering ikke fundet"},
+                    },
+                },
+                "post": {
+                    "tags": ["Admin"],
+                    "summary": "Tilføj intern note til en registrering",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "registration_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {"content": {"type": "string"}},
+                                    "required": ["content"],
+                                },
+                                "example": {"content": "Kontaktet virksomheden pr. telefon."},
+                            }
+                        },
+                    },
+                    "responses": {
+                        "201": {"description": "Note oprettet"},
+                        "400": {"description": "Indhold mangler"},
+                        "401": {"description": "Ikke autoriseret"},
+                        "404": {"description": "Registrering ikke fundet"},
+                    },
+                },
+            },
+            "/admin/sessions": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Hent alle aktive sessions",
+                    "security": [{"BearerAuth": []}],
+                    "responses": {
+                        "200": {"description": "Liste af sessions"},
+                        "401": {"description": "Ikke autoriseret"},
+                    },
+                }
+            },
+            "/admin/sessions/{session_id}": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Hent detaljer for en session",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "session_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {"description": "Sessionsdetaljer"},
+                        "401": {"description": "Ikke autoriseret"},
+                        "404": {"description": "Session ikke fundet"},
+                    },
+                }
+            },
+            "/admin/activity": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Hent aktivitetslog",
+                    "security": [{"BearerAuth": []}],
+                    "responses": {
+                        "200": {"description": "Liste af aktivitetshændelser"},
+                        "401": {"description": "Ikke autoriseret"},
+                    },
+                }
+            },
+            "/admin/documents/{doc_id}": {
+                "get": {
+                    "tags": ["Admin"],
+                    "summary": "Download dokument efter ID",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "doc_id",
+                            "in": "path",
+                            "required": True,
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {"description": "Filindhold (binær)"},
+                        "400": {"description": "Ugyldigt dokument-id"},
+                        "401": {"description": "Ikke autoriseret"},
+                        "404": {"description": "Dokument ikke fundet"},
                     },
                 }
             },
