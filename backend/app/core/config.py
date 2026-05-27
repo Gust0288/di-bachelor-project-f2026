@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     )
     cvr_api_key: str = Field(default="", alias="CVR_API_KEY")
     cvr_contact_email: str = Field(default="di-portal@di.dk", alias="CVR_CONTACT_EMAIL")
+    virkdata_api_key: str = Field(default="", alias="VIRKDATA_API_KEY")
     jwt_secret: str = Field(alias="JWT_SECRET")
 
     smtp_host: str = Field(default="smtp.gmail.com", alias="SMTP_HOST")

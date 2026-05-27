@@ -7,12 +7,13 @@ from app.core.config import get_settings
 
 logger = logging.getLogger(__name__)
 
+VIRKDATA_BASE_URL = "https://virkdata.dk/api/"
 CVR_BASE_URL = "https://cvrapi.dk/api"
 USER_AGENT = f"DI - Indmeldelsesportal - {get_settings().cvr_contact_email}"
 
 
 def lookup_company(search: str, search_type: str = "vat") -> dict:
-    """search_type: 'vat' | 'name' | 'produ' | 'phone'"""
+    """search_type: 'vat' | 'name' | 'produ' | 'phone' (only used for cvrapi.dk path)"""
     if get_settings().cvr_mock:
         mock_cvr = (
             search
@@ -30,6 +31,12 @@ def lookup_company(search: str, search_type: str = "vat") -> dict:
             "branchetekst": "Computerprogrammering",
         }
 
+    if get_settings().virkdata_api_key:
+        return _lookup_virkdata(search)
+    return _lookup_cvrapi(search, search_type)
+
+
+def _lookup_cvrapi(search: str, search_type: str) -> dict:
     params = {"country": "dk", search_type: search}
     api_key = get_settings().cvr_api_key
     if api_key:
@@ -44,13 +51,39 @@ def lookup_company(search: str, search_type: str = "vat") -> dict:
         )
 
     logger.warning(
-        "CVR response status=%s body=%s", response.status_code, response.text[:500]
+        "cvrapi response status=%s body=%s", response.status_code, response.text[:500]
     )
     data = response.json()
 
     if "error" in data:
         raise ValueError(data["error"])
 
+    return _map_response(data)
+
+
+def _lookup_virkdata(search: str) -> dict:
+    with httpx.Client() as client:
+        response = client.get(
+            VIRKDATA_BASE_URL,
+            params={"search": search, "country": "dk"},
+            headers={"Authorization": get_settings().virkdata_api_key},
+            timeout=10.0,
+        )
+
+    logger.warning(
+        "virkdata response status=%s body=%s", response.status_code, response.text[:500]
+    )
+    data = response.json()
+
+    if "error_code" in data:
+        if data["error_code"] == 3002:
+            raise ValueError("NOT_FOUND")
+        raise ValueError(data.get("response", "upstream_error"))
+
+    return _map_response(data)
+
+
+def _map_response(data: dict) -> dict:
     return {
         "navn": data.get("name"),
         "cvr": data.get("vat"),

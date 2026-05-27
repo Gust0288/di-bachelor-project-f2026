@@ -190,6 +190,7 @@ class TestCvrService:
             mock_settings.return_value.cvr_mock = False
             mock_settings.return_value.cvr_api_key = ""
             mock_settings.return_value.cvr_contact_email = "test@di.dk"
+            mock_settings.return_value.virkdata_api_key = ""
             mock_client_cls.return_value.__enter__.return_value.get.return_value = (
                 mock_response
             )
@@ -211,6 +212,7 @@ class TestCvrService:
             mock_settings.return_value.cvr_mock = False
             mock_settings.return_value.cvr_api_key = ""
             mock_settings.return_value.cvr_contact_email = "test@di.dk"
+            mock_settings.return_value.virkdata_api_key = ""
             mock_client_cls.return_value.__enter__.return_value.get.return_value = (
                 mock_response
             )
@@ -226,10 +228,84 @@ class TestCvrService:
             mock_settings.return_value.cvr_mock = False
             mock_settings.return_value.cvr_api_key = ""
             mock_settings.return_value.cvr_contact_email = "test@di.dk"
+            mock_settings.return_value.virkdata_api_key = ""
             mock_client_cls.return_value.__enter__.return_value.get.side_effect = (
                 httpx_lib.TimeoutException("timeout")
             )
             with pytest.raises(httpx_lib.TimeoutException):
+                lookup_company("12345678", "vat")
+
+    def test_virkdata_success(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = ""
+        mock_response.json.return_value = {
+            "name": "Virkdata Firma A/S",
+            "vat": "11223344",
+            "companydesc": "Aktieselskab",
+            "address": "Virkdatavej 5",
+            "zipcode": "2100",
+            "city": "København Ø",
+            "industrycode": "620100",
+            "industrydesc": "Computerprogrammering",
+        }
+
+        with patch("app.services.cvr.get_settings") as mock_settings, patch(
+            "httpx.Client"
+        ) as mock_client_cls:
+            mock_settings.return_value.cvr_mock = False
+            mock_settings.return_value.virkdata_api_key = "test-virkdata-key"
+            mock_get = mock_client_cls.return_value.__enter__.return_value.get
+            mock_get.return_value = mock_response
+            result = lookup_company("11223344", "vat")
+
+        call_kwargs = mock_get.call_args
+        assert call_kwargs[0][0] == "https://virkdata.dk/api/"
+        assert call_kwargs[1]["headers"]["Authorization"] == "test-virkdata-key"
+        assert call_kwargs[1]["params"]["search"] == "11223344"
+        assert result["navn"] == "Virkdata Firma A/S"
+        assert result["by"] == "København Ø"
+
+    def test_virkdata_not_found(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = ""
+        mock_response.json.return_value = {
+            "error_code": 3002,
+            "response": "no_results",
+            "message": "No results found",
+        }
+
+        with patch("app.services.cvr.get_settings") as mock_settings, patch(
+            "httpx.Client"
+        ) as mock_client_cls:
+            mock_settings.return_value.cvr_mock = False
+            mock_settings.return_value.virkdata_api_key = "test-virkdata-key"
+            mock_client_cls.return_value.__enter__.return_value.get.return_value = (
+                mock_response
+            )
+            with pytest.raises(ValueError, match="NOT_FOUND"):
+                lookup_company("00000000", "vat")
+
+    def test_virkdata_api_error(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.text = ""
+        mock_response.json.return_value = {
+            "error_code": 1001,
+            "response": "invalid_api_key",
+            "message": "Invalid API key",
+        }
+
+        with patch("app.services.cvr.get_settings") as mock_settings, patch(
+            "httpx.Client"
+        ) as mock_client_cls:
+            mock_settings.return_value.cvr_mock = False
+            mock_settings.return_value.virkdata_api_key = "bad-key"
+            mock_client_cls.return_value.__enter__.return_value.get.return_value = (
+                mock_response
+            )
+            with pytest.raises(ValueError, match="invalid_api_key"):
                 lookup_company("12345678", "vat")
 
 
