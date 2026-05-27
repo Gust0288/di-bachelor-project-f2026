@@ -419,6 +419,18 @@ def confirm_email_verification(session_id: str, code: str) -> None:
 async def send_global_email_verification(email: str, step_data_dict: dict) -> str:
     Step1Data(**step_data_dict)
 
+    cvr_number = step_data_dict.get("cvr_number")
+    if cvr_number:
+        with get_db_cursor(dict_rows=True) as (_, cur):
+            cur.execute(
+                "SELECT id FROM registrations WHERE cvr_number = %s",
+                (cvr_number,),
+            )
+            if cur.fetchone():
+                raise ValueError(
+                    "En virksomhed med dette CVR-nummer er allerede registreret hos DI"
+                )
+
     code = "".join(random.choices(string.digits, k=6))
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
 

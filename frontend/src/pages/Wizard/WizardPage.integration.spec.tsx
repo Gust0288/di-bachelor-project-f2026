@@ -300,7 +300,7 @@ describe('WizardPage integration', () => {
     await user.click(screen.getByRole('button', { name: 'Fortsæt' }))
 
     await waitFor(() => {
-      expect(scrollIntoView).toHaveBeenCalledTimes(firstCallCount + 1)
+      expect(scrollIntoView).toHaveBeenCalledTimes(firstCallCount + 2)
     })
   })
 

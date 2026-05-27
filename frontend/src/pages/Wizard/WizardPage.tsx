@@ -340,6 +340,7 @@ export default function WizardPage() {
 
   const centerRef = useRef<HTMLElement>(null)
   const summaryRef = useRef<HTMLElement>(null)
+  const validationBannerRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!validationTarget) return
 
@@ -363,6 +364,13 @@ export default function WizardPage() {
       }
     }, 0)
   }, [currentStepIndex, validationRequestId, validationTarget])
+
+  useEffect(() => {
+    if (!validationMessage) return
+    window.setTimeout(() => {
+      validationBannerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }, 0)
+  }, [validationRequestId, validationMessage])
 
   useEffect(() => {
     if (typeof centerRef.current?.scrollTo === 'function') {
@@ -1573,9 +1581,11 @@ export default function WizardPage() {
       <main className={styles.postWizardPage}>
         <Form className={`${styles.form} ${styles.postWizardForm}`} noValidate onSubmit={handleSubmit}>
           {validationMessage ? (
-            <InlineAlert tone="danger" title="Der mangler oplysninger">
-              {validationMessage}
-            </InlineAlert>
+            <div ref={validationBannerRef}>
+              <InlineAlert tone="danger" title="Der mangler oplysninger">
+                {validationMessage}
+              </InlineAlert>
+            </div>
           ) : null}
 
           {renderCurrentStep()}
@@ -1640,9 +1650,11 @@ export default function WizardPage() {
         />
 
         {validationMessage ? (
-          <InlineAlert tone="danger" title="Der mangler oplysninger">
-            {validationMessage}
-          </InlineAlert>
+          <div ref={validationBannerRef}>
+            <InlineAlert tone="danger" title="Der mangler oplysninger">
+              {validationMessage}
+            </InlineAlert>
+          </div>
         ) : null}
 
         {renderCurrentStep()}
