@@ -191,18 +191,6 @@ make test-coverage      # Frontend med coverage-rapport
 
 *\* Backend-integrationstests kræver en kørende PostgreSQL. Start kun databasen med `docker compose up db`.*
 
-## Deployment (Render.com)
-
-`render.yaml` er klar til deployment. Tjenester der oprettes:
-
-- **Backend**: Docker-baseret web service
-- **Frontend**: Static site (Vite build)
-- **Database**: Managed PostgreSQL (free tier)
-
-Sæt følgende env vars manuelt i Render-dashboardet efter oprettelse:
-`SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`, `CVR_API_KEY`
-
----
 
 ## Roadmap
 
