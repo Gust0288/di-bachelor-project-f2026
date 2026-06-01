@@ -2,6 +2,7 @@
 Integrationstests for admin panel – routes og services.
 Kræver en kørende PostgreSQL-instans (via docker-compose up db).
 """
+
 from __future__ import annotations
 
 from unittest.mock import patch
@@ -203,7 +204,9 @@ class TestAdminRegistrations:
         resp = client.get("/admin/registrations?status=ugyldig", headers=auth_headers)
         assert resp.status_code == 400
 
-    def test_get_returns_correct_data(self, client, auth_headers, pending_registration_id):
+    def test_get_returns_correct_data(
+        self, client, auth_headers, pending_registration_id
+    ):
         resp = client.get(
             f"/admin/registrations/{pending_registration_id}", headers=auth_headers
         )
@@ -398,7 +401,9 @@ class TestAdminNotes:
 
 
 class TestAdminStats:
-    def test_stats_returns_all_keys(self, client, auth_headers, pending_registration_id):
+    def test_stats_returns_all_keys(
+        self, client, auth_headers, pending_registration_id
+    ):
         resp = client.get("/admin/stats", headers=auth_headers)
         assert resp.status_code == 200
         data = resp.get_json()

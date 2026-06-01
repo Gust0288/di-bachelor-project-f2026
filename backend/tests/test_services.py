@@ -562,9 +562,9 @@ class TestEmailRejection:
         from app.services.email_rejection import send_rejection_email
 
         mock_ctx = self._make_async_http_mock()
-        with patch(
-            "app.services.email_rejection.get_settings"
-        ) as mock_settings, patch("httpx.AsyncClient", return_value=mock_ctx):
+        with patch("app.services.email_rejection.get_settings") as mock_settings, patch(
+            "httpx.AsyncClient", return_value=mock_ctx
+        ):
             mock_settings.return_value.resend_api_key = "test-key"
             mock_settings.return_value.email_from = "noreply@di.dk"
             mock_settings.return_value.smtp_user = ""
@@ -582,9 +582,9 @@ class TestEmailRejection:
     def test_rejection_email_via_smtp(self):
         from app.services.email_rejection import send_rejection_email
 
-        with patch(
-            "app.services.email_rejection.get_settings"
-        ) as mock_settings, patch("aiosmtplib.send", new_callable=AsyncMock):
+        with patch("app.services.email_rejection.get_settings") as mock_settings, patch(
+            "aiosmtplib.send", new_callable=AsyncMock
+        ):
             mock_settings.return_value.resend_api_key = ""
             mock_settings.return_value.smtp_user = "user@di.dk"
             mock_settings.return_value.smtp_password = "hemmeligt"
@@ -647,9 +647,9 @@ class TestEmailInvoice:
         from app.services.email_invoice import send_invoice_email
 
         mock_ctx = self._make_async_http_mock()
-        with patch(
-            "app.services.email_invoice.get_settings"
-        ) as mock_settings, patch("httpx.AsyncClient", return_value=mock_ctx):
+        with patch("app.services.email_invoice.get_settings") as mock_settings, patch(
+            "httpx.AsyncClient", return_value=mock_ctx
+        ):
             mock_settings.return_value.resend_api_key = "test-key"
             mock_settings.return_value.email_from = "noreply@di.dk"
             mock_settings.return_value.smtp_user = ""
@@ -671,9 +671,9 @@ class TestEmailInvoice:
     def test_invoice_email_via_smtp(self):
         from app.services.email_invoice import send_invoice_email
 
-        with patch(
-            "app.services.email_invoice.get_settings"
-        ) as mock_settings, patch("aiosmtplib.send", new_callable=AsyncMock):
+        with patch("app.services.email_invoice.get_settings") as mock_settings, patch(
+            "aiosmtplib.send", new_callable=AsyncMock
+        ):
             mock_settings.return_value.resend_api_key = ""
             mock_settings.return_value.smtp_user = "user@di.dk"
             mock_settings.return_value.smtp_password = "hemmeligt"
