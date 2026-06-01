@@ -191,18 +191,6 @@ make test-coverage      # Frontend med coverage-rapport
 
 *\* Backend-integrationstests kræver en kørende PostgreSQL. Start kun databasen med `docker compose up db`.*
 
-### Coverage-rapporter
-
-**Backend** – rapport genereres automatisk med `make test-backend`:
-
-```bash
-open backend/htmlcov/index.html
-```
-
-Begge åbnes som statiske HTML-filer direkte i browseren (ingen server nødvendig).
-
----
-
 ## Deployment (Render.com)
 
 `render.yaml` er klar til deployment. Tjenester der oprettes:

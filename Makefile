@@ -73,7 +73,7 @@ test-coverage:
 test-all: test-frontend test-backend
 
 test-backend:
-	"$(PYTHON)" -m pytest backend/tests/test_wizard_flow.py -v
+	cd backend && "../$(PYTHON)" -m pytest -v
 
 test-db:
 	"$(PYTHON)" -m pytest backend/tests/test_wizard_flow.py::TestDatabasePersistence -v

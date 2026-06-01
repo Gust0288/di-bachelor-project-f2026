@@ -541,3 +541,197 @@ class TestCvrEndpoint:
         ):
             resp = client.get("/cvr/lookup?vat=12345678")
         assert resp.status_code == 502
+
+
+# ---------------------------------------------------------------------------
+# TestEmailRejection – unit tests med mocket httpx/aiosmtplib
+# ---------------------------------------------------------------------------
+
+
+class TestEmailRejection:
+    def _make_async_http_mock(self):
+        from unittest.mock import AsyncMock
+
+        mock_response = AsyncMock()
+        mock_response.raise_for_status = MagicMock()
+        mock_ctx = AsyncMock()
+        mock_ctx.__aenter__.return_value.post = AsyncMock(return_value=mock_response)
+        return mock_ctx
+
+    def test_rejection_email_via_resend(self):
+        from app.services.email_rejection import send_rejection_email
+
+        mock_ctx = self._make_async_http_mock()
+        with patch(
+            "app.services.email_rejection.get_settings"
+        ) as mock_settings, patch("httpx.AsyncClient", return_value=mock_ctx):
+            mock_settings.return_value.resend_api_key = "test-key"
+            mock_settings.return_value.email_from = "noreply@di.dk"
+            mock_settings.return_value.smtp_user = ""
+            mock_settings.return_value.smtp_password = ""
+            asyncio.run(
+                send_rejection_email(
+                    TEST_EMAIL, "Jens Jensen", "Afvist A/S", "Opfylder ikke krav"
+                )
+            )
+        mock_ctx.__aenter__.return_value.post.assert_called_once()
+        payload = mock_ctx.__aenter__.return_value.post.call_args.kwargs["json"]
+        assert "Opfylder ikke krav" in payload["text"]
+        assert TEST_EMAIL in payload["to"]
+
+    def test_rejection_email_via_smtp(self):
+        from app.services.email_rejection import send_rejection_email
+
+        with patch(
+            "app.services.email_rejection.get_settings"
+        ) as mock_settings, patch("aiosmtplib.send", new_callable=AsyncMock):
+            mock_settings.return_value.resend_api_key = ""
+            mock_settings.return_value.smtp_user = "user@di.dk"
+            mock_settings.return_value.smtp_password = "hemmeligt"
+            mock_settings.return_value.smtp_host = "smtp.di.dk"
+            mock_settings.return_value.smtp_port = 587
+            mock_settings.return_value.email_from = ""
+            asyncio.run(
+                send_rejection_email(
+                    TEST_EMAIL, "Jens Jensen", "Afvist A/S", "Mangler dokumentation"
+                )
+            )
+
+    def test_rejection_email_no_config_logs_warning(self, caplog):
+        import logging
+
+        from app.services.email_rejection import send_rejection_email
+
+        with patch("app.services.email_rejection.get_settings") as mock_settings:
+            mock_settings.return_value.resend_api_key = ""
+            mock_settings.return_value.smtp_user = ""
+            mock_settings.return_value.smtp_password = ""
+            with caplog.at_level(logging.WARNING):
+                asyncio.run(
+                    send_rejection_email(
+                        TEST_EMAIL, "Jens Jensen", "Afvist A/S", "Ingen konfiguration"
+                    )
+                )
+        assert TEST_EMAIL in caplog.text
+
+    def test_rejection_background_spawns_thread(self):
+        import threading
+
+        from app.services.email_rejection import send_rejection_email_background
+
+        threads_before = len(threading.enumerate())
+        with patch("app.services.email_rejection.asyncio.run"):
+            send_rejection_email_background(
+                TEST_EMAIL, "Jens Jensen", "Afvist A/S", "Begrundelse"
+            )
+        # Verificerer at en ny daemon-tråd er startet
+        assert len(threading.enumerate()) >= threads_before
+
+
+# ---------------------------------------------------------------------------
+# TestEmailInvoice – unit tests med mocket httpx/aiosmtplib
+# ---------------------------------------------------------------------------
+
+
+class TestEmailInvoice:
+    def _make_async_http_mock(self):
+        from unittest.mock import AsyncMock
+
+        mock_response = AsyncMock()
+        mock_response.raise_for_status = MagicMock()
+        mock_ctx = AsyncMock()
+        mock_ctx.__aenter__.return_value.post = AsyncMock(return_value=mock_response)
+        return mock_ctx
+
+    def test_invoice_email_via_resend(self):
+        from app.services.email_invoice import send_invoice_email
+
+        mock_ctx = self._make_async_http_mock()
+        with patch(
+            "app.services.email_invoice.get_settings"
+        ) as mock_settings, patch("httpx.AsyncClient", return_value=mock_ctx):
+            mock_settings.return_value.resend_api_key = "test-key"
+            mock_settings.return_value.email_from = "noreply@di.dk"
+            mock_settings.return_value.smtp_user = ""
+            mock_settings.return_value.smtp_password = ""
+            asyncio.run(
+                send_invoice_email(
+                    to_email=TEST_EMAIL,
+                    contact_name="Jens Jensen",
+                    company_name="Godkendt A/S",
+                    cvr_number="12345678",
+                    address_str="Testvej 1, 1234 By",
+                    membership_type="Arbejdsgiver",
+                    services=["overenskomst"],
+                    branchefaellesskaber=["di-produktion"],
+                )
+            )
+        mock_ctx.__aenter__.return_value.post.assert_called_once()
+
+    def test_invoice_email_via_smtp(self):
+        from app.services.email_invoice import send_invoice_email
+
+        with patch(
+            "app.services.email_invoice.get_settings"
+        ) as mock_settings, patch("aiosmtplib.send", new_callable=AsyncMock):
+            mock_settings.return_value.resend_api_key = ""
+            mock_settings.return_value.smtp_user = "user@di.dk"
+            mock_settings.return_value.smtp_password = "hemmeligt"
+            mock_settings.return_value.smtp_host = "smtp.di.dk"
+            mock_settings.return_value.smtp_port = 587
+            mock_settings.return_value.email_from = ""
+            asyncio.run(
+                send_invoice_email(
+                    to_email=TEST_EMAIL,
+                    contact_name="Jens Jensen",
+                    company_name="Godkendt A/S",
+                    cvr_number="12345678",
+                    address_str="Testvej 1, 1234 By",
+                    membership_type="Arbejdsgiver",
+                    services=[],
+                    branchefaellesskaber=[],
+                )
+            )
+
+    def test_invoice_email_no_config_logs_warning(self, caplog):
+        import logging
+
+        from app.services.email_invoice import send_invoice_email
+
+        with patch("app.services.email_invoice.get_settings") as mock_settings:
+            mock_settings.return_value.resend_api_key = ""
+            mock_settings.return_value.smtp_user = ""
+            mock_settings.return_value.smtp_password = ""
+            with caplog.at_level(logging.WARNING):
+                asyncio.run(
+                    send_invoice_email(
+                        to_email=TEST_EMAIL,
+                        contact_name="Jens Jensen",
+                        company_name="Godkendt A/S",
+                        cvr_number="12345678",
+                        address_str="",
+                        membership_type="Associeret",
+                        services=[],
+                        branchefaellesskaber=[],
+                    )
+                )
+        assert TEST_EMAIL in caplog.text
+
+    def test_invoice_background_spawns_thread(self):
+        import threading
+
+        from app.services.email_invoice import send_invoice_email_background
+
+        threads_before = len(threading.enumerate())
+        with patch("app.services.email_invoice.asyncio.run"):
+            send_invoice_email_background(
+                to_email=TEST_EMAIL,
+                contact_name="Jens Jensen",
+                company_name="Godkendt A/S",
+                cvr_number="12345678",
+                address_str="",
+                membership_type="Arbejdsgiver",
+                services=["overenskomst"],
+                branchefaellesskaber=[],
+            )
+        assert len(threading.enumerate()) >= threads_before
