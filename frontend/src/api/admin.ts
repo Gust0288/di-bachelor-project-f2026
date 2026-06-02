@@ -6,7 +6,7 @@ function adminHeaders(method?: string): HeadersInit {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
   }
-  if (method === 'POST') {
+  if (method === 'POST' || method === 'PATCH') {
     headers['Content-Type'] = 'application/json'
   }
   return headers
@@ -85,6 +85,25 @@ export function rejectRegistration(
   })
 }
 
+export type RegistrationUpdate = {
+  company_name?: string
+  contact_name?: string
+  contact_email?: string
+  contact_phone?: string | null
+  industry_code?: string | null
+  employee_count?: number | null
+  website?: string | null
+  address?: { street: string; zip: string; city: string } | null
+}
+
+export function updateRegistration(id: string, data: RegistrationUpdate): Promise<RegistrationDetail> {
+  return apiFetch<RegistrationDetail>(`/admin/registrations/${id}`, {
+    method: 'PATCH',
+    headers: adminHeaders('PATCH'),
+    body: JSON.stringify(data),
+  })
+}
+
 export type AdminStats = {
   total: number
   pending: number
@@ -100,7 +119,7 @@ export type RegistrationNote = {
 }
 
 export type ActivityEntry = {
-  type: 'approval' | 'rejection' | 'note' | 'application_started' | 'application_submitted'
+  type: 'approval' | 'rejection' | 'note' | 'edit' | 'application_started' | 'application_submitted'
   registration_id: string
   company_name: string
   admin_name: string | null

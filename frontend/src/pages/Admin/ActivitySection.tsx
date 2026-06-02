@@ -12,7 +12,7 @@ const CATEGORY_FILTERS = [
 ] as const
 
 const USER_TYPES = ['application_started', 'application_submitted'] as const
-const ADMIN_TYPES = ['approval', 'rejection', 'note'] as const
+const ADMIN_TYPES = ['approval', 'rejection', 'note', 'edit'] as const
 
 const TYPE_FILTERS_USER = [
   { value: 'application_started', label: 'Startet ansøgning' },
@@ -23,6 +23,7 @@ const TYPE_FILTERS_ADMIN = [
   { value: 'approval', label: 'Godkendelser' },
   { value: 'rejection', label: 'Afvisninger' },
   { value: 'note', label: 'Noter' },
+  { value: 'edit', label: 'Redigeringer' },
 ] as const
 
 const dateFormatter = new Intl.DateTimeFormat('da-DK', { dateStyle: 'long' })
@@ -222,12 +223,20 @@ export default function ActivitySection() {
                       {entry.type === 'application_submitted' && (
                         <> indsendte ansøgning for <strong>{entry.company_name}</strong></>
                       )}
+                      {entry.type === 'edit' && (
+                        <> redigerede oplysninger for <strong>{entry.company_name}</strong></>
+                      )}
                       {(entry.type === 'approval' || entry.type === 'rejection') && (
                         <span
                           className={styles.entry__badge}
                           data-type={entry.type}
                         >
                           {entry.type === 'approval' ? 'Godkendt' : 'Afvist'}
+                        </span>
+                      )}
+                      {entry.type === 'edit' && (
+                        <span className={styles.entry__badge} data-type="edit">
+                          Redigeret
                         </span>
                       )}
                       {(entry.type === 'application_started' || entry.type === 'application_submitted') && (
@@ -242,6 +251,11 @@ export default function ActivitySection() {
                         data-type={entry.type}
                       >
                         {entry.content}
+                      </div>
+                    )}
+                    {entry.content && entry.type === 'edit' && (
+                      <div className={styles.entry__note} data-type="edit">
+                        Ændrede felter: {entry.content}
                       </div>
                     )}
                     {entry.content && (entry.type === 'application_started' || entry.type === 'application_submitted') && (

@@ -49,6 +49,21 @@ def get_documents(registration_id: str):
     return jsonify(docs)
 
 
+@admin_bp.patch("/registrations/<registration_id>")
+@require_admin
+def update_registration(registration_id: str):
+    if not _valid_uuid(registration_id):
+        return jsonify({"error": "Ugyldig registration_id"}), 404
+    data = request.get_json(silent=True) or {}
+    try:
+        result = admin_service.update_registration(registration_id, data, g.admin_id)
+    except LookupError as exc:
+        return jsonify({"error": str(exc)}), 404
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    return jsonify(result)
+
+
 @admin_bp.post("/registrations/<registration_id>/approve")
 @require_admin
 def approve_registration(registration_id: str):

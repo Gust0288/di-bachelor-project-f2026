@@ -168,6 +168,7 @@
   &[data-type='approval'] { background: var(--color-success); }
   &[data-type='rejection'] { background: var(--color-invalid); }
   &[data-type='note'] { background: var(--color-primary); }
+  &[data-type='edit'] { background: #854f0b; }
   &[data-type='application_started'] { background: var(--color-dark-100); }
   &[data-type='application_submitted'] { background: #185fa5; }
 }
@@ -229,6 +230,11 @@
     background: #dbeafe;
     color: #185fa5;
   }
+
+  &[data-type='edit'] {
+    background: #fef3c7;
+    color: #854f0b;
+  }
 }
 
 .entry__note {
@@ -249,6 +255,11 @@
 
   &[data-type='user'] {
     border-left: 2px solid #185fa5;
+    color: var(--color-dark-200);
+  }
+
+  &[data-type='edit'] {
+    border-left: 2px solid #854f0b;
     color: var(--color-dark-200);
   }
 }

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from app.core.database import get_db_cursor
 
 
@@ -210,6 +212,97 @@ def reject_registration(registration_id: str, admin_id: str, notes: str) -> dict
     return _serialize_row(dict(updated))
 
 
+_FIELD_LABELS: dict[str, str] = {
+    "company_name": "Virksomhedsnavn",
+    "contact_name": "Kontaktnavn",
+    "contact_email": "E-mail",
+    "contact_phone": "Telefon",
+    "industry_code": "Branchekode",
+    "employee_count": "Antal ansatte",
+    "website": "Hjemmeside",
+    "address": "Adresse",
+}
+
+
+def update_registration(
+    registration_id: str, data: dict, admin_id: str | None = None
+) -> dict:
+    ALLOWED_FIELDS = set(_FIELD_LABELS.keys())
+
+    updates = {k: v for k, v in data.items() if k in ALLOWED_FIELDS}
+    if not updates:
+        raise ValueError("Ingen felter at opdatere")
+
+    with get_db_cursor(dict_rows=True) as (_, cursor):
+        cursor.execute(
+            """
+            SELECT status, company_name, contact_name, contact_email,
+                   contact_phone, industry_code, employee_count, website, address
+            FROM registrations WHERE id = %s
+            """,
+            (registration_id,),
+        )
+        current = cursor.fetchone()
+        if current is None:
+            raise LookupError(f"Registrering ikke fundet: {registration_id}")
+        if current["status"] != "pending":
+            raise ValueError("Kan kun redigere ansøgninger med status 'afventer'")
+
+        def _values_differ(field: str, new_val) -> bool:
+            old_val = current[field]
+            if field == "address":
+                old_norm = {k: (v or "").strip() for k, v in (old_val or {}).items()}
+                new_norm = {k: (v or "").strip() for k, v in (new_val or {}).items()}
+                return old_norm != new_norm
+            if field == "employee_count":
+                old_int = old_val if old_val is not None else None
+                new_int = int(new_val) if new_val is not None else None
+                return old_int != new_int
+            return (old_val or "").strip() != (new_val or "").strip()
+
+        actually_changed = [f for f, v in updates.items() if _values_differ(f, v)]
+
+        set_clauses = []
+        params: list = []
+        for field, value in updates.items():
+            if field == "address":
+                set_clauses.append("address = %s::jsonb")
+                params.append(json.dumps(value))
+            else:
+                set_clauses.append(f"{field} = %s")
+                params.append(value)
+
+        set_clauses.append("updated_at = NOW()")
+        params.append(registration_id)
+
+        cursor.execute(
+            f"UPDATE registrations SET {', '.join(set_clauses)} WHERE id = %s",
+            params,
+        )
+
+        if actually_changed:
+            admin_name = "Admin"
+            if admin_id:
+                cursor.execute(
+                    "SELECT full_name FROM admins WHERE id = %s", (admin_id,)
+                )
+                admin_row = cursor.fetchone()
+                if admin_row:
+                    admin_name = admin_row["full_name"]
+
+            changed_labels = [_FIELD_LABELS[f] for f in actually_changed]
+            cursor.execute(
+                """
+                INSERT INTO registration_edits
+                    (registration_id, admin_id, admin_name, changed_fields)
+                VALUES (%s, %s, %s, %s::jsonb)
+                """,
+                (registration_id, admin_id, admin_name, json.dumps(changed_labels)),
+            )
+
+    return get_registration(registration_id)
+
+
 def get_stats() -> dict:
     with get_db_cursor(dict_rows=True) as (_, cursor):
         cursor.execute("""
@@ -343,6 +436,18 @@ def get_activity(limit: int = 200) -> list[dict]:
             n.created_at
         FROM registration_notes n
         JOIN registrations r ON n.registration_id = r.id
+
+        UNION ALL
+
+        SELECT
+            'edit'              AS type,
+            e.registration_id,
+            r.company_name,
+            e.admin_name,
+            array_to_string(ARRAY(SELECT jsonb_array_elements_text(e.changed_fields)), ', ') AS content,
+            e.created_at
+        FROM registration_edits e
+        JOIN registrations r ON e.registration_id = r.id
 
         UNION ALL
 
