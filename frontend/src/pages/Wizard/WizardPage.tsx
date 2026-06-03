@@ -223,15 +223,14 @@ export default function WizardPage() {
     error: sessionError,
   } = useWizardSession()
 
-  const [showResumeSplash, setShowResumeSplash] = useState(false)
+  const [splashDismissed, setSplashDismissed] = useState(false)
+  const showResumeSplash = !sessionLoading && Boolean(resumedAt) && !splashDismissed
   useEffect(() => {
     if (!sessionLoading && resumedAt) {
-      setShowResumeSplash(true)
-      const t = setTimeout(() => setShowResumeSplash(false), 5000)
+      const t = setTimeout(() => setSplashDismissed(true), 5000)
       return () => clearTimeout(t)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionLoading])
+  }, [sessionLoading, resumedAt])
 
   useEffect(() => {
     if (sessionLoading || currentStep <= 1) return
