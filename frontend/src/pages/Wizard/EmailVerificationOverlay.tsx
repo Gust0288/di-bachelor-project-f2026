@@ -28,7 +28,23 @@ export default function EmailVerificationOverlay({
   const [showSuccess, setShowSuccess] = useState(false)
 
   const onVerifiedRef = useRef(onVerified)
+  const wasOpenRef = useRef(false)
   useEffect(() => { onVerifiedRef.current = onVerified })
+
+  useEffect(() => {
+    if (isOpen) {
+      wasOpenRef.current = true
+      return
+    }
+    if (!wasOpenRef.current) return
+    wasOpenRef.current = false
+    setCode('')
+    setError(null)
+    setIsConfirming(false)
+    setIsResending(false)
+    setResendMessage(null)
+    setShowSuccess(false)
+  }, [isOpen])
 
   useEffect(() => {
     if (!showSuccess) return

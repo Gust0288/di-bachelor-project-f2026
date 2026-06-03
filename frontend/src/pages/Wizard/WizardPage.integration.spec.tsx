@@ -241,6 +241,45 @@ describe('WizardPage integration', () => {
     jest.useRealTimers()
   })
 
+  it('springer email-bekræftelse over når en ny session går tilbage til step 1 med samme email', async () => {
+    jest.useFakeTimers()
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+
+    renderNewWizard()
+    await waitForWizardStart()
+    await fillStepOne(user)
+
+    await user.click(screen.getByRole('button', { name: 'Fortsæt' }))
+    expect(await screen.findByRole('heading', { name: 'Bekræft din e-mail' })).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Tal 1 af 6'), '123456')
+    expect(await screen.findByText('E-mail bekræftet')).toBeInTheDocument()
+
+    await act(async () => {
+      jest.advanceTimersByTime(5000)
+    })
+
+    expect(await screen.findByRole('heading', { name: 'Hvad laver din virksomhed?' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Tilbage' }))
+    expect(await screen.findByRole('heading', { name: 'Indmeldelse i Dansk Industri' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Fortsæt' }))
+
+    await waitFor(() => {
+      expect(mockedSaveStep).toHaveBeenCalledWith(
+        'new-session',
+        1,
+        expect.objectContaining({ contact_email: 'test@example.com' }),
+      )
+    })
+    expect(mockedSendEmailVerificationGlobal).toHaveBeenCalledTimes(1)
+    expect(mockedSendEmailVerification).not.toHaveBeenCalled()
+    expect(screen.queryByText('E-mail bekræftet')).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Hvad laver din virksomhed?' })).toBeInTheDocument()
+    jest.useRealTimers()
+  })
+
   it('bevarer indtastet data når brugeren går frem og tilbage mellem steps', async () => {
     const user = userEvent.setup()
 

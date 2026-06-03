@@ -137,13 +137,18 @@ export function useWizardSession(): UseWizardSessionReturn {
     // Ny session: bekræft og opret session
     const email = pendingEmailRef.current
     if (!email) throw new Error('Ingen email at bekræfte')
+    const confirmedStepData = pendingStepDataRef.current
     const result = await confirmEmailVerificationGlobal(email, code)
+    pendingEmailRef.current = null
+    pendingStepDataRef.current = null
     setState((s) => ({
       ...s,
       sessionId: result.session_id,
       currentStep: result.current_step,
       emailVerified: true,
-      stepData: { ...s.stepData },
+      stepData: confirmedStepData
+        ? { ...s.stepData, '1': confirmedStepData }
+        : { ...s.stepData },
     }))
   }
 
