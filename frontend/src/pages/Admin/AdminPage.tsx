@@ -7,9 +7,16 @@ import ActivitySection from './ActivitySection'
 import SessionsSection from './SessionsSection'
 import { getStats, type AdminStats } from '../../api/admin'
 
+const VALID_SECTIONS: AdminSection[] = ['overview', 'pending', 'activity', 'sessions']
+
+function getSectionFromHash(): AdminSection {
+  const hash = window.location.hash.slice(1) as AdminSection
+  return VALID_SECTIONS.includes(hash) ? hash : 'overview'
+}
+
 export default function AdminPage() {
   const navigate = useNavigate()
-  const [activeSection, setActiveSection] = useState<AdminSection>('overview')
+  const [activeSection, setActiveSection] = useState<AdminSection>(getSectionFromHash)
   const [stats, setStats] = useState<AdminStats>({ total: 0, pending: 0, approved: 0, rejected: 0 })
   const [statsKey, setStatsKey] = useState(0)
 
@@ -30,6 +37,17 @@ export default function AdminPage() {
       })
   }, [statsKey, navigate])
 
+  useEffect(() => {
+    const handleHashChange = () => setActiveSection(getSectionFromHash())
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  function handleSectionChange(section: AdminSection) {
+    window.location.hash = section
+    setActiveSection(section)
+  }
+
   function handleLogout() {
     sessionStorage.removeItem('admin_token')
     navigate('/login')
@@ -42,7 +60,7 @@ export default function AdminPage() {
   return (
     <AdminLayout
       activeSection={activeSection}
-      onSectionChange={setActiveSection}
+      onSectionChange={handleSectionChange}
       pendingCount={stats.pending}
       onLogout={handleLogout}
     >
