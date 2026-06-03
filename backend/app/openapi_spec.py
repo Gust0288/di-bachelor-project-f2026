@@ -1,9 +1,12 @@
+from app import __version__
+
+
 def build_spec() -> dict:
     return {
         "openapi": "3.0.3",
         "info": {
             "title": "DI Indmeldelsesportal API",
-            "version": "1.0",
+            "version": __version__,
             "description": (
                 "Backend API til DI's selvbetjeningswizard. "
                 "Start med POST /registration/session, gem derefter hvert step med "

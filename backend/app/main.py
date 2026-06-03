@@ -9,6 +9,7 @@ from app.api.routes.registration import registration_bp
 from app.core.config import get_settings
 from app.core.database import ping_database
 from app.extensions import limiter
+from app import __version__
 from app.openapi_spec import build_spec
 
 app = Flask(__name__)
@@ -31,7 +32,13 @@ def health():
         database_ok = ping_database()
     except Exception:
         database_ok = False
-    return jsonify({"status": "ok", "database": "ok" if database_ok else "error"})
+    return jsonify(
+        {
+            "status": "ok",
+            "version": __version__,
+            "database": "ok" if database_ok else "error",
+        }
+    )
 
 
 @app.get("/openapi.json")
