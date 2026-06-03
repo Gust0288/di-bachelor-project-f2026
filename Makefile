@@ -15,21 +15,20 @@ help:
 	@echo   make up-build      Start Docker-stack og byg images
 	@echo   make down          Stop Docker-stack
 	@echo   make dev           Start frontend dev-server
-	@echo   make test          Koer alle frontend-tests
 	@echo   make test-frontend Koer frontend-tests
 	@echo   make test-wizard   Koer WizardPage frontend-tests
 	@echo   make test-backend  Koer backend integrationstests
+	@echo   make test-coverage Koer frontend-tests med coverage-rapport
+	@echo   make test-all      Koer alle tests (frontend + backend)
 	@echo   make test-db       Koer DB persistenstests
 	@echo   make venv          Opret venv og vis aktivering
 	@echo   make lint          Koer linters
 	@echo   make format        Formater backend-kode
 	@echo   make typecheck     Koer TypeScript type-check
 	@echo   make db-init       Initialiser databaseskema
-	@echo   make db-migrate    Koer migrationer manuelt (kraver kørende Docker)
+	@echo   make db-migrate    Koer migrationer manuelt (kraever kørende Docker)
 	@echo   make db-reset      Nulstil database (slet volumes + gendan skema)
 	@echo   make build         Byg frontend til produktion
-	@echo   make test-coverage Koer frontend-tests med coverage-rapport
-	@echo   make test-all      Koer alle tests (frontend + backend)
 	@echo   make logs          Følg Docker-logs
 	@echo   make down-v        Stop Docker-stack og slet volumes
 
@@ -59,8 +58,6 @@ dev:
 build:
 	cd frontend && npm run build
 
-test: test-frontend
-
 test-frontend:
 	cd frontend && npm run test:ci
 
@@ -70,7 +67,7 @@ test-wizard:
 test-coverage:
 	cd frontend && npm run test:coverage
 
-test-all: test-frontend test-backend
+test-all: test-frontend test-backend test-db
 
 test-backend:
 	cd backend && "../$(PYTHON)" -m pytest -v

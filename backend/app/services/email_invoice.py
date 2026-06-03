@@ -23,6 +23,25 @@ _SERVICE_LABELS: dict[str, str] = {
     "andet": "Andet",
 }
 
+_DANISH_MONTHS: tuple[str, ...] = (
+    "januar",
+    "februar",
+    "marts",
+    "april",
+    "maj",
+    "juni",
+    "juli",
+    "august",
+    "september",
+    "oktober",
+    "november",
+    "december",
+)
+
+
+def _format_danish_date(value: date) -> str:
+    return f"{value.day}. {_DANISH_MONTHS[value.month - 1]} {value.year}"
+
 
 def _format_services(services: list[str]) -> str:
     if not services:
@@ -151,22 +170,7 @@ async def send_invoice_email(
     branchefaellesskaber: list[str],
 ) -> None:
     settings = get_settings()
-    approval_date = (
-        date.today()
-        .strftime("%-d. %B %Y")
-        .replace("January", "januar")
-        .replace("February", "februar")
-        .replace("March", "marts")
-        .replace("April", "april")
-        .replace("May", "maj")
-        .replace("June", "juni")
-        .replace("July", "juli")
-        .replace("August", "august")
-        .replace("September", "september")
-        .replace("October", "oktober")
-        .replace("November", "november")
-        .replace("December", "december")
-    )
+    approval_date = _format_danish_date(date.today())
 
     branches_section = (
         "\nBRANCHEFÆLLESSKABER\n--------------------\n"
