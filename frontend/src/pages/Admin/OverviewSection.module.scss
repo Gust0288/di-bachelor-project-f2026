@@ -281,7 +281,8 @@
 
   .tableWrapper {
     flex: none;
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: visible;
     height: auto;
   }
 
